@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
-import { FaTrash, FaPlus, FaSave } from 'react-icons/fa';
+import { FaTrash, FaPlus, FaSave, FaDownload } from 'react-icons/fa';
 
 const TimetableManager = () => {
     const [timetable, setTimetable] = useState([]);
@@ -8,7 +8,7 @@ const TimetableManager = () => {
     const [slots, setSlots] = useState([]);
 
     // Days constant
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     const fetchTimetable = async () => {
         try {
@@ -23,6 +23,44 @@ const TimetableManager = () => {
         } catch (err) {
             console.error(err);
         }
+    };
+
+    const handleDownload = () => {
+        if (!timetable || timetable.length === 0) {
+            alert('No timetable data to download');
+            return;
+        }
+
+        const headers = ['Day', 'Start Time', 'End Time', 'Subject', 'Teacher', 'Room'];
+        const rows = [];
+
+        // Sort by day order
+        const sorted = [...timetable].sort((a, b) => days.indexOf(a.day) - days.indexOf(b.day));
+
+        sorted.forEach(dayData => {
+            dayData.slots.forEach(slot => {
+                rows.push([
+                    dayData.day,
+                    slot.time,
+                    slot.endTime || '',
+                    `"${slot.subject}"`,
+                    `"${slot.teacher || ''}"`,
+                    `"${slot.room || ''}"`
+                ]);
+            });
+        });
+
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + headers.join(",") + "\n"
+            + rows.map(r => r.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "full_timetable.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     useEffect(() => {
@@ -75,6 +113,12 @@ const TimetableManager = () => {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold text-white font-orbitron">Manage Timetable</h2>
+                <button
+                    onClick={handleDownload}
+                    className="flex items-center gap-2 bg-neon-blue/20 border border-neon-blue text-neon-blue hover:bg-neon-blue hover:text-black px-4 py-2 transition-colors font-bold text-sm"
+                >
+                    <FaDownload /> Download Valid CSV
+                </button>
             </div>
 
             <div className="flex gap-2 mb-6 overflow-x-auto pb-2">

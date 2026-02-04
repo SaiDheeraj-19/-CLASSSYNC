@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
-import { FaCalendarDay, FaClock, FaChalkboardTeacher, FaDoorOpen } from 'react-icons/fa';
+import { FaCalendarDay, FaClock, FaChalkboardTeacher, FaDoorOpen, FaDownload } from 'react-icons/fa';
 
 const TimetableView = () => {
     const [timetable, setTimetable] = useState([]);
@@ -8,6 +8,44 @@ const TimetableView = () => {
     const [activeDay, setActiveDay] = useState('');
 
     const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    const handleDownload = () => {
+        if (!timetable || timetable.length === 0) {
+            alert('No timetable data to download');
+            return;
+        }
+
+        const headers = ['Day', 'Start Time', 'End Time', 'Subject', 'Teacher', 'Room'];
+        const rows = [];
+
+        // Sort by day order
+        const sorted = [...timetable].sort((a, b) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day));
+
+        sorted.forEach(dayData => {
+            dayData.slots.forEach(slot => {
+                rows.push([
+                    dayData.day,
+                    slot.time,
+                    slot.endTime || '',
+                    `"${slot.subject}"`,
+                    `"${slot.teacher || ''}"`,
+                    `"${slot.room || ''}"`
+                ]);
+            });
+        });
+
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + headers.join(",") + "\n"
+            + rows.map(r => r.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "class_timetable.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     const fetchTimetable = useCallback(async () => {
         try {
@@ -45,9 +83,17 @@ const TimetableView = () => {
 
     return (
         <div>
-            <h2 className="text-3xl font-bold mb-6 text-white font-orbitron flex items-center gap-2">
-                <FaCalendarDay className="text-neon-blue" /> Class Timetable
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-3xl font-bold text-white font-orbitron flex items-center gap-2">
+                    <FaCalendarDay className="text-neon-blue" /> Class Timetable
+                </h2>
+                <button
+                    onClick={handleDownload}
+                    className="flex items-center gap-2 bg-neon-green/20 border border-neon-green text-neon-green hover:bg-neon-green hover:text-black px-4 py-2 transition-colors font-bold text-sm"
+                >
+                    <FaDownload /> Download Schedule
+                </button>
+            </div>
 
             {/* Day Selector */}
             <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">

@@ -143,7 +143,7 @@ router.post('/bulk', [auth, admin], async (req, res) => {
                 return {
                     insertOne: {
                         document: {
-                            student: update.studentId,
+                            student: new mongoose.Types.ObjectId(update.studentId),
                             subject: update.subject,
                             totalClasses: 1,
                             attendedClasses: update.isPresent ? 1 : 0
@@ -159,7 +159,7 @@ router.post('/bulk', [auth, admin], async (req, res) => {
 
         res.json({ message: 'Bulk attendance updated successfully' });
     } catch (err) {
-        console.error(err.message);
+        console.error('Bulk update error:', err);
         res.status(500).send('Server Error');
     }
 });
