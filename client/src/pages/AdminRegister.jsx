@@ -15,6 +15,7 @@ const AdminRegister = () => {
     const { register } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,11 +23,14 @@ const AdminRegister = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
 
         // Simple client-side secret check. In production, this should be server-side.
         // Assuming "cyberadmin2024" as the secret for minimal friction implementation as requested.
         if (formData.secretKey !== 'cyberadmin2024') {
             setError('Invalid Administrator Entry Code');
+            setLoading(false);
             return;
         }
 
@@ -39,6 +43,8 @@ const AdminRegister = () => {
             console.error('Registration Error:', err);
             const msg = err.response?.data?.message || err.message || 'Registration failed';
             setError(msg);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -135,8 +141,12 @@ const AdminRegister = () => {
                             </div>
                         </div>
 
-                        <button type="submit" className="btn-secondary w-full mt-6 group relative overflow-hidden bg-red-500/10 border-red-500 text-red-500 hover:bg-red-500 hover:text-white">
-                            <span className="relative z-10">Authorize Access</span>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={`btn-secondary w-full mt-6 group relative overflow-hidden bg-red-500/10 border-red-500 text-red-500 hover:bg-red-500 hover:text-white ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        >
+                            <span className="relative z-10">{loading ? 'Authorizing...' : 'Authorize Access'}</span>
                         </button>
                     </form>
 

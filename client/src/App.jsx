@@ -10,8 +10,13 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingScreen from './components/shared/LoadingScreen';
 
+import { AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
+import PageTransition from './components/shared/PageTransition';
+
 function App() {
   const { loading } = useAuth();
+  const location = useLocation();
 
   // Show loading screen while checking authentication
   if (loading) {
@@ -19,22 +24,24 @@ function App() {
   }
 
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/admin/register" element={<AdminRegister />} />
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+        <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
+        <Route path="/admin/login" element={<PageTransition><AdminLogin /></PageTransition>} />
+        <Route path="/admin/register" element={<PageTransition><AdminRegister /></PageTransition>} />
 
-      <Route element={<ProtectedRoute allowedRoles={['student']} />}>
-        <Route path="/student/*" element={<StudentDashboard />} />
-      </Route>
+        <Route element={<ProtectedRoute allowedRoles={['student']} />}>
+          <Route path="/student/*" element={<PageTransition><StudentDashboard /></PageTransition>} />
+        </Route>
 
-      <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-        <Route path="/admin/*" element={<AdminDashboard />} />
-      </Route>
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+          <Route path="/admin/*" element={<PageTransition><AdminDashboard /></PageTransition>} />
+        </Route>
 
-      <Route path="/" element={<Navigate to="/login" replace />} />
-    </Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </AnimatePresence>
   );
 }
 

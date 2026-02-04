@@ -10,9 +10,12 @@ const AdminLogin = () => {
     const { login, logout } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
         try {
             // Login returns the user object from our existing context
             const user = await login({ rollNumber }, password);
@@ -26,6 +29,8 @@ const AdminLogin = () => {
             }
         } catch {
             setError('Invalid Admin ID or Password');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -100,9 +105,13 @@ const AdminLogin = () => {
                             </div>
                         </div>
 
-                        <button type="submit" className="btn-primary w-full mt-4 group relative overflow-hidden bg-red-600 border-none hover:bg-red-700 text-white">
-                            <span className="relative z-10">Authenticate</span>
-                            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></div>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={`btn-primary w-full mt-4 group relative overflow-hidden bg-red-600 border-none hover:bg-red-700 text-white ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        >
+                            <span className="relative z-10">{loading ? 'Verifying...' : 'Authenticate'}</span>
+                            {!loading && <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></div>}
                         </button>
                     </form>
 

@@ -14,6 +14,7 @@ const Register = () => {
     const { register } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,6 +22,8 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
         try {
             await register(formData.name, null, formData.password, formData.role, formData.rollNumber);
             navigate('/login');
@@ -28,6 +31,8 @@ const Register = () => {
             console.error('Registration Error:', err);
             const msg = err.response?.data?.message || err.message || 'Registration failed';
             setError(msg);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -116,8 +121,12 @@ const Register = () => {
                             </div>
                         </div>
 
-                        <button type="submit" className="btn-secondary w-full mt-6 group relative overflow-hidden bg-neon-purple/10 border-neon-purple text-neon-purple hover:bg-neon-purple hover:text-white">
-                            <span className="relative z-10">Confirm Registration</span>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={`btn-secondary w-full mt-6 group relative overflow-hidden bg-neon-purple/10 border-neon-purple text-neon-purple hover:bg-neon-purple hover:text-white ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        >
+                            <span className="relative z-10">{loading ? 'Processing Registration...' : 'Confirm Registration'}</span>
                         </button>
                     </form>
 

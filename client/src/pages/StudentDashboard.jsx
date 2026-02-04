@@ -16,8 +16,12 @@ const StudentDashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [logoutLoading, setLogoutLoading] = useState(false);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        setLogoutLoading(true);
+        // Simulate a small delay for the cyberpunk vibe
+        await new Promise(resolve => setTimeout(resolve, 800));
         logout();
         navigate('/login');
     };
@@ -114,9 +118,10 @@ const StudentDashboard = () => {
                 <div className="p-4 border-t border-white/10">
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-300 font-orbitron text-sm tracking-widest uppercase hover:shadow-[0_0_15px_rgba(239,68,68,0.4)]"
+                        disabled={logoutLoading}
+                        className={`w-full flex items-center justify-center gap-2 px-4 py-3 border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-300 font-orbitron text-sm tracking-widest uppercase hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] ${logoutLoading ? 'opacity-50 cursor-wait' : ''}`}
                     >
-                        <FaSignOutAlt /> Terminate
+                        <FaSignOutAlt /> {logoutLoading ? 'Terminating...' : 'Terminate'}
                     </button>
                     <div className="text-center mt-4 text-[10px] text-gray-600 font-code uppercase">
                         V 2.0.4 // SECURE

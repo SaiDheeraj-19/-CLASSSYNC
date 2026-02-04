@@ -10,9 +10,12 @@ const Login = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setLoading(true);
         try {
             const user = await login({ rollNumber }, password);
             if (user.role === 'admin') {
@@ -22,6 +25,8 @@ const Login = () => {
             }
         } catch (err) {
             setError('Invalid Roll Number or Password');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -98,9 +103,13 @@ const Login = () => {
                             </div>
                         </div>
 
-                        <button type="submit" className="btn-primary w-full mt-4 group relative overflow-hidden">
-                            <span className="relative z-10">Initialize Session</span>
-                            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></div>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={`btn-primary w-full mt-4 group relative overflow-hidden ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        >
+                            <span className="relative z-10">{loading ? 'Processing...' : 'Initialize Session'}</span>
+                            {!loading && <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></div>}
                         </button>
                     </form>
 
