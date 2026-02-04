@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { FaUserGraduate, FaCalendarAlt, FaClipboardList, FaBell, FaSignOutAlt, FaChartPie, FaBook, FaBars, FaTimes, FaUserCog } from 'react-icons/fa';
+import { FaUserGraduate, FaCalendarAlt, FaClipboardList, FaBell, FaSignOutAlt, FaChartPie, FaBook, FaBars, FaTimes, FaLink, FaExternalLinkAlt, FaUserCog, FaBullhorn } from 'react-icons/fa';
+import api from '../api';
 
 // Components
 import AttendanceView from '../components/student/AttendanceView';
@@ -17,6 +18,40 @@ const StudentDashboard = () => {
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [logoutLoading, setLogoutLoading] = useState(false);
+
+    // Notice Popup State
+    const [showNoticeModal, setShowNoticeModal] = useState(false);
+    const [latestNotice, setLatestNotice] = useState(null);
+
+    useEffect(() => {
+        const checkLatestNotices = async () => {
+            try {
+                const res = await api.get('/notices');
+                const notices = res.data;
+                if (notices.length > 0) {
+                    // Sort by date desc (assuming API returns them, but just in case)
+                    const sorted = notices.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    const latest = sorted[0];
+
+                    // Check if posted within last 24 hours
+                    const now = new Date();
+                    const postedTime = new Date(latest.createdAt);
+                    const diffTime = Math.abs(now - postedTime);
+                    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+
+                    if (diffHours <= 24) {
+                        setLatestNotice(latest);
+                        // Small delay to appear after load
+                        setTimeout(() => setShowNoticeModal(true), 1000);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch notices for popup", err);
+            }
+        };
+
+        checkLatestNotices();
+    }, []);
 
     const handleLogout = async () => {
         setLogoutLoading(true);
@@ -154,6 +189,53 @@ const StudentDashboard = () => {
                     {renderContent()}
                 </div>
             </div>
+
+            {/* NOTICE POPUP MODAL */}
+            {showNoticeModal && latestNotice && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+                    <div className="relative bg-cyber-dark border-2 border-neon-purple p-8 max-w-lg w-full shadow-[0_0_30px_rgba(157,0,255,0.3)] animate-slide-up">
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setShowNoticeModal(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+                        >
+                            <FaTimes size={20} />
+                        </button>
+
+                        <div className="flex flex-col items-center mb-6">
+                            <div className="w-16 h-16 rounded-full bg-neon-purple/10 flex items-center justify-center mb-4 border border-neon-purple/30">
+                                <FaBullhorn className="text-3xl text-neon-purple animate-pulse" />
+                            </div>
+                            <span className="text-xs font-bold text-neon-blue tracking-[0.2em] mb-1">NEW ANNOUNCEMENT</span>
+                            <h2 className="text-2xl font-bold text-white font-orbitron text-center uppercase">{latestNotice.title}</h2>
+                        </div>
+
+                        <div className="bg-black/20 p-4 border border-white/5 mb-6 max-h-60 overflow-y-auto custom-scrollbar">
+                            <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">
+                                {latestNotice.content}
+                            </p>
+                        </div>
+
+                        {latestNotice.link && (
+                            <a
+                                href={latestNotice.link.startsWith('http') ? latestNotice.link : `https://${latestNotice.link}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full flex items-center justify-center gap-2 bg-neon-purple text-white font-bold py-3 hover:bg-neon-purple/80 transition-all font-orbitron tracking-wider"
+                            >
+                                <FaExternalLinkAlt /> Open Link
+                            </a>
+                        )}
+
+                        <button
+                            onClick={() => setShowNoticeModal(false)}
+                            className="w-full mt-3 flex items-center justify-center gap-2 bg-transparent border border-gray-600 text-gray-400 font-bold py-2 hover:border-white hover:text-white transition-all font-orbitron tracking-wider text-sm"
+                        >
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
