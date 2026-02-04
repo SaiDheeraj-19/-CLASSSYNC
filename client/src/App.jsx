@@ -10,10 +10,13 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AnimatePresence } from 'framer-motion';
 import PageTransition from './components/shared/PageTransition';
+import LoadingScreen from './components/shared/LoadingScreen';
 
 function App() {
   const { loading } = useAuth();
   const location = useLocation();
+
+  if (loading) return <LoadingScreen />;
 
   return (
     <AnimatePresence mode="wait">

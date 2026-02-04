@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api';
-import { FaUser, FaSave, FaLock, FaIdCard, FaCheck, FaShieldAlt } from 'react-icons/fa';
+import { FaUser, FaSave, FaLock, FaIdCard, FaCheck, FaShieldAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const ProfileManager = () => {
     const { user } = useAuth();
@@ -15,6 +15,12 @@ const ProfileManager = () => {
         newPassword: '',
         confirmPassword: ''
     });
+
+    // Password visibility states
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [showMasterKey, setShowMasterKey] = useState(false);
 
     // Admin Secret State
     const [newSecret, setNewSecret] = useState('');
@@ -200,34 +206,61 @@ const ProfileManager = () => {
                     <form onSubmit={handlePasswordChange} className="space-y-4">
                         <div>
                             <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1">Current Password</label>
-                            <input
-                                type="password"
-                                className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-yellow transition-colors"
-                                value={passwordData.currentPassword}
-                                onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                required
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showCurrentPassword ? "text" : "password"}
+                                    className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 pr-10 focus:outline-none focus:border-neon-yellow transition-colors"
+                                    value={passwordData.currentPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-neon-yellow transition-colors"
+                                >
+                                    {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1">New Password</label>
-                            <input
-                                type="password"
-                                className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-yellow transition-colors"
-                                value={passwordData.newPassword}
-                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                required
-                                minLength={6}
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showNewPassword ? "text" : "password"}
+                                    className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 pr-10 focus:outline-none focus:border-neon-yellow transition-colors"
+                                    value={passwordData.newPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                    required
+                                    minLength={6}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowNewPassword(!showNewPassword)}
+                                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-neon-yellow transition-colors"
+                                >
+                                    {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1">Confirm New Password</label>
-                            <input
-                                type="password"
-                                className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-yellow transition-colors"
-                                value={passwordData.confirmPassword}
-                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                required
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 pr-10 focus:outline-none focus:border-neon-yellow transition-colors"
+                                    value={passwordData.confirmPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-neon-yellow transition-colors"
+                                >
+                                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
                         </div>
                         <button
                             type="submit"
@@ -259,15 +292,24 @@ const ProfileManager = () => {
                     <form onSubmit={handleUpdateSecret} className="space-y-4">
                         <div>
                             <label className="block text-xs text-red-400 uppercase tracking-wider mb-1">New Master Key</label>
-                            <input
-                                type="password"
-                                className="w-full bg-black/30 border border-red-500/30 text-white px-3 py-2 focus:outline-none focus:border-red-500 transition-colors"
-                                value={newSecret}
-                                onChange={(e) => setNewSecret(e.target.value)}
-                                placeholder="Enter new secret key"
-                                required
-                                minLength={6}
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showMasterKey ? "text" : "password"}
+                                    className="w-full bg-black/30 border border-red-500/30 text-white px-3 py-2 pr-10 focus:outline-none focus:border-red-500 transition-colors"
+                                    value={newSecret}
+                                    onChange={(e) => setNewSecret(e.target.value)}
+                                    placeholder="Enter new secret key"
+                                    required
+                                    minLength={6}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowMasterKey(!showMasterKey)}
+                                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-red-500 transition-colors"
+                                >
+                                    {showMasterKey ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
                         </div>
                         <button
                             type="submit"

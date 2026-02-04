@@ -28,7 +28,7 @@ const LoadingScreen = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Progress bar simulation
+    // Progress bar simulation - faster completion in ~2 seconds
     useEffect(() => {
         const interval = setInterval(() => {
             setProgress(old => {
@@ -36,10 +36,11 @@ const LoadingScreen = () => {
                     clearInterval(interval);
                     return 100;
                 }
-                const increment = Math.random() * 10;
+                // Faster, more consistent progress - completes in about 2 seconds
+                const increment = 5 + Math.random() * 5;
                 return Math.min(old + increment, 100);
             });
-        }, 100);
+        }, 80);
         return () => clearInterval(interval);
     }, []);
 
