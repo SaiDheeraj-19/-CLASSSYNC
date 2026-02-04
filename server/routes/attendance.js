@@ -98,4 +98,48 @@ router.delete('/:id', [auth, admin], async (req, res) => {
     }
 });
 
+// @route   POST api/attendance/bulk
+// @desc    Bulk Create/Update attendance (Admin)
+// @access  Private (Admin)
+router.post('/bulk', [auth, admin], async (req, res) => {
+    const { updates } = req.body; // Array of { studentId, subject, isPresent }
+
+    try {
+        const operations = updates.map(update => ({
+            updateOne: {
+                filter: { student: update.studentId, subject: update.subject },
+                update: [
+                    {
+                        $set: {
+                            // If doc exists, use its values. If not (new doc inserted via upsert), use 0 as base.
+                            // However, standard $set doesn't reference existing fields easily in non-pipeline update.
+                            // We will use an aggregation pipeline for the update to reference existing fields.
+
+                            student: update.studentId, // Ensure fields are set on insert
+                            subject: update.subject,
+                            totalClasses: { $add: [{ $ifNull: ["$totalClasses", 0] }, 1] },
+                            attendedClasses: {
+                                $add: [
+                                    { $ifNull: ["$attendedClasses", 0] },
+                                    update.isPresent ? 1 : 0
+                                ]
+                            }
+                        }
+                    }
+                ],
+                upsert: true
+            }
+        }));
+
+        if (operations.length > 0) {
+            await Attendance.bulkWrite(operations);
+        }
+
+        res.json({ message: 'Bulk attendance updated successfully' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;

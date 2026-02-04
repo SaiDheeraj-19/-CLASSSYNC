@@ -98,29 +98,15 @@ const AttendanceManager = () => {
 
         setSaving(true);
         try {
-            // For each student, update their attendance
-            const promises = students.map(async (student) => {
-                const isPresent = attendanceMarks[student._id];
+            const updates = students.map(student => ({
+                studentId: student._id,
+                subject: selectedSubject,
+                isPresent: !!attendanceMarks[student._id]
+            }));
 
-                // Get existing attendance for this student and subject
-                const existingRes = await api.get('/attendance/all');
-                const existingRecord = existingRes.data.find(
-                    r => r.student._id === student._id && r.subject === selectedSubject
-                );
+            await api.post('/attendance/bulk', { updates });
 
-                const currentTotal = existingRecord?.totalClasses || 0;
-                const currentAttended = existingRecord?.attendedClasses || 0;
-
-                return api.post('/attendance', {
-                    studentId: student._id,
-                    subject: selectedSubject,
-                    totalClasses: currentTotal + 1,
-                    attendedClasses: isPresent ? currentAttended + 1 : currentAttended
-                });
-            });
-
-            await Promise.all(promises);
-            alert(`Attendance saved for ${selectedSubject}!`);
+            alert(`Attendance saved successfully for ${selectedSubject}!`);
         } catch (err) {
             console.error(err);
             alert('Error saving attendance');
