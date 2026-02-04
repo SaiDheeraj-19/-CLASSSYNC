@@ -9,6 +9,7 @@ const TimetableSchema = new mongoose.Schema({
     },
     slots: [{
         time: String,
+        endTime: String,
         subject: String,
         teacher: String,
         room: String

@@ -57,8 +57,8 @@ const TimetableView = () => {
                             key={dayData.day}
                             onClick={() => setActiveDay(dayData.day)}
                             className={`px-6 py-2 whitespace-nowrap transition-all border ${activeDay === dayData.day
-                                    ? 'bg-neon-yellow text-black font-bold border-neon-yellow shadow-[0_0_10px_rgba(255,234,0,0.3)]'
-                                    : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'
+                                ? 'bg-neon-yellow text-black font-bold border-neon-yellow shadow-[0_0_10px_rgba(255,234,0,0.3)]'
+                                : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'
                                 }`}
                         >
                             {dayData.day}
@@ -85,11 +85,12 @@ const TimetableView = () => {
                             key={index}
                             className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 flex items-center gap-6 group hover:border-neon-purple/50 transition-colors"
                         >
-                            <div className="w-24 flex-shrink-0 text-center">
+                            <div className="w-32 flex-shrink-0 text-center">
                                 <p className="text-gray-500 text-xs uppercase tracking-wider flex items-center justify-center gap-1">
-                                    <FaClock className="text-neon-blue" /> Starts
+                                    <FaClock className="text-neon-blue" /> Time
                                 </p>
                                 <p className="text-xl font-bold text-white">{slot.time}</p>
+                                {slot.endTime && <p className="text-xs text-gray-400 font-code">{slot.endTime}</p>}
                             </div>
                             <div className="h-10 w-px bg-white/20"></div>
                             <div className="flex-1">

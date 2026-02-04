@@ -37,7 +37,7 @@ const TimetableManager = () => {
     };
 
     const handleAddSlot = () => {
-        setSlots([...slots, { time: '', subject: '', teacher: '', room: '' }]);
+        setSlots([...slots, { time: '', endTime: '', subject: '', teacher: '', room: '' }]);
     };
 
     const handleSlotChange = (index, field, value) => {
@@ -54,8 +54,8 @@ const TimetableManager = () => {
     const handleSave = async () => {
         try {
             // Validate
-            if (slots.some(s => !s.time || !s.subject)) {
-                alert('Time and Subject are required for all slots');
+            if (slots.some(s => !s.time || !s.endTime || !s.subject)) {
+                alert('Start Time, End Time, and Subject are required for all slots');
                 return;
             }
 
@@ -101,13 +101,23 @@ const TimetableManager = () => {
                     {slots.map((slot, index) => (
                         <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-white/5 p-4 border border-white/10">
                             <div className="md:col-span-2">
-                                <label className="text-xs font-bold text-gray-400 uppercase">Time</label>
+                                <label className="text-xs font-bold text-gray-400 uppercase">Start Time</label>
                                 <input
                                     type="text"
-                                    placeholder="e.g. 10:00 AM"
+                                    placeholder="10:00 AM"
                                     className="w-full mt-1 bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
                                     value={slot.time}
                                     onChange={(e) => handleSlotChange(index, 'time', e.target.value)}
+                                />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="text-xs font-bold text-gray-400 uppercase">End Time</label>
+                                <input
+                                    type="text"
+                                    placeholder="11:00 AM"
+                                    className="w-full mt-1 bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
+                                    value={slot.endTime || ''}
+                                    onChange={(e) => handleSlotChange(index, 'endTime', e.target.value)}
                                 />
                             </div>
                             <div className="md:col-span-4">
