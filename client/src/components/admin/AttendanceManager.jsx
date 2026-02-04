@@ -2,12 +2,18 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 import { FaCheck, FaTimes, FaCheckDouble, FaTimesCircle, FaSave, FaCalendarDay, FaDownload } from 'react-icons/fa';
 
+// Helper to get current date in IST (Chennai time) as YYYY-MM-DD
+const getISTDate = () => {
+    const now = new Date();
+    return now.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+};
+
 const AttendanceManager = () => {
     const [students, setStudents] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [timetable, setTimetable] = useState([]);
     const [selectedSubject, setSelectedSubject] = useState('');
-    const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
+    const [attendanceDate, setAttendanceDate] = useState(getISTDate());
 
     // Attendance state: { studentId: true/false (present/absent) }
     const [attendanceMarks, setAttendanceMarks] = useState({});
@@ -115,10 +121,10 @@ const AttendanceManager = () => {
         }
     };
 
-    // Get today's classes from timetable
+    // Get today's classes from timetable (using IST timezone)
     const getTodaysClasses = () => {
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const todayName = days[new Date().getDay()];
+        // Get today's day name in IST timezone (Chennai time)
+        const todayName = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata', weekday: 'long' });
         const todaySchedule = timetable.find(t => t.day === todayName);
         return todaySchedule ? todaySchedule.slots : [];
     };

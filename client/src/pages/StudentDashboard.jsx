@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { FaUserGraduate, FaCalendarAlt, FaClipboardList, FaBell, FaSignOutAlt, FaChartPie, FaBook, FaBars, FaTimes, FaLink, FaExternalLinkAlt, FaUserCog, FaBullhorn } from 'react-icons/fa';
 import api from '../api';
+import useChennaiTime from '../hooks/useChennaiTime';
 
 // Components
 import AttendanceView from '../components/student/AttendanceView';
@@ -16,6 +17,7 @@ const StudentDashboard = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const { time: chennaiTime, dayName, date: chennaiDate } = useChennaiTime();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [logoutLoading, setLogoutLoading] = useState(false);
 
@@ -39,7 +41,11 @@ const StudentDashboard = () => {
                     const diffTime = Math.abs(now - postedTime);
                     const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
 
-                    if (diffHours <= 24) {
+                    // Check if user has already seen this notice (using localStorage)
+                    const lastSeenNoticeId = localStorage.getItem('lastSeenNoticeId');
+
+                    // Only show popup if within 24 hours AND user hasn't seen this notice yet
+                    if (diffHours <= 24 && lastSeenNoticeId !== latest._id) {
                         setLatestNotice(latest);
                         // Small delay to appear after load
                         setTimeout(() => setShowNoticeModal(true), 1000);
@@ -52,6 +58,14 @@ const StudentDashboard = () => {
 
         checkLatestNotices();
     }, []);
+
+    // Handler to dismiss notice and remember it in localStorage
+    const dismissNotice = () => {
+        if (latestNotice) {
+            localStorage.setItem('lastSeenNoticeId', latestNotice._id);
+        }
+        setShowNoticeModal(false);
+    };
 
     const handleLogout = async () => {
         setLogoutLoading(true);
@@ -180,7 +194,8 @@ const StudentDashboard = () => {
                         {navItems.find(i => i.path === location.pathname || (i.path === '/student' && location.pathname === '/student/'))?.label || 'Dashboard'}
                     </h2>
                     <div className="flex items-center gap-4 text-xs font-code text-neon-blue/80">
-                        <span>SYS_TIME: {new Date().toLocaleTimeString()}</span>
+                        <span>{dayName} | {chennaiDate}</span>
+                        <span>SYS_TIME: {chennaiTime}</span>
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_5px_#22c55e]"></div>
                     </div>
                 </div>
@@ -196,7 +211,7 @@ const StudentDashboard = () => {
                     <div className="relative bg-cyber-dark border-2 border-neon-purple p-8 max-w-lg w-full shadow-[0_0_30px_rgba(157,0,255,0.3)] animate-slide-up">
                         {/* Close Button */}
                         <button
-                            onClick={() => setShowNoticeModal(false)}
+                            onClick={dismissNotice}
                             className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
                         >
                             <FaTimes size={20} />
@@ -228,7 +243,7 @@ const StudentDashboard = () => {
                         )}
 
                         <button
-                            onClick={() => setShowNoticeModal(false)}
+                            onClick={dismissNotice}
                             className="w-full mt-3 flex items-center justify-center gap-2 bg-transparent border border-gray-600 text-gray-400 font-bold py-2 hover:border-white hover:text-white transition-all font-orbitron tracking-wider text-sm"
                         >
                             Dismiss
@@ -241,3 +256,4 @@ const StudentDashboard = () => {
 };
 
 export default StudentDashboard;
+

@@ -53,7 +53,8 @@ const TimetableView = () => {
             setTimetable(res.data);
 
             // Set active day to today if available, otherwise first available day
-            const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+            // Using IST timezone (Asia/Kolkata) for Chennai time
+            const today = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata', weekday: 'long' });
             if (res.data.find(t => t.day === today)) {
                 setActiveDay(today);
             } else if (res.data.length > 0) {
@@ -166,7 +167,7 @@ const TimetableView = () => {
             </div>
 
             {/* Today indicator */}
-            {new Date().toLocaleDateString('en-US', { weekday: 'long' }) === activeDay && (
+            {new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata', weekday: 'long' }) === activeDay && (
                 <div className="mt-4 text-center">
                     <span className="inline-flex items-center gap-2 text-xs text-neon-green bg-neon-green/10 px-3 py-1 border border-neon-green/30">
                         <div className="w-2 h-2 bg-neon-green rounded-full animate-pulse"></div>

@@ -18,11 +18,13 @@ import ProfileManager from '../components/shared/ProfileManager';
 import AttendanceView from '../components/student/AttendanceView';
 import AssignmentView from '../components/student/AssignmentView';
 import TimetableView from '../components/student/TimetableView';
+import useChennaiTime from '../hooks/useChennaiTime';
 
 const AdminDashboard = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const { time: chennaiTime, dayName, date: chennaiDate } = useChennaiTime();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const [logoutLoading, setLogoutLoading] = useState(false);
@@ -172,7 +174,8 @@ const AdminDashboard = () => {
                         {navItems.find(i => i.path === location.pathname || (i.path === '/admin' && location.pathname === '/admin/'))?.label || 'Command Center'}
                     </h2>
                     <div className="flex items-center gap-4 text-xs font-code text-neon-purple/80">
-                        <span>SYS_TIME: {new Date().toLocaleTimeString()}</span>
+                        <span>{dayName} | {chennaiDate}</span>
+                        <span>SYS_TIME: {chennaiTime}</span>
                         <div className="w-2 h-2 bg-neon-purple rounded-full animate-pulse shadow-[0_0_5px_#9d00ff]"></div>
                     </div>
                 </div>
