@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { FaUserShield, FaClipboardList, FaCalendarAlt, FaBell, FaSignOutAlt, FaUsers, FaBook, FaBars, FaTimes, FaSortNumericDown, FaUserCog } from 'react-icons/fa';
+import { FaUserShield, FaClipboardList, FaCalendarAlt, FaBell, FaSignOutAlt, FaUsers, FaBook, FaBars, FaTimes, FaSortNumericDown, FaUserCog, FaChartPie, FaExchangeAlt } from 'react-icons/fa';
 
 import AttendanceManager from '../components/admin/AttendanceManager';
 import AssignmentManager from '../components/admin/AssignmentManager';
@@ -11,6 +11,11 @@ import CalendarManager from '../components/admin/CalendarManager';
 import ResourceManager from '../components/admin/ResourceManager';
 import ClassManager from '../components/admin/ClassManager';
 import ProfileManager from '../components/shared/ProfileManager';
+
+// Student view components for admin's personal data
+import AttendanceView from '../components/student/AttendanceView';
+import AssignmentView from '../components/student/AssignmentView';
+import TimetableView from '../components/student/TimetableView';
 
 const AdminDashboard = () => {
     const { user, logout } = useAuth();
@@ -33,6 +38,12 @@ const AdminDashboard = () => {
         { label: 'Calendar & Stats', path: '/admin/calendar', icon: <FaCalendarAlt /> },
         { label: 'Manage Notes', path: '/admin/resources', icon: <FaBook /> },
         { label: 'Manage Notices', path: '/admin/notices', icon: <FaBell /> },
+        // Divider
+        { label: 'divider', path: '', icon: null },
+        // Student view for Admin/CR
+        { label: 'My Attendance', path: '/admin/my-attendance', icon: <FaChartPie /> },
+        { label: 'My Assignments', path: '/admin/my-assignments', icon: <FaClipboardList /> },
+        { label: 'View Timetable', path: '/admin/view-timetable', icon: <FaCalendarAlt /> },
         { label: 'My Profile', path: '/admin/profile', icon: <FaUserCog /> },
     ];
 
@@ -45,6 +56,10 @@ const AdminDashboard = () => {
         if (path === '/admin/resources') return <ResourceManager />;
         if (path === '/admin/notices') return <NoticeManager />;
         if (path === '/admin/profile') return <ProfileManager />;
+        // Student views for admin
+        if (path === '/admin/my-attendance') return <AttendanceView />;
+        if (path === '/admin/my-assignments') return <AssignmentView />;
+        if (path === '/admin/view-timetable') return <TimetableView />;
         return <AttendanceManager />;
     };
 
@@ -88,7 +103,16 @@ const AdminDashboard = () => {
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
-                    {navItems.map((item) => {
+                    {navItems.map((item, index) => {
+                        // Handle divider
+                        if (item.label === 'divider') {
+                            return (
+                                <div key={`divider-${index}`} className="my-4 border-t border-white/10 pt-4">
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest px-6 mb-2">My Student View</p>
+                                </div>
+                            );
+                        }
+
                         const isActive = location.pathname === item.path || (item.path === '/admin' && location.pathname === '/admin/');
                         return (
                             <Link
