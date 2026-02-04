@@ -23,7 +23,7 @@ function App() {
         <Route path="/admin/login" element={<PageTransition><AdminLogin /></PageTransition>} />
         <Route path="/admin/register" element={<PageTransition><AdminRegister /></PageTransition>} />
 
-        <Route element={<ProtectedRoute allowedRoles={['student']} />}>
+        <Route element={<ProtectedRoute allowedRoles={['student', 'admin']} />}>
           <Route path="/student/*" element={<PageTransition><StudentDashboard /></PageTransition>} />
         </Route>
 
