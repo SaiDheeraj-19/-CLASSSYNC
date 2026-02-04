@@ -88,7 +88,7 @@ const Login = () => {
                     <h1 className="text-4xl md:text-5xl font-orbitron font-bold text-white tracking-tighter mb-2">
                         CLASS<span className="text-neon-yellow">SYNC</span>
                     </h1>
-                    <p className="text-neon-purple font-rajdhani tracking-[0.2em] text-sm uppercase">Secure Access Portal_v2.0</p>
+
                     <div className="w-16 h-1 bg-neon-yellow mx-auto mt-4 shadow-[0_0_10px_rgba(204,255,0,0.8)]"></div>
                 </div>
 
