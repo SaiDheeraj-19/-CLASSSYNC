@@ -1,53 +1,78 @@
-# ClassSync
+# ClassSync - Student Management System
 
-ClassSync is a production-ready class management web platform.
+A modern, cyberpunk-themed class management system for educational institutions.
 
 ## Features
 
-- **Authentication**: Secure JWT login for Students and Admins (Class Reps).
-- **Attendance Management**: 
-  - Track subject-wise attendance.
-  - Smart warning system (calculates classes needed to reach 75%).
-  - Visual charts.
-- **Assignment Manager**: Track deadlines and status.
-- **Timetable**: Weekly schedule management.
-- **Notices & Events**: Digital notice board.
+### For Students
+- View attendance records
+- Check assignments and deadlines
+- Access class timetable
+- Download study materials
+- View notices
+- Profile management
+
+### For Admin/CR
+- Manage student attendance (Select All Present/Absent)
+- Add/Remove students with roll numbers
+- Create and manage assignments
+- Configure class timetable
+- Auto-calculate monthly class statistics
+- Upload study notes
+- Post notices
+- View their own student data
 
 ## Tech Stack
 
-- **Frontend**: React, Vite, Tailwind CSS, Framer Motion
-- **Backend**: Node.js, Express, MongoDB
-- **Database**: MongoDB
+- **Frontend**: React + Vite, TailwindCSS
+- **Backend**: Node.js, Express
+- **Database**: MongoDB Atlas
+- **Authentication**: JWT
 
-## Setup Instructions
+## Deployment
 
-1. **Prerequisites**: Ensure Node.js and MongoDB are installed and running.
-2. **Environment**: 
-   - `server/.env` is pre-configured with `MONGO_URI=mongodb://localhost:27017/classsync`. Adjust if needed.
-3. **Run**:
-   - Open a terminal in the root directory.
-   - Run `chmod +x start.sh` (Mac/Linux)
-   - Run `./start.sh`
+### Frontend (Vercel)
+1. Connect your GitHub repository to Vercel
+2. Set root directory to `client`
+3. Add environment variable: `VITE_API_BASE_URL=your-backend-url`
 
-   Alternatively:
-   - Terminal 1: `cd server && npm install && npm run dev`
-   - Terminal 2: `cd client && npm install && npm run dev`
+### Backend (Render/Railway)
+1. Deploy the `server` directory
+2. Set environment variables:
+   - `PORT=5001`
+   - `MONGO_URI=your-mongodb-uri`
+   - `JWT_SECRET=your-jwt-secret`
+   - `ADMIN_SECRET=your-admin-secret`
 
-4. **Access**:
-   - Frontend: `http://localhost:5173`
-   - Backend: `http://localhost:5000`
+## Local Development
 
-## Default Usage (First Time)
+```bash
+# Install dependencies
+cd client && npm install
+cd ../server && npm install
 
-1. Go to Register page.
-2. Create an **Admin** account (Select Role: Class Rep).
-3. Create a **Student** account (Select Role: Student).
-4. Login as Admin to post data (Assignments, Timetable, Attendance).
-5. Login as Student to view dashboard.
+# Start development servers
+# Terminal 1 - Backend
+cd server && npm run dev
 
-## Security
+# Terminal 2 - Frontend
+cd client && npm run dev
+```
 
-- Passwords are hashed with bcrypt.
-- Routes are protected via JWT middleware.
-- Admin routes are strictly role-checked.
+## Environment Variables
 
+### Client (.env)
+```
+VITE_API_BASE_URL=http://localhost:5001/api
+```
+
+### Server (.env)
+```
+PORT=5001
+MONGO_URI=your-mongodb-connection-string
+JWT_SECRET=your-jwt-secret
+ADMIN_SECRET=your-admin-registration-key
+```
+
+## License
+MIT
