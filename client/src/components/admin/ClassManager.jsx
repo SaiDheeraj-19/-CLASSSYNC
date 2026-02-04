@@ -14,11 +14,11 @@ const ClassManager = () => {
 
     const fetchStudents = async () => {
         try {
-            const res = await api.get('/auth/students');
+            const res = await api.get('/auth/all-users');
             setStudents(res.data);
             setLoading(false);
         } catch (err) {
-            console.error("Error fetching students", err);
+            console.error("Error fetching users", err);
             setLoading(false);
         }
     };
@@ -215,9 +215,15 @@ const ClassManager = () => {
                                         <td className="p-4 font-code text-neon-blue group-hover:text-neon-purple transition-colors">{student.rollNumber}</td>
                                         <td className="p-4 text-white font-rajdhani text-lg">{student.name}</td>
                                         <td className="p-4">
-                                            <span className="inline-flex items-center px-2 py-1 text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">
-                                                ACTIVE
-                                            </span>
+                                            {student.role === 'admin' ? (
+                                                <span className="inline-flex items-center px-2 py-1 text-xs font-bold bg-neon-purple/10 text-neon-purple border border-neon-purple/20">
+                                                    ADMIN
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center px-2 py-1 text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">
+                                                    STUDENT
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="p-4 text-right">
                                             <button

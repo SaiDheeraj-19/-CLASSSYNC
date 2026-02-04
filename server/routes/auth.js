@@ -126,6 +126,19 @@ router.get('/students', [auth, admin], async (req, res) => {
     }
 });
 
+// @route   GET api/auth/all-users
+// @desc    Get all users (students and admins)
+// @access  Private (Admin)
+router.get('/all-users', [auth, admin], async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.json(users);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 // @route   DELETE api/auth/students/:id
 // @desc    Delete a student
 // @access  Private (Admin)
