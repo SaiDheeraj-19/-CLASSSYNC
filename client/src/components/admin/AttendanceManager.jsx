@@ -188,36 +188,10 @@ const AttendanceManager = () => {
                             onChange={(e) => setSelectedSubject(e.target.value)}
                         >
                             <option value="" className="bg-cyber-dark">Select Subject</option>
-                            {/* Logic: Filter subjects based on date/timetable with partial matching */}
-                            {(() => {
-                                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                                const dayName = days[new Date(attendanceDate).getDay()];
-                                const todaySchedule = timetable.find(t => t.day === dayName);
-
-                                // If schedule exists for this day, only show those subjects. 
-                                // Otherwise fall back to all subjects (e.g. for extra classes or holidays)
-                                // Use partial matching: timetable has "SE-308" but subject is "SE"
-                                const availableSubjects = todaySchedule
-                                    ? subjects.filter(sub => {
-                                        const subNameLower = sub.name.toLowerCase();
-                                        return todaySchedule.slots.some(slot => {
-                                            const slotSubjectLower = slot.subject.toLowerCase();
-                                            // Check if the slot subject contains the subject name or vice versa
-                                            // Also extract just the subject part before the room number (e.g., "SE" from "SE-308")
-                                            const slotSubjectBase = slot.subject.split('-')[0].trim().toLowerCase();
-                                            return slotSubjectLower.includes(subNameLower) ||
-                                                subNameLower.includes(slotSubjectBase) ||
-                                                slotSubjectBase.includes(subNameLower);
-                                        });
-                                    })
-                                    : subjects;
-
-                                return availableSubjects.length > 0
-                                    ? availableSubjects.map(s => (
-                                        <option key={s._id} value={s.name} className="bg-cyber-dark">{s.name}</option>
-                                    ))
-                                    : <option disabled className="text-gray-500">No scheduled classes</option>;
-                            })()}
+                            {/* Show all subjects from database */}
+                            {subjects.map(s => (
+                                <option key={s._id} value={s.name} className="bg-cyber-dark">{s.name}</option>
+                            ))}
                         </select>
                     </div>
                     <div>
