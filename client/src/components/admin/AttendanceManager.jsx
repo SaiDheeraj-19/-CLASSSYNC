@@ -261,7 +261,14 @@ const AttendanceManager = () => {
                                 >
                                     <td className="p-4 font-code text-gray-500">{index + 1}</td>
                                     <td className="p-4 font-code text-neon-blue">{student.rollNumber}</td>
-                                    <td className="p-4 text-white font-rajdhani text-lg">{student.name}</td>
+                                    <td className="p-4 text-white font-rajdhani text-lg">
+                                        {student.name}
+                                        {student.role === 'admin' && (
+                                            <span className="ml-2 inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold bg-neon-purple/20 text-neon-purple border border-neon-purple/30 rounded">
+                                                ADMIN
+                                            </span>
+                                        )}
+                                    </td>
                                     <td className="p-4 text-center">
                                         {attendanceMarks[student._id] ? (
                                             <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">

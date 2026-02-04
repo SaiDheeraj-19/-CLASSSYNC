@@ -12,6 +12,9 @@ const Login = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const [showPortalSelection, setShowPortalSelection] = useState(false);
+    const [authenticatedUser, setAuthenticatedUser] = useState(null);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -19,7 +22,8 @@ const Login = () => {
         try {
             const user = await login({ rollNumber }, password);
             if (user.role === 'admin') {
-                navigate('/admin');
+                setAuthenticatedUser(user);
+                setShowPortalSelection(true);
             } else {
                 navigate('/student');
             }
@@ -29,6 +33,44 @@ const Login = () => {
             setLoading(false);
         }
     };
+
+    const handlePortalSelect = (path) => {
+        navigate(path);
+    };
+
+    if (showPortalSelection) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-cyber-black relative overflow-hidden">
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-purple/10 rounded-full blur-[100px]"></div>
+                    <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-neon-yellow/10 rounded-full blur-[80px]"></div>
+                </div>
+
+                <div className="relative z-10 w-full max-w-md p-8">
+                    <div className="card backdrop-blur-xl bg-cyber-gray/30 clip-path-slant border border-white/5 shadow-2xl p-8 text-center">
+                        <h2 className="text-2xl font-orbitron text-white mb-2">ACCESS GRANTED</h2>
+                        <p className="text-gray-400 font-rajdhani mb-8">Identification: {authenticatedUser?.name} <span className="text-neon-purple">[ADMIN]</span></p>
+
+                        <div className="space-y-4">
+                            <button
+                                onClick={() => handlePortalSelect('/admin')}
+                                className="w-full btn-primary flex items-center justify-center gap-2 group"
+                            >
+                                <span className="relative z-10">ENTER ADMIN PORTAL</span>
+                            </button>
+
+                            <button
+                                onClick={() => handlePortalSelect('/student')}
+                                className="w-full border border-neon-blue text-neon-blue font-orbitron font-bold py-3 px-6 hover:bg-neon-blue hover:text-black transition-all duration-300"
+                            >
+                                ENTER STUDENT PORTAL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-cyber-black relative overflow-hidden">
