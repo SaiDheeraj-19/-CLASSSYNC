@@ -71,7 +71,7 @@ const ResourceView = () => {
                                 rel="noreferrer"
                                 className="flex-1 text-center py-2 bg-white/5 border border-white/20 text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300 flex justify-center items-center gap-2 font-bold uppercase text-sm tracking-wider"
                             >
-                                <FaDownload /> Save
+                                <FaDownload /> Download
                             </a>
                         </div>
                     </div>
