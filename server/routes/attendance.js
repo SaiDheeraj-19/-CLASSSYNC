@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Attendance = require('../models/Attendance');
 const { auth, admin } = require('../middleware/auth');
 
@@ -77,7 +78,7 @@ router.post('/', [auth, admin], async (req, res) => {
 // @access  Private (Admin)
 router.get('/all', [auth, admin], async (req, res) => {
     try {
-        const attendance = await Attendance.find().populate('student', ['name', 'email']);
+        const attendance = await Attendance.find().populate('student', ['name', 'email', 'rollNumber']);
         res.json(attendance);
     } catch (err) {
         console.error(err.message);
@@ -105,31 +106,34 @@ router.post('/bulk', [auth, admin], async (req, res) => {
     const { updates } = req.body; // Array of { studentId, subject, isPresent }
 
     try {
-        const operations = updates.map(update => ({
-            updateOne: {
-                filter: { student: update.studentId, subject: update.subject },
-                update: [
-                    {
-                        $set: {
-                            // If doc exists, use its values. If not (new doc inserted via upsert), use 0 as base.
-                            // However, standard $set doesn't reference existing fields easily in non-pipeline update.
-                            // We will use an aggregation pipeline for the update to reference existing fields.
+        const operations = updates.map(update => {
+            const studentObjectId = new mongoose.Types.ObjectId(update.studentId);
+            return {
+                updateOne: {
+                    filter: { student: studentObjectId, subject: update.subject },
+                    update: [
+                        {
+                            $set: {
+                                // If doc exists, use its values. If not (new doc inserted via upsert), use 0 as base.
+                                // However, standard $set doesn't reference existing fields easily in non-pipeline update.
+                                // We will use an aggregation pipeline for the update to reference existing fields.
 
-                            student: update.studentId, // Ensure fields are set on insert
-                            subject: update.subject,
-                            totalClasses: { $add: [{ $ifNull: ["$totalClasses", 0] }, 1] },
-                            attendedClasses: {
-                                $add: [
-                                    { $ifNull: ["$attendedClasses", 0] },
-                                    update.isPresent ? 1 : 0
-                                ]
+                                student: studentObjectId, // Ensure fields are set on insert with correct Type
+                                subject: update.subject,
+                                totalClasses: { $add: [{ $ifNull: ["$totalClasses", 0] }, 1] },
+                                attendedClasses: {
+                                    $add: [
+                                        { $ifNull: ["$attendedClasses", 0] },
+                                        update.isPresent ? 1 : 0
+                                    ]
+                                }
                             }
                         }
-                    }
-                ],
-                upsert: true
-            }
-        }));
+                    ],
+                    upsert: true
+                }
+            };
+        });
 
         if (operations.length > 0) {
             await Attendance.bulkWrite(operations);
