@@ -175,7 +175,36 @@ router.get('/all-users', [auth, admin], async (req, res) => {
     }
 });
 
-// @route   DELETE api/auth/students/:id
+// @route   PUT api/auth/students/:id
+// @desc    Update student details (Admin only)
+// @access  Private (Admin)
+router.put('/students/:id', [auth, admin], async (req, res) => {
+    const { name, rollNumber } = req.body;
+
+    try {
+        let user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // If updating roll number, check if it's already taken by someone else
+        if (rollNumber && rollNumber !== user.rollNumber) {
+            const existingUser = await User.findOne({ rollNumber });
+            if (existingUser) {
+                return res.status(400).json({ message: 'Roll Number already exists' });
+            }
+            user.rollNumber = rollNumber;
+        }
+
+        if (name) user.name = name;
+
+        await user.save();
+        res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
 // @desc    Delete a student
 // @access  Private (Admin)
 router.delete('/students/:id', [auth, admin], async (req, res) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
-import { FaUserGraduate, FaSortNumericDown, FaSearch, FaUserPlus, FaTrash } from 'react-icons/fa';
+import { FaUserGraduate, FaSortNumericDown, FaSearch, FaUserPlus, FaTrash, FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
 
 const ClassManager = () => {
     const [students, setStudents] = useState([]);
@@ -11,6 +11,10 @@ const ClassManager = () => {
     const [showAddForm, setShowAddForm] = useState(false);
     const [newStudent, setNewStudent] = useState({ name: '', rollNumber: '', password: 'student123' });
     const [addError, setAddError] = useState('');
+
+    // Editing State
+    const [editingId, setEditingId] = useState(null);
+    const [editForm, setEditForm] = useState({ name: '', rollNumber: '' });
 
     const fetchStudents = async () => {
         try {
@@ -79,6 +83,28 @@ const ClassManager = () => {
             console.error(err);
             alert('Failed to purge data.');
         }
+    };
+
+    const handleEditClick = (student) => {
+        setEditingId(student._id);
+        setEditForm({ name: student.name, rollNumber: student.rollNumber });
+    };
+
+    const handleSaveEdit = async (id) => {
+        try {
+            await api.put(`/auth/students/${id}`, editForm);
+            setEditingId(null);
+            fetchStudents();
+            alert('Student updated successfully!');
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.message || 'Failed to update student');
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditingId(null);
+        setEditForm({ name: '', rollNumber: '' });
     };
 
     return (
@@ -172,7 +198,7 @@ const ClassManager = () => {
 
             {/* List Section */}
             <div className="flex-1 bg-white/5 backdrop-blur-xl border border-white/10 flex flex-col relative overflow-hidden">
-                <div className="p-4 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="p-4 border-b border-white/10 flex flex-col flex-md-row justify-between items-center gap-4">
                     <h2 className="text-xl font-orbitron text-white flex items-center gap-2">
                         <FaSortNumericDown className="text-neon-purple" />
                         Class Roll List
@@ -198,7 +224,7 @@ const ClassManager = () => {
                                 <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10">Roll Number</th>
                                 <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10">Student Name</th>
                                 <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10">Status</th>
-                                <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-right">Action</th>
+                                <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
@@ -212,8 +238,36 @@ const ClassManager = () => {
                                 filteredStudents.map((student, index) => (
                                     <tr key={student._id} className="hover:bg-white/5 transition-colors group">
                                         <td className="p-4 font-code text-gray-500">{index + 1}</td>
-                                        <td className="p-4 font-code text-neon-blue group-hover:text-neon-purple transition-colors">{student.rollNumber}</td>
-                                        <td className="p-4 text-white font-rajdhani text-lg">{student.name}</td>
+
+                                        {/* Roll Number Column */}
+                                        <td className="p-4 font-code text-neon-blue group-hover:text-neon-purple transition-colors">
+                                            {editingId === student._id ? (
+                                                <input
+                                                    type="text"
+                                                    value={editForm.rollNumber}
+                                                    onChange={(e) => setEditForm({ ...editForm, rollNumber: e.target.value })}
+                                                    className="bg-black/50 text-white border border-neon-purple px-2 py-1 w-full"
+                                                />
+                                            ) : (
+                                                student.rollNumber
+                                            )}
+                                        </td>
+
+                                        {/* Name Column */}
+                                        <td className="p-4 text-white font-rajdhani text-lg">
+                                            {editingId === student._id ? (
+                                                <input
+                                                    type="text"
+                                                    value={editForm.name}
+                                                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                                    className="bg-black/50 text-white border border-neon-purple px-2 py-1 w-full"
+                                                />
+                                            ) : (
+                                                student.name
+                                            )}
+                                        </td>
+
+                                        {/* Status Column */}
                                         <td className="p-4">
                                             {student.role === 'admin' ? (
                                                 <span className="inline-flex items-center px-2 py-1 text-xs font-bold bg-neon-purple/10 text-neon-purple border border-neon-purple/20">
@@ -225,13 +279,36 @@ const ClassManager = () => {
                                                 </span>
                                             )}
                                         </td>
+
+                                        {/* Actions Column */}
                                         <td className="p-4 text-right">
-                                            <button
-                                                onClick={() => handleDeleteStudent(student._id, student.name)}
-                                                className="text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                <FaTrash />
-                                            </button>
+                                            {editingId === student._id ? (
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button onClick={() => handleSaveEdit(student._id)} className="text-green-400 hover:text-green-300 transition-colors">
+                                                        <FaCheck />
+                                                    </button>
+                                                    <button onClick={handleCancelEdit} className="text-red-400 hover:text-red-300 transition-colors">
+                                                        <FaTimes />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() => handleEditClick(student)}
+                                                        className="text-neon-yellow hover:text-white transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <FaEdit />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteStudent(student._id, student.name)}
+                                                        className="text-red-400 hover:text-red-300 transition-colors"
+                                                        title="Delete"
+                                                    >
+                                                        <FaTrash />
+                                                    </button>
+                                                </div>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
