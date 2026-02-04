@@ -11,6 +11,7 @@ import NoticeManager from '../components/admin/NoticeManager';
 import CalendarManager from '../components/admin/CalendarManager';
 import ResourceManager from '../components/admin/ResourceManager';
 import ClassManager from '../components/admin/ClassManager';
+import StudentStatistics from '../components/admin/StudentStatistics';
 import ProfileManager from '../components/shared/ProfileManager';
 
 // Student view components for admin's personal data
@@ -41,6 +42,7 @@ const AdminDashboard = () => {
         { label: 'Attendance History', path: '/admin/history', icon: <FaChartPie /> },
         { label: 'Class Strength', path: '/admin/class', icon: <FaSortNumericDown /> },
         { label: 'Manage Assignments', path: '/admin/assignments', icon: <FaClipboardList /> },
+        { label: 'Student Analytics', path: '/admin/stats', icon: <FaChartPie /> },
         { label: 'Manage Timetable', path: '/admin/timetable', icon: <FaCalendarAlt /> },
         { label: 'Calendar & Stats', path: '/admin/calendar', icon: <FaCalendarAlt /> },
         { label: 'Manage Notes', path: '/admin/resources', icon: <FaBook /> },
@@ -59,6 +61,7 @@ const AdminDashboard = () => {
         if (path === '/admin/history') return <AttendanceHistory />;
         if (path === '/admin/class') return <ClassManager />;
         if (path === '/admin/assignments') return <AssignmentManager />;
+        if (path === '/admin/stats') return <StudentStatistics />;
         if (path === '/admin/timetable') return <TimetableManager />;
         if (path === '/admin/calendar') return <CalendarManager />;
         if (path === '/admin/resources') return <ResourceManager />;
