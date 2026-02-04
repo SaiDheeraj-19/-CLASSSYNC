@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
-import { FaCheck, FaTimes, FaCheckDouble, FaTimesCircle, FaSave, FaCalendarDay } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaCheckDouble, FaTimesCircle, FaSave, FaCalendarDay, FaDownload } from 'react-icons/fa';
 
 const AttendanceManager = () => {
     const [students, setStudents] = useState([]);
@@ -137,6 +137,26 @@ const AttendanceManager = () => {
         return todaySchedule ? todaySchedule.slots : [];
     };
 
+    const downloadAbsentees = () => {
+        const absentees = students.filter(s => !attendanceMarks[s._id]);
+        if (absentees.length === 0) {
+            alert('No students marked as absent!');
+            return;
+        }
+
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + "Roll Number,Name,Date\n"
+            + absentees.map(s => `${s.rollNumber},"${s.name}",${attendanceDate}`).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `absentees_${attendanceDate}.csv`);
+        document.body.appendChild(link); // Required for FF
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const todaysClasses = getTodaysClasses();
     const presentCount = Object.values(attendanceMarks).filter(v => v).length;
     const absentCount = students.length - presentCount;
@@ -214,6 +234,13 @@ const AttendanceManager = () => {
                         className="text-xs text-neon-purple hover:text-white transition-colors px-4 py-2 border border-neon-purple/50"
                     >
                         {isConfigMode ? 'Back to Attendance' : 'Manage Subjects'}
+                    </button>
+                    <button
+                        onClick={downloadAbsentees}
+                        className="flex items-center gap-2 bg-neon-blue/20 border border-neon-blue text-neon-blue hover:bg-neon-blue hover:text-black px-4 py-2 transition-colors"
+                        title="Download Absentee List"
+                    >
+                        <FaDownload /> Absentees
                     </button>
                 </div>
             </div>
