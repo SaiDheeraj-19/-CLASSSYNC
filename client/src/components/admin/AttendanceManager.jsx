@@ -170,7 +170,9 @@ const AttendanceManager = () => {
                 <div className="bg-neon-purple/10 border border-neon-purple/30 p-4">
                     <p className="text-neon-purple text-xs uppercase tracking-wider">Today's Classes</p>
                     <p className="text-xl font-bold text-white">
-                        {todaysClasses.length > 0 ? todaysClasses.map(c => c.subject).join(', ') : 'None'}
+                        {todaysClasses.length > 0
+                            ? [...new Set(todaysClasses.map(c => c.subject.split('-')[0].trim()))].join(', ')
+                            : 'None'}
                     </p>
                 </div>
             </div>
@@ -186,7 +188,7 @@ const AttendanceManager = () => {
                             onChange={(e) => setSelectedSubject(e.target.value)}
                         >
                             <option value="" className="bg-cyber-dark">Select Subject</option>
-                            {/* Logic: Filter subjects based on date/timetable */}
+                            {/* Logic: Filter subjects based on date/timetable with partial matching */}
                             {(() => {
                                 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                                 const dayName = days[new Date(attendanceDate).getDay()];
@@ -194,8 +196,20 @@ const AttendanceManager = () => {
 
                                 // If schedule exists for this day, only show those subjects. 
                                 // Otherwise fall back to all subjects (e.g. for extra classes or holidays)
+                                // Use partial matching: timetable has "SE-308" but subject is "SE"
                                 const availableSubjects = todaySchedule
-                                    ? subjects.filter(sub => todaySchedule.slots.some(slot => slot.subject === sub.name))
+                                    ? subjects.filter(sub => {
+                                        const subNameLower = sub.name.toLowerCase();
+                                        return todaySchedule.slots.some(slot => {
+                                            const slotSubjectLower = slot.subject.toLowerCase();
+                                            // Check if the slot subject contains the subject name or vice versa
+                                            // Also extract just the subject part before the room number (e.g., "SE" from "SE-308")
+                                            const slotSubjectBase = slot.subject.split('-')[0].trim().toLowerCase();
+                                            return slotSubjectLower.includes(subNameLower) ||
+                                                subNameLower.includes(slotSubjectBase) ||
+                                                slotSubjectBase.includes(subNameLower);
+                                        });
+                                    })
                                     : subjects;
 
                                 return availableSubjects.length > 0
