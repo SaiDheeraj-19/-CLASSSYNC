@@ -4,6 +4,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { FaUserShield, FaClipboardList, FaCalendarAlt, FaBell, FaSignOutAlt, FaUsers, FaBook, FaBars, FaTimes, FaSortNumericDown, FaUserCog, FaChartPie, FaExchangeAlt } from 'react-icons/fa';
 
 import AttendanceManager from '../components/admin/AttendanceManager';
+import AttendanceHistory from '../components/admin/AttendanceHistory';
 import AssignmentManager from '../components/admin/AssignmentManager';
 import TimetableManager from '../components/admin/TimetableManager';
 import NoticeManager from '../components/admin/NoticeManager';
@@ -37,6 +38,7 @@ const AdminDashboard = () => {
 
     const navItems = [
         { label: 'Manage Attendance', path: '/admin', icon: <FaUsers /> },
+        { label: 'Attendance History', path: '/admin/history', icon: <FaChartPie /> },
         { label: 'Class Strength', path: '/admin/class', icon: <FaSortNumericDown /> },
         { label: 'Manage Assignments', path: '/admin/assignments', icon: <FaClipboardList /> },
         { label: 'Manage Timetable', path: '/admin/timetable', icon: <FaCalendarAlt /> },
@@ -54,6 +56,7 @@ const AdminDashboard = () => {
 
     const renderContent = () => {
         const path = location.pathname;
+        if (path === '/admin/history') return <AttendanceHistory />;
         if (path === '/admin/class') return <ClassManager />;
         if (path === '/admin/assignments') return <AssignmentManager />;
         if (path === '/admin/timetable') return <TimetableManager />;
