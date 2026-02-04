@@ -118,14 +118,16 @@ const AttendanceHistory = () => {
                                 <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-center">Total Classes</th>
                                 <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-center">Attended</th>
                                 <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-center">Percentage</th>
+                                <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-right">Last Updated</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {loading ? (
-                                <tr><td colSpan="5" className="p-8 text-center text-gray-500 animate-pulse">Loading Records...</td></tr>
+                                <tr><td colSpan="6" className="p-8 text-center text-gray-500 animate-pulse">Loading Records...</td></tr>
                             ) : filteredRecords.length > 0 ? (
                                 filteredRecords.map(record => {
                                     const percentage = getPercentage(record.attendedClasses, record.totalClasses);
+                                    const lastUpdated = new Date(record.updatedAt).toLocaleDateString();
                                     return (
                                         <tr key={record._id} className="hover:bg-white/5 transition-colors">
                                             <td className="p-4">
@@ -138,12 +140,15 @@ const AttendanceHistory = () => {
                                             <td className={`p-4 text-center font-bold text-lg ${getStatusColor(percentage)}`}>
                                                 {percentage}%
                                             </td>
+                                            <td className="p-4 text-right text-gray-500 text-sm font-code">
+                                                {lastUpdated}
+                                            </td>
                                         </tr>
                                     );
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan="5" className="p-8 text-center text-gray-500">
+                                    <td colSpan="6" className="p-8 text-center text-gray-500">
                                         No metrics found matching your filters.
                                     </td>
                                 </tr>

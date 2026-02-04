@@ -186,9 +186,24 @@ const AttendanceManager = () => {
                             onChange={(e) => setSelectedSubject(e.target.value)}
                         >
                             <option value="" className="bg-cyber-dark">Select Subject</option>
-                            {subjects.map(s => (
-                                <option key={s._id} value={s.name} className="bg-cyber-dark">{s.name}</option>
-                            ))}
+                            {/* Logic: Filter subjects based on date/timetable */}
+                            {(() => {
+                                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                                const dayName = days[new Date(attendanceDate).getDay()];
+                                const todaySchedule = timetable.find(t => t.day === dayName);
+
+                                // If schedule exists for this day, only show those subjects. 
+                                // Otherwise fall back to all subjects (e.g. for extra classes or holidays)
+                                const availableSubjects = todaySchedule
+                                    ? subjects.filter(sub => todaySchedule.slots.some(slot => slot.subject === sub.name))
+                                    : subjects;
+
+                                return availableSubjects.length > 0
+                                    ? availableSubjects.map(s => (
+                                        <option key={s._id} value={s.name} className="bg-cyber-dark">{s.name}</option>
+                                    ))
+                                    : <option disabled className="text-gray-500">No scheduled classes</option>;
+                            })()}
                         </select>
                     </div>
                     <div>
