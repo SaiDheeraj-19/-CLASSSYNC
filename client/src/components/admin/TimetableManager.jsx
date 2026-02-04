@@ -136,7 +136,7 @@ const TimetableManager = () => {
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6">
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-white">Schedule for {activeDay}</h3>
-                    <button onClick={handleSave} className="px-4 py-2 bg-neon-green text-black font-bold hover:bg-neon-green/80 flex items-center gap-2 transition-colors">
+                    <button onClick={handleSave} className="px-4 py-2 bg-neon-green text-black font-bold border border-neon-green hover:bg-black hover:text-neon-green flex items-center gap-2 transition-all">
                         <FaSave /> Save Changes
                     </button>
                 </div>
