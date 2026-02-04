@@ -19,10 +19,6 @@ router.get('/', auth, async (req, res) => {
 
             if (percentage < 75) {
                 status = 'Warning';
-                // (attended + x) / (total + x) >= 0.75
-                // attended + x >= 0.75*total + 0.75*x
-                // 0.25*x >= 0.75*total - attended
-                // x >= 3*total - 4*attended
                 classesNeeded = Math.ceil((0.75 * record.totalClasses - record.attendedClasses) / 0.25);
                 if (classesNeeded < 0) classesNeeded = 0;
             }
@@ -105,34 +101,56 @@ router.delete('/:id', [auth, admin], async (req, res) => {
 router.post('/bulk', [auth, admin], async (req, res) => {
     const { updates } = req.body; // Array of { studentId, subject, isPresent }
 
-    try {
-        const operations = updates.map(update => {
-            const studentObjectId = new mongoose.Types.ObjectId(update.studentId);
-            return {
-                updateOne: {
-                    filter: { student: studentObjectId, subject: update.subject },
-                    update: [
-                        {
-                            $set: {
-                                // If doc exists, use its values. If not (new doc inserted via upsert), use 0 as base.
-                                // However, standard $set doesn't reference existing fields easily in non-pipeline update.
-                                // We will use an aggregation pipeline for the update to reference existing fields.
+    if (!updates || updates.length === 0) {
+        return res.status(400).json({ message: 'No updates provided' });
+    }
 
-                                student: studentObjectId, // Ensure fields are set on insert with correct Type
-                                subject: update.subject,
-                                totalClasses: { $add: [{ $ifNull: ["$totalClasses", 0] }, 1] },
-                                attendedClasses: {
-                                    $add: [
-                                        { $ifNull: ["$attendedClasses", 0] },
-                                        update.isPresent ? 1 : 0
-                                    ]
-                                }
+    try {
+        const subject = updates[0].subject;
+        const studentIds = updates.map(u => u.studentId);
+
+        // Fetch existing records for this subject and these students
+        const existingRecords = await Attendance.find({
+            subject: subject,
+            student: { $in: studentIds }
+        });
+
+        // Map for quick lookup: studentId -> record
+        const recordMap = {};
+        existingRecords.forEach(record => {
+            // Use toString() because record.student is ObjectId
+            recordMap[record.student.toString()] = record;
+        });
+
+        const operations = updates.map(update => {
+            const existing = recordMap[update.studentId];
+
+            if (existing) {
+                // Update existing record
+                return {
+                    updateOne: {
+                        filter: { _id: existing._id },
+                        update: {
+                            $inc: {
+                                totalClasses: 1,
+                                attendedClasses: update.isPresent ? 1 : 0
                             }
                         }
-                    ],
-                    upsert: true
-                }
-            };
+                    }
+                };
+            } else {
+                // Insert new record
+                return {
+                    insertOne: {
+                        document: {
+                            student: update.studentId,
+                            subject: update.subject,
+                            totalClasses: 1,
+                            attendedClasses: update.isPresent ? 1 : 0
+                        }
+                    }
+                };
+            }
         });
 
         if (operations.length > 0) {
