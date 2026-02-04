@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
-import { FaSearch, FaFilter, FaDownload, FaChartPie } from 'react-icons/fa';
+import { FaSearch, FaFilter, FaDownload, FaChartPie, FaTrash } from 'react-icons/fa';
 
 const AttendanceHistory = () => {
     const [records, setRecords] = useState([]);
@@ -53,6 +53,18 @@ const AttendanceHistory = () => {
     const getPercentage = (attended, total) => {
         if (!total || total === 0) return 0;
         return Math.round((attended / total) * 100);
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this attendance record? This action cannot be undone.')) {
+            try {
+                await api.delete(`/attendance/${id}`);
+                setRecords(records.filter(record => record._id !== id));
+            } catch (err) {
+                console.error("Error deleting record", err);
+                alert("Failed to delete record");
+            }
+        }
     };
 
     const getStatusColor = (percentage) => {
@@ -119,11 +131,12 @@ const AttendanceHistory = () => {
                                 <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-center">Attended</th>
                                 <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-center">Percentage</th>
                                 <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-right">Last Updated</th>
+                                <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {loading ? (
-                                <tr><td colSpan="6" className="p-8 text-center text-gray-500 animate-pulse">Loading Records...</td></tr>
+                                <tr><td colSpan="7" className="p-8 text-center text-gray-500 animate-pulse">Loading Records...</td></tr>
                             ) : filteredRecords.length > 0 ? (
                                 filteredRecords.map(record => {
                                     const percentage = getPercentage(record.attendedClasses, record.totalClasses);
@@ -143,12 +156,21 @@ const AttendanceHistory = () => {
                                             <td className="p-4 text-right text-gray-500 text-sm font-code">
                                                 {lastUpdated}
                                             </td>
+                                            <td className="p-4 text-center">
+                                                <button
+                                                    onClick={() => handleDelete(record._id)}
+                                                    className="text-red-500 hover:text-red-400 transition-colors p-2 rounded hover:bg-red-500/10"
+                                                    title="Delete Record"
+                                                >
+                                                    <FaTrash />
+                                                </button>
+                                            </td>
                                         </tr>
                                     );
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan="6" className="p-8 text-center text-gray-500">
+                                    <td colSpan="7" className="p-8 text-center text-gray-500">
                                         No metrics found matching your filters.
                                     </td>
                                 </tr>
