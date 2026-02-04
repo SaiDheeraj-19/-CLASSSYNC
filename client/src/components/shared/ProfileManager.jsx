@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api';
-import { FaUser, FaSave, FaLock, FaIdCard, FaCheck } from 'react-icons/fa';
+import { FaUser, FaSave, FaLock, FaIdCard, FaCheck, FaShieldAlt } from 'react-icons/fa';
 
 const ProfileManager = () => {
     const { user } = useAuth();
@@ -15,6 +15,11 @@ const ProfileManager = () => {
         newPassword: '',
         confirmPassword: ''
     });
+
+    // Admin Secret State
+    const [newSecret, setNewSecret] = useState('');
+    const [secretMessage, setSecretMessage] = useState('');
+
     const [saving, setSaving] = useState(false);
     const [savingPassword, setSavingPassword] = useState(false);
     const [message, setMessage] = useState('');
@@ -65,6 +70,18 @@ const ProfileManager = () => {
         }
     };
 
+    const handleUpdateSecret = async (e) => {
+        e.preventDefault();
+        setSecretMessage('');
+        try {
+            await api.put('/auth/update-secret', { newSecret });
+            setSecretMessage('success: Master Key updated successfully!');
+            setNewSecret('');
+        } catch (err) {
+            setSecretMessage(err.response?.data?.message || 'Failed to update Master Key');
+        }
+    };
+
     return (
         <div className="max-w-4xl mx-auto space-y-8">
             {/* Profile Header */}
@@ -81,8 +98,8 @@ const ProfileManager = () => {
                             <FaIdCard className="text-neon-blue" /> {user?.rollNumber}
                         </p>
                         <span className={`inline-block mt-2 px-3 py-1 text-xs uppercase tracking-wider font-bold ${user?.role === 'admin'
-                                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                                : 'bg-neon-yellow/20 text-neon-yellow border border-neon-yellow/30'
+                            ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                            : 'bg-neon-yellow/20 text-neon-yellow border border-neon-yellow/30'
                             }`}>
                             {user?.role}
                         </span>
@@ -99,8 +116,8 @@ const ProfileManager = () => {
 
                     {message && (
                         <div className={`p-3 mb-4 text-sm ${message.includes('success')
-                                ? 'bg-green-500/10 border-l-2 border-green-500 text-green-400'
-                                : 'bg-red-500/10 border-l-2 border-red-500 text-red-400'
+                            ? 'bg-green-500/10 border-l-2 border-green-500 text-green-400'
+                            : 'bg-red-500/10 border-l-2 border-red-500 text-red-400'
                             }`}>
                             {message}
                         </div>
@@ -173,8 +190,8 @@ const ProfileManager = () => {
 
                     {passwordMessage && (
                         <div className={`p-3 mb-4 text-sm ${passwordMessage.includes('success')
-                                ? 'bg-green-500/10 border-l-2 border-green-500 text-green-400'
-                                : 'bg-red-500/10 border-l-2 border-red-500 text-red-400'
+                            ? 'bg-green-500/10 border-l-2 border-green-500 text-green-400'
+                            : 'bg-red-500/10 border-l-2 border-red-500 text-red-400'
                             }`}>
                             {passwordMessage}
                         </div>
@@ -222,6 +239,45 @@ const ProfileManager = () => {
                     </form>
                 </div>
             </div>
+
+            {/* Admin Master Key Update Section */}
+            {user?.role === 'admin' && (
+                <div className="bg-white/5 backdrop-blur-xl border border-red-500/20 p-6 max-w-2xl mx-auto">
+                    <h3 className="text-lg font-orbitron text-red-400 mb-6 flex items-center gap-2">
+                        <FaShieldAlt className="text-red-500" /> Admin Master Key Settings
+                    </h3>
+
+                    {secretMessage && (
+                        <div className={`p-3 mb-4 text-sm ${secretMessage.includes('success')
+                            ? 'bg-green-500/10 border-l-2 border-green-500 text-green-400'
+                            : 'bg-red-500/10 border-l-2 border-red-500 text-red-400'
+                            }`}>
+                            {secretMessage}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleUpdateSecret} className="space-y-4">
+                        <div>
+                            <label className="block text-xs text-red-400 uppercase tracking-wider mb-1">New Master Key</label>
+                            <input
+                                type="password"
+                                className="w-full bg-black/30 border border-red-500/30 text-white px-3 py-2 focus:outline-none focus:border-red-500 transition-colors"
+                                value={newSecret}
+                                onChange={(e) => setNewSecret(e.target.value)}
+                                placeholder="Enter new secret key"
+                                required
+                                minLength={6}
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full flex items-center justify-center gap-2 bg-red-600/20 border border-red-500 text-red-400 py-2 px-4 hover:bg-red-600 hover:text-white transition-colors font-bold"
+                        >
+                            <FaLock /> Update Master Key
+                        </button>
+                    </form>
+                </div>
+            )}
         </div>
     );
 };

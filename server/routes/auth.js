@@ -11,13 +11,25 @@ const { auth, admin } = require('../middleware/auth');
 // @route   POST api/auth/register
 // @desc    Register a user
 // @access  Public
+const Config = require('../models/Config');
+
+// @route   POST api/auth/register
+// @desc    Register a user
+// @access  Public
 router.post('/register', async (req, res) => {
     const { name, password, role, rollNumber, secretKey } = req.body;
 
     try {
         // Validation for Admin Role
         if (role === 'admin') {
-            if (secretKey !== process.env.ADMIN_SECRET) {
+            // Fetch dynamic secret from DB, create if not exists
+            let config = await Config.findOne({ key: 'admin_secret' });
+            if (!config) {
+                config = new Config({ key: 'admin_secret', value: 'cyberadmin2024' });
+                await config.save();
+            }
+
+            if (secretKey !== config.value) {
                 return res.status(403).json({ message: 'Admin registration requires a valid Secret Key' });
             }
         }
@@ -55,11 +67,35 @@ router.post('/register', async (req, res) => {
         );
     } catch (err) {
         console.error("SERVER REGISTRATION ERROR:", err);
-        // Write to error log file for debugging
         const fs = require('fs');
         fs.appendFileSync('error.log', `${new Date().toISOString()} - ${err.message}\n`);
-
         res.status(500).json({ message: 'Server error', error: err.message });
+    }
+});
+
+// @route   PUT api/auth/update-secret
+// @desc    Update Admin Master Key
+// @access  Private (Admin)
+router.put('/update-secret', [auth, admin], async (req, res) => {
+    const { newSecret } = req.body;
+
+    if (!newSecret || newSecret.length < 6) {
+        return res.status(400).json({ message: 'New secret must be at least 6 characters' });
+    }
+
+    try {
+        let config = await Config.findOne({ key: 'admin_secret' });
+        if (!config) {
+            config = new Config({ key: 'admin_secret', value: 'cyberadmin2024' });
+        }
+
+        config.value = newSecret;
+        await config.save();
+
+        res.json({ message: 'Admin Master Key updated successfully' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
     }
 });
 
