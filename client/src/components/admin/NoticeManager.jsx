@@ -82,6 +82,16 @@ const NoticeManager = () => {
                                 required
                             ></textarea>
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 uppercase tracking-wider">Link (Optional)</label>
+                            <input
+                                type="text"
+                                placeholder="http://example.com"
+                                className="w-full mt-1 bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
+                                value={formData.link || ''}
+                                onChange={e => setFormData({ ...formData, link: e.target.value })}
+                            />
+                        </div>
                         <button type="submit" className="btn-primary w-full bg-neon-green hover:bg-neon-green/80 text-black font-bold">Post</button>
                     </form>
                 </div>
