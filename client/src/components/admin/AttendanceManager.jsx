@@ -21,7 +21,7 @@ const AttendanceManager = () => {
     const fetchInitialData = useCallback(async () => {
         try {
             const [studentsRes, subjectsRes, timetableRes] = await Promise.all([
-                api.get('/auth/students'),
+                api.get('/auth/all-users'),
                 api.get('/subjects'),
                 api.get('/timetable')
             ]);
@@ -277,8 +277,8 @@ const AttendanceManager = () => {
                                         <button
                                             onClick={() => toggleAttendance(student._id)}
                                             className={`px-4 py-2 transition-colors ${attendanceMarks[student._id]
-                                                    ? 'bg-red-500/20 border border-red-500 text-red-400 hover:bg-red-500 hover:text-white'
-                                                    : 'bg-green-500/20 border border-green-500 text-green-400 hover:bg-green-500 hover:text-white'
+                                                ? 'bg-red-500/20 border border-red-500 text-red-400 hover:bg-red-500 hover:text-white'
+                                                : 'bg-green-500/20 border border-green-500 text-green-400 hover:bg-green-500 hover:text-white'
                                                 }`}
                                         >
                                             {attendanceMarks[student._id] ? 'Mark Absent' : 'Mark Present'}
@@ -304,8 +304,8 @@ const AttendanceManager = () => {
                         onClick={saveAttendance}
                         disabled={saving || !selectedSubject}
                         className={`flex items-center gap-2 px-6 py-3 font-bold transition-colors ${selectedSubject
-                                ? 'bg-neon-green text-black hover:bg-neon-green/80'
-                                : 'bg-gray-500/20 text-gray-500 cursor-not-allowed'
+                            ? 'bg-neon-green text-black hover:bg-neon-green/80'
+                            : 'bg-gray-500/20 text-gray-500 cursor-not-allowed'
                             }`}
                     >
                         <FaSave /> {saving ? 'Saving...' : 'Save Attendance'}
