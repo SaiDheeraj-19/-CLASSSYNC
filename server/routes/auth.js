@@ -146,6 +146,19 @@ router.delete('/students/:id', [auth, admin], async (req, res) => {
     }
 });
 
+// @route   DELETE api/auth/students
+// @desc    Delete all students
+// @access  Private (Admin)
+router.delete('/students', [auth, admin], async (req, res) => {
+    try {
+        await User.deleteMany({ role: 'student' });
+        res.json({ message: 'All students deleted successfully' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 // @route   PUT api/auth/profile
 // @desc    Update user profile
 // @access  Private

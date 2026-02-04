@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -8,20 +8,12 @@ import AdminRegister from './pages/AdminRegister';
 import StudentDashboard from './pages/StudentDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
-import LoadingScreen from './components/shared/LoadingScreen';
-
 import { AnimatePresence } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
 import PageTransition from './components/shared/PageTransition';
 
 function App() {
   const { loading } = useAuth();
   const location = useLocation();
-
-  // Show loading screen while checking authentication
-  if (loading) {
-    return <LoadingScreen />;
-  }
 
   return (
     <AnimatePresence mode="wait">

@@ -59,7 +59,25 @@ const ClassManager = () => {
             await api.delete(`/auth/students/${id}`);
             fetchStudents();
         } catch (err) {
+            console.error(err);
             alert('Failed to delete student');
+        }
+    };
+
+    const handleDeleteAll = async () => {
+        if (!confirm('WARNING: Are you sure you want to delete ALL students? This cannot be undone.')) return;
+
+        // Double confirmation for safety
+        const verification = prompt("Type 'CONFIRM' to proceed with deletion:");
+        if (verification !== 'CONFIRM') return;
+
+        try {
+            await api.delete('/auth/students');
+            fetchStudents();
+            alert('All student data successfully purged.');
+        } catch (err) {
+            console.error(err);
+            alert('Failed to purge data.');
         }
     };
 
@@ -81,12 +99,20 @@ const ClassManager = () => {
 
                 <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 relative overflow-hidden group col-span-2">
                     <h3 className="text-gray-400 font-orbitron tracking-widest text-sm uppercase mb-2">Quick Actions</h3>
-                    <button
-                        onClick={() => setShowAddForm(!showAddForm)}
-                        className="flex items-center gap-2 bg-neon-purple/20 border border-neon-purple text-neon-purple hover:bg-neon-purple hover:text-white px-4 py-2 transition-colors font-orbitron text-sm"
-                    >
-                        <FaUserPlus /> {showAddForm ? 'Cancel' : 'Add New Roll Number'}
-                    </button>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={() => setShowAddForm(!showAddForm)}
+                            className="flex items-center gap-2 bg-neon-purple/20 border border-neon-purple text-neon-purple hover:bg-neon-purple hover:text-white px-4 py-2 transition-colors font-orbitron text-sm"
+                        >
+                            <FaUserPlus /> {showAddForm ? 'Cancel' : 'Add New Roll Number'}
+                        </button>
+                        <button
+                            onClick={handleDeleteAll}
+                            className="flex items-center gap-2 bg-red-500/20 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 transition-colors font-orbitron text-sm"
+                        >
+                            <FaTrash /> purge_all_data
+                        </button>
+                    </div>
                 </div>
             </div>
 
