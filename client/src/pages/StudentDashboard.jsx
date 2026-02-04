@@ -84,7 +84,11 @@ const StudentDashboard = () => {
                             <p className="font-bold text-white tracking-wide">{user?.name}</p>
                             <p className="text-xs text-neon-yellow/80 uppercase tracking-widest">
                                 {user?.rollNumber || 'STUDENT'}
-                                {user?.role === 'admin' && <span className="text-neon-purple ml-2 font-bold">[ADMIN MODE]</span>}
+                                {user?.role === 'admin' && (
+                                    <Link to="/admin" className="text-neon-purple ml-2 font-bold hover:underline cursor-pointer">
+                                        [ADMIN MODE]
+                                    </Link>
+                                )}
                             </p>
                         </div>
                     </div>
