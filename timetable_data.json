@@ -1,0 +1,266 @@
+{
+    "Monday": [
+        {
+            "time": "9:00 AM",
+            "endTime": "9:50 AM",
+            "subject": "FSD-I-310",
+            "teacher": "",
+            "room": "310"
+        },
+        {
+            "time": "9:50 AM",
+            "endTime": "10:40 AM",
+            "subject": "",
+            "teacher": "",
+            "room": ""
+        },
+        {
+            "time": "10:40 AM",
+            "endTime": "11:30 AM",
+            "subject": "",
+            "teacher": "",
+            "room": ""
+        },
+        {
+            "time": "11:30 AM",
+            "endTime": "12:20 PM",
+            "subject": "OS LAB",
+            "teacher": "",
+            "room": "107 & 109"
+        },
+        {
+            "time": "12:20 PM",
+            "endTime": "1:10 PM",
+            "subject": "OS LAB",
+            "teacher": "",
+            "room": "107 & 109"
+        },
+        {
+            "time": "1:10 PM",
+            "endTime": "2:00 PM",
+            "subject": "",
+            "teacher": "",
+            "room": ""
+        }
+    ],
+    "Tuesday": [
+        {
+            "time": "9:00 AM",
+            "endTime": "9:50 AM",
+            "subject": "Technical_Coding",
+            "teacher": "",
+            "room": "202 SLC"
+        },
+        {
+            "time": "9:50 AM",
+            "endTime": "10:40 AM",
+            "subject": "Technical_Coding",
+            "teacher": "",
+            "room": "202 SLC"
+        },
+        {
+            "time": "10:40 AM",
+            "endTime": "11:30 AM",
+            "subject": "P & S",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "11:30 AM",
+            "endTime": "12:20 PM",
+            "subject": "OS",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "12:20 PM",
+            "endTime": "1:10 PM",
+            "subject": "SE",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "1:10 PM",
+            "endTime": "2:00 PM",
+            "subject": "",
+            "teacher": "",
+            "room": ""
+        }
+    ],
+    "Wednesday": [
+        {
+            "time": "9:00 AM",
+            "endTime": "9:50 AM",
+            "subject": "Java Lab",
+            "teacher": "",
+            "room": "107 & 109"
+        },
+        {
+            "time": "9:50 AM",
+            "endTime": "10:40 AM",
+            "subject": "Java Lab",
+            "teacher": "",
+            "room": "107 & 109"
+        },
+        {
+            "time": "10:40 AM",
+            "endTime": "11:30 AM",
+            "subject": "SE",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "11:30 AM",
+            "endTime": "12:20 PM",
+            "subject": "P & S",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "12:20 PM",
+            "endTime": "1:10 PM",
+            "subject": "OOPJ",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "1:10 PM",
+            "endTime": "2:00 PM",
+            "subject": "",
+            "teacher": "",
+            "room": ""
+        }
+    ],
+    "Thursday": [
+        {
+            "time": "9:00 AM",
+            "endTime": "9:50 AM",
+            "subject": "VERBAL",
+            "teacher": "",
+            "room": "301"
+        },
+        {
+            "time": "9:50 AM",
+            "endTime": "10:40 AM",
+            "subject": "VERBAL",
+            "teacher": "",
+            "room": "301"
+        },
+        {
+            "time": "10:40 AM",
+            "endTime": "11:30 AM",
+            "subject": "MEFA",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "11:30 AM",
+            "endTime": "12:20 PM",
+            "subject": "SE",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "12:20 PM",
+            "endTime": "1:10 PM",
+            "subject": "P & S",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "1:10 PM",
+            "endTime": "2:00 PM",
+            "subject": "",
+            "teacher": "",
+            "room": ""
+        }
+    ],
+    "Friday": [
+        {
+            "time": "9:00 AM",
+            "endTime": "9:50 AM",
+            "subject": "APTITUDE",
+            "teacher": "",
+            "room": "202 SLC"
+        },
+        {
+            "time": "9:50 AM",
+            "endTime": "10:40 AM",
+            "subject": "APTITUDE",
+            "teacher": "",
+            "room": "202 SLC"
+        },
+        {
+            "time": "10:40 AM",
+            "endTime": "11:30 AM",
+            "subject": "MEFA",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "11:30 AM",
+            "endTime": "12:20 PM",
+            "subject": "OOPJ",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "12:20 PM",
+            "endTime": "1:10 PM",
+            "subject": "OS",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "1:10 PM",
+            "endTime": "2:00 PM",
+            "subject": "",
+            "teacher": "",
+            "room": ""
+        }
+    ],
+    "Saturday": [
+        {
+            "time": "9:00 AM",
+            "endTime": "9:50 AM",
+            "subject": "DTI",
+            "teacher": "",
+            "room": "306"
+        },
+        {
+            "time": "9:50 AM",
+            "endTime": "10:40 AM",
+            "subject": "DTI",
+            "teacher": "",
+            "room": "306"
+        },
+        {
+            "time": "10:40 AM",
+            "endTime": "11:30 AM",
+            "subject": "OOPJ",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "11:30 AM",
+            "endTime": "12:20 PM",
+            "subject": "MEFA",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "12:20 PM",
+            "endTime": "1:10 PM",
+            "subject": "OS",
+            "teacher": "",
+            "room": "308"
+        },
+        {
+            "time": "1:10 PM",
+            "endTime": "2:00 PM",
+            "subject": "",
+            "teacher": "",
+            "room": ""
+        }
+    ]
+}

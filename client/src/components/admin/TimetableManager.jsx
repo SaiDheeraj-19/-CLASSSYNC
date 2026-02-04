@@ -6,6 +6,9 @@ const TimetableManager = () => {
     const [timetable, setTimetable] = useState([]);
     const [activeDay, setActiveDay] = useState('Monday');
     const [slots, setSlots] = useState([]);
+    // Store all day timetables locally to preserve changes when switching days
+    const [dayTimetables, setDayTimetables] = useState({});
+    const [saveStatus, setSaveStatus] = useState(''); // '', 'saving', 'saved'
 
     // Days constant
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -15,9 +18,16 @@ const TimetableManager = () => {
             const res = await api.get('/timetable');
             setTimetable(res.data);
 
+            // Build day-specific timetables object
+            const dayData = {};
+            res.data.forEach(t => {
+                dayData[t.day] = t.slots || [];
+            });
+            setDayTimetables(dayData);
+
             // Load slots for default active day
             const current = res.data.find(t => t.day === 'Monday');
-            if (current) setSlots(current.slots);
+            if (current) setSlots(current.slots || []);
             else setSlots([]);
 
         } catch (err) {
@@ -68,10 +78,21 @@ const TimetableManager = () => {
     }, []);
 
     const handleDayChange = (day) => {
+        if (day === activeDay) return; // Don't reload if same day
+
+        // Save current day's changes before switching
+        const updatedDayTimetables = {
+            ...dayTimetables,
+            [activeDay]: slots
+        };
+        setDayTimetables(updatedDayTimetables);
+
+        // Switch to new day
         setActiveDay(day);
-        const current = timetable.find(t => t.day === day);
-        if (current) setSlots(current.slots);
-        else setSlots([]);
+
+        // Load the new day's slots from our local state or empty array
+        const newDaySlots = updatedDayTimetables[day] || [];
+        setSlots(newDaySlots);
     };
 
     const handleAddSlot = () => {
@@ -91,21 +112,54 @@ const TimetableManager = () => {
 
     const handleSave = async () => {
         try {
+            setSaveStatus('saving');
+
+            // First, update dayTimetables with current slots
+            const updatedDayTimetables = {
+                ...dayTimetables,
+                [activeDay]: slots
+            };
+
             // Validate
             if (slots.some(s => !s.time || !s.endTime || !s.subject)) {
                 alert('Start Time, End Time, and Subject are required for all slots');
+                setSaveStatus('');
                 return;
             }
 
-            await api.post('/timetable', {
+            const response = await api.post('/timetable', {
                 day: activeDay,
-                slots
+                slots: slots
             });
-            alert(`Timetable for ${activeDay} updated!`);
-            fetchTimetable(); // Refresh
+
+            // Update local state immediately
+            setDayTimetables(updatedDayTimetables);
+
+            // Update timetable array with the saved data
+            const existingDayIndex = timetable.findIndex(t => t.day === activeDay);
+            const newTimetable = [...timetable];
+
+            if (existingDayIndex !== -1) {
+                // Update existing day
+                newTimetable[existingDayIndex] = response.data;
+            } else {
+                // Add new day
+                newTimetable.push(response.data);
+            }
+
+            setTimetable(newTimetable);
+
+            // Show success status
+            setSaveStatus('saved');
+
+            // Clear status after 2 seconds
+            setTimeout(() => {
+                setSaveStatus('');
+            }, 2000);
         } catch (err) {
             console.error(err);
             alert('Error updating timetable');
+            setSaveStatus('');
         }
     };
 
@@ -136,8 +190,18 @@ const TimetableManager = () => {
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6">
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-white">Schedule for {activeDay}</h3>
-                    <button onClick={handleSave} className="px-4 py-2 bg-neon-green text-black font-bold border border-neon-green hover:bg-black hover:text-neon-green flex items-center gap-2 transition-all">
-                        <FaSave /> Save Changes
+                    <button
+                        onClick={handleSave}
+                        disabled={saveStatus === 'saving'}
+                        className={`px-6 py-3 font-bold border-2 flex items-center gap-2 transition-all transform ${saveStatus === 'saved'
+                                ? 'bg-green-500 border-green-500 text-white scale-105'
+                                : saveStatus === 'saving'
+                                    ? 'bg-yellow-500 border-yellow-500 text-black opacity-75 cursor-wait'
+                                    : 'bg-neon-green text-black border-neon-green hover:bg-black hover:text-neon-green hover:scale-105 animate-pulse'
+                            }`}
+                    >
+                        <FaSave className={saveStatus === 'saving' ? 'animate-spin' : ''} />
+                        {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? '✓ Saved!' : 'Save Changes'}
                     </button>
                 </div>
 
