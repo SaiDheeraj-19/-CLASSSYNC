@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../../api';
-import { FaCheck, FaTimes, FaCheckDouble, FaTimesCircle, FaSave, FaCalendarDay, FaDownload } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaCheckDouble, FaTimesCircle, FaSave, FaCalendarDay, FaDownload, FaSortAmountUp, FaSortAmountDown } from 'react-icons/fa';
 
 // Helper to get current date in IST (Chennai time) as YYYY-MM-DD
 const getISTDate = () => {
@@ -23,6 +23,9 @@ const AttendanceManager = () => {
     // Config Mode for subjects
     const [isConfigMode, setIsConfigMode] = useState(false);
     const [newSubject, setNewSubject] = useState('');
+
+    // Sort order state: 'asc' or 'desc'
+    const [sortOrder, setSortOrder] = useState('asc');
 
     const fetchInitialData = useCallback(async () => {
         try {
@@ -153,6 +156,19 @@ const AttendanceManager = () => {
     const presentCount = Object.values(attendanceMarks).filter(v => v).length;
     const absentCount = students.length - presentCount;
 
+    // Sorted students list based on roll number
+    const sortedStudents = useMemo(() => {
+        return [...students].sort((a, b) => {
+            const rollA = a.rollNumber || '';
+            const rollB = b.rollNumber || '';
+            if (sortOrder === 'asc') {
+                return rollA.localeCompare(rollB, undefined, { numeric: true });
+            } else {
+                return rollB.localeCompare(rollA, undefined, { numeric: true });
+            }
+        });
+    }, [students, sortOrder]);
+
     if (loading) {
         return <div className="text-gray-400 animate-pulse">Loading...</div>;
     }
@@ -211,7 +227,7 @@ const AttendanceManager = () => {
                     </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                     <button
                         onClick={markAllPresent}
                         className="flex items-center gap-2 bg-green-500/20 border border-green-500 text-green-400 hover:bg-green-500 hover:text-white px-4 py-2 transition-colors"
@@ -223,6 +239,14 @@ const AttendanceManager = () => {
                         className="flex items-center gap-2 bg-red-500/20 border border-red-500 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 transition-colors"
                     >
                         <FaTimesCircle /> Mark All Absent
+                    </button>
+                    <button
+                        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                        className="flex items-center gap-2 bg-yellow-500/20 border border-yellow-500 text-yellow-400 hover:bg-yellow-500 hover:text-black px-4 py-2 transition-colors"
+                        title={sortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending'}
+                    >
+                        {sortOrder === 'asc' ? <FaSortAmountUp /> : <FaSortAmountDown />}
+                        {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
                     </button>
                     <button
                         onClick={() => setIsConfigMode(!isConfigMode)}
@@ -276,7 +300,7 @@ const AttendanceManager = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {students.length > 0 ? students.map((student, index) => (
+                            {sortedStudents.length > 0 ? sortedStudents.map((student, index) => (
                                 <tr
                                     key={student._id}
                                     className={`hover:bg-white/5 transition-colors ${attendanceMarks[student._id] ? '' : 'bg-red-500/10'}`}
