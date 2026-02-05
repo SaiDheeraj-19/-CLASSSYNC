@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { FaUserGraduate, FaCalendarAlt, FaClipboardList, FaBell, FaSignOutAlt, FaChartPie, FaBook, FaBars, FaTimes, FaLink, FaExternalLinkAlt, FaUserCog, FaBullhorn } from 'react-icons/fa';
+import { FaUserGraduate, FaCalendarAlt, FaClipboardList, FaBell, FaSignOutAlt, FaChartPie, FaBook, FaBars, FaTimes, FaLink, FaExternalLinkAlt, FaUserCog, FaBullhorn, FaMoon, FaSun } from 'react-icons/fa';
 import api from '../api';
 import useChennaiTime from '../hooks/useChennaiTime';
 
@@ -15,6 +16,7 @@ import ProfileManager from '../components/shared/ProfileManager';
 
 const StudentDashboard = () => {
     const { user, logout } = useAuth();
+    const { toggleTheme, isDark } = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
     const { time: chennaiTime, dayName, date: chennaiDate } = useChennaiTime();
@@ -110,9 +112,14 @@ const StudentDashboard = () => {
                 <h1 className="text-xl font-orbitron font-bold tracking-wider text-white">
                     CLASS<span className="text-neon-yellow">SYNC</span>
                 </h1>
-                <button onClick={toggleSidebar} className="text-neon-yellow text-xl">
-                    {isSidebarOpen ? <FaTimes /> : <FaBars />}
-                </button>
+                <div className="flex items-center gap-4">
+                    <button onClick={toggleTheme} className="text-neon-blue">
+                        {isDark ? <FaSun /> : <FaMoon />}
+                    </button>
+                    <button onClick={toggleSidebar} className="text-neon-yellow text-xl">
+                        {isSidebarOpen ? <FaTimes /> : <FaBars />}
+                    </button>
+                </div>
             </div>
 
             {/* Sidebar */}
@@ -122,9 +129,12 @@ const StudentDashboard = () => {
             `}>
                 <div className="p-8 border-b border-white/10 relative overflow-hidden group">
                     <div className="absolute inset-0 bg-neon-purple/5 group-hover:bg-neon-purple/10 transition-colors"></div>
-                    <h1 className="text-2xl font-orbitron font-bold text-white tracking-widest relative z-10">
-                        CLASS<span className="text-neon-yellow">SYNC</span>
-                    </h1>
+                    <div className="flex justify-between items-start relative z-10">
+                        <h1 className="text-2xl font-orbitron font-bold text-white tracking-widest">
+                            CLASS<span className="text-neon-yellow">SYNC</span>
+                        </h1>
+                    </div>
+
                     <div className="mt-4 flex items-center gap-3 relative z-10">
                         <div className="w-10 h-10 rounded-none bg-neon-yellow flex items-center justify-center text-black font-bold font-orbitron clip-path-slant">
                             {user?.name?.charAt(0) || 'U'}
@@ -171,7 +181,15 @@ const StudentDashboard = () => {
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-white/10">
+                <div className="p-4 border-t border-white/10 space-y-3">
+                    {/* Theme Toggle Button */}
+                    <button
+                        onClick={toggleTheme}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-transparent border border-neon-blue/30 text-neon-blue hover:bg-neon-blue hover:text-black transition-all duration-300 font-orbitron text-xs tracking-widest uppercase hover:shadow-[0_0_10px_rgba(0,243,255,0.4)]"
+                    >
+                        {isDark ? <><FaSun /> Light Mode</> : <><FaMoon /> Dark Mode</>}
+                    </button>
+
                     <button
                         onClick={handleLogout}
                         disabled={logoutLoading}
@@ -179,7 +197,7 @@ const StudentDashboard = () => {
                     >
                         <FaSignOutAlt /> {logoutLoading ? 'Terminating...' : 'Terminate'}
                     </button>
-                    <div className="text-center mt-4 text-[10px] text-gray-600 font-code uppercase">
+                    <div className="text-center mt-2 text-[10px] text-gray-600 font-code uppercase">
                         V 2.0.4 // SECURE
                     </div>
                 </div>

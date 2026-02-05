@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { FaUserShield, FaClipboardList, FaCalendarAlt, FaBell, FaSignOutAlt, FaUsers, FaBook, FaBars, FaTimes, FaSortNumericDown, FaUserCog, FaChartPie, FaExchangeAlt } from 'react-icons/fa';
+import { FaUserShield, FaClipboardList, FaCalendarAlt, FaBell, FaSignOutAlt, FaUsers, FaBook, FaBars, FaTimes, FaSortNumericDown, FaUserCog, FaChartPie, FaExchangeAlt, FaMoon, FaSun } from 'react-icons/fa';
 
 import AttendanceManager from '../components/admin/AttendanceManager';
 import AttendanceHistory from '../components/admin/AttendanceHistory';
@@ -22,6 +23,7 @@ import useChennaiTime from '../hooks/useChennaiTime';
 
 const AdminDashboard = () => {
     const { user, logout } = useAuth();
+    const { toggleTheme, isDark } = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
     const { time: chennaiTime, dayName, date: chennaiDate } = useChennaiTime();
@@ -89,9 +91,14 @@ const AdminDashboard = () => {
                 <h1 className="text-xl font-orbitron font-bold tracking-wider text-white">
                     CLASS<span className="text-neon-purple">SYNC</span>
                 </h1>
-                <button onClick={toggleSidebar} className="text-neon-purple text-xl">
-                    {isSidebarOpen ? <FaTimes /> : <FaBars />}
-                </button>
+                <div className="flex items-center gap-4">
+                    <button onClick={toggleTheme} className="text-neon-purple">
+                        {isDark ? <FaSun /> : <FaMoon />}
+                    </button>
+                    <button onClick={toggleSidebar} className="text-neon-purple text-xl">
+                        {isSidebarOpen ? <FaTimes /> : <FaBars />}
+                    </button>
+                </div>
             </div>
 
             {/* Sidebar */}
@@ -101,9 +108,12 @@ const AdminDashboard = () => {
             `}>
                 <div className="p-8 border-b border-white/10 relative overflow-hidden group">
                     <div className="absolute inset-0 bg-neon-blue/5 group-hover:bg-neon-blue/10 transition-colors"></div>
-                    <h1 className="text-2xl font-orbitron font-bold text-white tracking-widest relative z-10">
-                        CLASS<span className="text-neon-purple">SYNC</span>
-                    </h1>
+                    <div className="flex justify-between items-start relative z-10">
+                        <h1 className="text-2xl font-orbitron font-bold text-white tracking-widest">
+                            CLASS<span className="text-neon-purple">SYNC</span>
+                        </h1>
+                    </div>
+
                     <div className="mt-4 flex items-center gap-3 relative z-10">
                         <div className="w-10 h-10 rounded-none bg-neon-purple flex items-center justify-center text-white font-bold font-orbitron clip-path-slant">
                             <FaUserShield />
@@ -151,7 +161,15 @@ const AdminDashboard = () => {
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-white/10">
+                <div className="p-4 border-t border-white/10 space-y-3">
+                    {/* Theme Toggle Button */}
+                    <button
+                        onClick={toggleTheme}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-transparent border border-neon-purple/30 text-neon-purple hover:bg-neon-purple hover:text-white transition-all duration-300 font-orbitron text-xs tracking-widest uppercase hover:shadow-[0_0_10px_rgba(157,0,255,0.4)]"
+                    >
+                        {isDark ? <><FaSun /> Light Mode</> : <><FaMoon /> Dark Mode</>}
+                    </button>
+
                     <button
                         onClick={handleLogout}
                         disabled={logoutLoading}
@@ -159,7 +177,7 @@ const AdminDashboard = () => {
                     >
                         <FaSignOutAlt /> {logoutLoading ? 'Terminating...' : 'Terminate Session'}
                     </button>
-                    <div className="text-center mt-4 text-[10px] text-gray-600 font-code uppercase">
+                    <div className="text-center mt-2 text-[10px] text-gray-600 font-code uppercase">
                         SYSTEM_ADMIN // V 2.0.4
                     </div>
                 </div>

@@ -127,3 +127,156 @@
 .animate-scan-line {
   animation: scan-line 3s ease-in-out infinite;
 }
+
+/* ==================== LIGHT MODE STYLES ==================== */
+.light-mode {
+  --light-bg: #f5f7fa;
+  --light-card: #ffffff;
+  --light-text: #1a1a2e;
+  --light-text-secondary: #4a5568;
+  --light-border: #e2e8f0;
+  --light-accent: #6366f1;
+}
+
+.light-mode body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%) !important;
+  color: #1a1a2e !important;
+}
+
+.light-mode .bg-cyber-black,
+.light-mode .bg-cyber-dark {
+  background: #ffffff !important;
+}
+
+.light-mode .bg-white\/5,
+.light-mode .bg-black\/30,
+.light-mode .bg-black\/40,
+.light-mode .bg-black\/20 {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+.light-mode .border-white\/10,
+.light-mode .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.light-mode .text-white {
+  color: #1a1a2e !important;
+}
+
+.light-mode .text-gray-400,
+.light-mode .text-gray-500 {
+  color: #64748b !important;
+}
+
+.light-mode .text-gray-300 {
+  color: #475569 !important;
+}
+
+/* Sidebar in light mode */
+.light-mode aside,
+.light-mode .sidebar {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  border-right: 1px solid #e2e8f0 !important;
+}
+
+/* Cards in light mode */
+.light-mode .card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Input fields in light mode */
+.light-mode input,
+.light-mode select,
+.light-mode textarea {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1a1a2e !important;
+}
+
+.light-mode input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Tables in light mode */
+.light-mode table {
+  background: #ffffff !important;
+}
+
+.light-mode th {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+.light-mode td {
+  border-color: #e2e8f0 !important;
+}
+
+.light-mode tr:hover {
+  background: #f8fafc !important;
+}
+
+/* Keep neon colors but adjust for light mode */
+.light-mode .text-neon-green {
+  color: #10b981 !important;
+}
+
+.light-mode .text-neon-purple {
+  color: #8b5cf6 !important;
+}
+
+.light-mode .text-neon-blue {
+  color: #0ea5e9 !important;
+}
+
+.light-mode .text-neon-yellow {
+  color: #ca8a04 !important;
+}
+
+.light-mode .bg-neon-green {
+  background: #10b981 !important;
+}
+
+.light-mode .bg-neon-purple {
+  background: #8b5cf6 !important;
+}
+
+/* Buttons in light mode */
+.light-mode .btn-primary {
+  background: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+.light-mode .btn-primary:hover {
+  background: #4f46e5 !important;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+/* Scrollbar in light mode */
+.light-mode .custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.light-mode .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+.light-mode .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6366f1;
+}
+
+/* Header in light mode */
+.light-mode .backdrop-blur-xl {
+  background: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Status badges */
+.light-mode .bg-red-500\/20 {
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.light-mode .bg-green-500\/20 {
+  background: rgba(16, 185, 129, 0.1) !important;
+}
