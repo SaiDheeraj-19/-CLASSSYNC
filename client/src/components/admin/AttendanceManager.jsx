@@ -144,6 +144,39 @@ const AttendanceManager = () => {
         return selectedDate > today;
     };
 
+    // Handle date change with popup notification
+    const handleDateChange = (e) => {
+        const newDate = e.target.value;
+        setAttendanceDate(newDate);
+
+        // Get today's date for comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(newDate);
+        selectedDate.setHours(0, 0, 0, 0);
+
+        // Only show popup if not today
+        if (selectedDate.getTime() !== today.getTime()) {
+            const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+            const formattedDate = selectedDate.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+
+            if (selectedDate > today) {
+                alert(`⚠️ You have selected: ${formattedDate} (${dayName})\n\nThis is a FUTURE date. Attendance cannot be saved for future dates.`);
+            } else {
+                alert(`📅 You have selected: ${formattedDate} (${dayName})\n\nThis is a past date. Make sure you're marking attendance for the correct day.`);
+            }
+        }
+    };
+
+    // Format date as DD-MM-YYYY
+    const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
+
     // Get today's classes from timetable (using IST timezone)
     const getTodaysClasses = () => {
         // Get today's day name in IST timezone (Chennai time)
@@ -249,7 +282,7 @@ const AttendanceManager = () => {
                             type="date"
                             className="bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
                             value={attendanceDate}
-                            onChange={(e) => setAttendanceDate(e.target.value)}
+                            onChange={handleDateChange}
                         />
                     </div>
                 </div>
@@ -295,8 +328,8 @@ const AttendanceManager = () => {
                             <span className="text-neon-green font-bold">{selectedSubject || 'No Subject'}</span>
                             <span className="mx-2">•</span>
                             <span className={isFutureDate() ? 'text-red-400' : 'text-neon-yellow'}>
-                                {new Date(attendanceDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                {isFutureDate() && ' (Future)'}
+                                {formatDate(attendanceDate)} ({new Date(attendanceDate).toLocaleDateString('en-US', { weekday: 'short' })})
+                                {isFutureDate() && ' - Future'}
                             </span>
                         </div>
                         <button
