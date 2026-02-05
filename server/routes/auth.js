@@ -413,4 +413,39 @@ router.post('/check-user', async (req, res) => {
     }
 });
 
+// @route   POST api/auth/verify-name
+// @desc    Verify that roll number and name match (for forgot password step 2)
+// @access  Public
+router.post('/verify-name', async (req, res) => {
+    const { rollNumber, name } = req.body;
+
+    try {
+        if (!rollNumber || !name) {
+            return res.status(400).json({ verified: false, message: 'Roll number and name are required' });
+        }
+
+        const user = await User.findOne({
+            rollNumber: { $regex: new RegExp(`^${rollNumber}$`, 'i') }
+        });
+
+        if (!user) {
+            return res.status(404).json({ verified: false, message: 'No account found with this roll number' });
+        }
+
+        // Verify name matches (case-insensitive, trimmed)
+        const userName = user.name.toLowerCase().trim();
+        const providedName = name.toLowerCase().trim();
+
+        if (userName !== providedName) {
+            return res.status(400).json({ verified: false, message: 'Name verification failed. Please enter your name exactly as registered.' });
+        }
+
+        // Name verified successfully
+        res.json({ verified: true, message: 'Identity verified successfully!' });
+    } catch (err) {
+        console.error('Verify name error:', err.message);
+        res.status(500).json({ verified: false, message: 'Server error. Please try again.' });
+    }
+});
+
 module.exports = router;

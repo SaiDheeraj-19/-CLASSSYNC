@@ -36,7 +36,24 @@ const ForgotPassword = () => {
         }
     };
 
-    // Step 2 & 3: Reset password with verification
+    // Step 2: Verify name matches the roll number
+    const handleVerifyName = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            await api.post('/auth/verify-name', { rollNumber, name });
+            // Name verified, proceed to password reset
+            setStep(3);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Name verification failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Step 3: Reset password (name already verified)
     const handleResetPassword = async (e) => {
         e.preventDefault();
         setError('');
@@ -162,7 +179,7 @@ const ForgotPassword = () => {
 
                         {/* Step 2: Enter Name for Verification */}
                         {step === 2 && (
-                            <form onSubmit={(e) => { e.preventDefault(); setStep(3); }} className="space-y-6">
+                            <form onSubmit={handleVerifyName} className="space-y-6">
                                 <div className="group">
                                     <label className="block text-xs text-gray-400 uppercase tracking-wider mb-2 font-orbitron">
                                         Your Full Name (as registered)
@@ -183,17 +200,17 @@ const ForgotPassword = () => {
                                 <div className="flex gap-2">
                                     <button
                                         type="button"
-                                        onClick={() => setStep(1)}
+                                        onClick={() => { setStep(1); setError(''); }}
                                         className="border border-gray-600 text-gray-400 hover:text-white hover:border-white px-4 py-3 transition-colors"
                                     >
                                         <FaArrowLeft />
                                     </button>
                                     <button
                                         type="submit"
-                                        disabled={!name.trim()}
-                                        className={`btn-primary flex-1 ${!name.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        disabled={!name.trim() || loading}
+                                        className={`btn-primary flex-1 ${(!name.trim() || loading) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
-                                        Verify & Continue
+                                        {loading ? 'Verifying...' : 'Verify & Continue'}
                                     </button>
                                 </div>
                             </form>
