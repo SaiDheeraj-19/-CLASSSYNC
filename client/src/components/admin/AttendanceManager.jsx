@@ -357,10 +357,10 @@ const AttendanceManager = () => {
                 </div>
             )}
 
-            {/* Save Button - Fixed at bottom with high visibility */}
+            {/* Save Button - Sticky at bottom with high visibility */}
             {!isConfigMode && students.length > 0 && (
-                <div className="fixed bottom-0 left-0 right-0 z-50 bg-cyber-black/95 backdrop-blur-md border-t border-neon-green/30 p-4 shadow-[0_-10px_40px_rgba(0,255,150,0.2)]">
-                    <div className="max-w-7xl mx-auto flex items-center justify-between">
+                <div className="sticky bottom-0 z-40 bg-cyber-black/95 backdrop-blur-md border-t border-neon-green/30 p-4 mt-4 shadow-[0_-10px_40px_rgba(0,255,150,0.2)]">
+                    <div className="flex items-center justify-between">
                         <div className="text-white flex items-center gap-3">
                             <span className="text-gray-400">Subject:</span>
                             <span className="text-neon-green font-bold">{selectedSubject || 'Not Selected'}</span>
@@ -372,7 +372,7 @@ const AttendanceManager = () => {
                             onClick={saveAttendance}
                             disabled={saving || !selectedSubject}
                             className={`flex items-center gap-3 px-10 py-4 font-bold text-xl uppercase tracking-wider transition-all ${selectedSubject
-                                ? 'bg-neon-green text-black hover:bg-white hover:scale-105 shadow-[0_0_30px_rgba(0,255,150,0.5)] animate-pulse'
+                                ? 'bg-neon-green text-black hover:bg-white hover:scale-105 shadow-[0_0_30px_rgba(0,255,150,0.5)]'
                                 : 'bg-gray-700 text-gray-400 cursor-not-allowed'
                                 }`}
                         >
@@ -380,11 +380,6 @@ const AttendanceManager = () => {
                         </button>
                     </div>
                 </div>
-            )}
-
-            {/* Spacer for fixed bottom bar */}
-            {!isConfigMode && students.length > 0 && (
-                <div className="h-24"></div>
             )}
         </div>
     );
