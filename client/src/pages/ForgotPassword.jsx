@@ -159,7 +159,7 @@ const ForgotPassword = () => {
                                         <input
                                             type="text"
                                             className="w-full bg-transparent border-b border-gray-700 text-white pl-8 py-2 focus:outline-none focus:border-neon-blue transition-colors font-rajdhani text-lg"
-                                            placeholder="e.g. 25ATA05L45"
+                                            placeholder="Enter Roll Number"
                                             value={rollNumber}
                                             onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
                                             required
