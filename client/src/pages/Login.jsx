@@ -155,11 +155,19 @@ const Login = () => {
                         </button>
                     </form>
 
-                    <div className="mt-8 text-center">
-                        <p className="text-gray-500 text-sm">New User?</p>
-                        <Link to="/register" className="text-neon-purple hover:text-white transition-colors font-orbitron text-sm uppercase tracking-wider mt-2 inline-block border-b border-transparent hover:border-white">
-                            // Create Identity
+                    <div className="mt-8 text-center space-y-3">
+                        <Link
+                            to="/forgot-password"
+                            className="text-neon-blue hover:text-white transition-colors font-orbitron text-xs uppercase tracking-wider block"
+                        >
+                            // Forgot Password?
                         </Link>
+                        <div>
+                            <p className="text-gray-500 text-sm">New User?</p>
+                            <Link to="/register" className="text-neon-purple hover:text-white transition-colors font-orbitron text-sm uppercase tracking-wider mt-2 inline-block border-b border-transparent hover:border-white">
+                                // Create Identity
+                            </Link>
+                        </div>
                     </div>
                 </div>
 

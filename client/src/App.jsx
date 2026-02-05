@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import AdminLogin from './pages/AdminLogin';
 import AdminRegister from './pages/AdminRegister';
 import StudentDashboard from './pages/StudentDashboard';
@@ -23,6 +24,7 @@ function App() {
       <Routes location={location} key={location.pathname}>
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
         <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
+        <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
         <Route path="/admin/login" element={<PageTransition><AdminLogin /></PageTransition>} />
         <Route path="/admin/register" element={<PageTransition><AdminRegister /></PageTransition>} />
 

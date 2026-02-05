@@ -106,14 +106,20 @@ router.post('/login', async (req, res) => {
     const { rollNumber, password } = req.body;
 
     try {
-        let user = await User.findOne({ rollNumber });
+        // Case-insensitive roll number search to fix login issues
+        let user = await User.findOne({
+            rollNumber: { $regex: new RegExp(`^${rollNumber}$`, 'i') }
+        });
+
         if (!user) {
-            return res.status(400).json({ message: 'Invalid Credentials' });
+            console.log(`Login failed: Roll number not found - ${rollNumber}`);
+            return res.status(400).json({ message: 'Invalid Roll Number or Password' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid Credentials' });
+            console.log(`Login failed: Wrong password for roll number - ${rollNumber}`);
+            return res.status(400).json({ message: 'Invalid Roll Number or Password' });
         }
 
         const payload = {
@@ -127,12 +133,13 @@ router.post('/login', async (req, res) => {
             { expiresIn: '5d' },
             (err, token) => {
                 if (err) throw err;
+                console.log(`Login successful for: ${user.rollNumber} (${user.name})`);
                 res.json({ token, user: { id: user.id, name: user.name, rollNumber: user.rollNumber, role: user.role } });
             }
         );
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        console.error('Login error:', err.message);
+        res.status(500).json({ message: 'Server error. Please try again.' });
     }
 });
 
@@ -288,6 +295,112 @@ router.put('/password', auth, async (req, res) => {
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
+    }
+});
+
+// @route   POST api/auth/forgot-password
+// @desc    Reset password using roll number and name verification
+// @access  Public
+router.post('/forgot-password', async (req, res) => {
+    const { rollNumber, name, newPassword } = req.body;
+
+    try {
+        // Validate input
+        if (!rollNumber || !name || !newPassword) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
+        }
+
+        // Case-insensitive search for roll number
+        const user = await User.findOne({
+            rollNumber: { $regex: new RegExp(`^${rollNumber}$`, 'i') }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'No account found with this roll number' });
+        }
+
+        // Verify name matches (case-insensitive, trimmed)
+        const userName = user.name.toLowerCase().trim();
+        const providedName = name.toLowerCase().trim();
+
+        if (userName !== providedName) {
+            return res.status(400).json({ message: 'Verification failed. Name does not match our records.' });
+        }
+
+        // Reset password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        console.log(`Password reset successful for: ${user.rollNumber} (${user.name})`);
+        res.json({ message: 'Password reset successfully! You can now login with your new password.' });
+    } catch (err) {
+        console.error('Forgot password error:', err.message);
+        res.status(500).json({ message: 'Server error. Please try again.' });
+    }
+});
+
+// @route   PUT api/auth/reset-password/:id
+// @desc    Admin resets a student's password
+// @access  Private (Admin)
+router.put('/reset-password/:id', [auth, admin], async (req, res) => {
+    const { newPassword } = req.body;
+
+    try {
+        if (!newPassword || newPassword.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
+        }
+
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        console.log(`Admin reset password for: ${user.rollNumber} (${user.name})`);
+        res.json({ message: `Password reset successfully for ${user.name}` });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   POST api/auth/check-user
+// @desc    Check if a user exists with the given roll number
+// @access  Public
+router.post('/check-user', async (req, res) => {
+    const { rollNumber } = req.body;
+
+    try {
+        const user = await User.findOne({
+            rollNumber: { $regex: new RegExp(`^${rollNumber}$`, 'i') }
+        });
+
+        if (!user) {
+            return res.status(404).json({ exists: false, message: 'No account found with this roll number' });
+        }
+
+        // Return masked name for verification hint
+        const nameParts = user.name.split(' ');
+        const maskedName = nameParts.map(part =>
+            part.charAt(0) + '*'.repeat(Math.max(part.length - 2, 1)) + (part.length > 1 ? part.charAt(part.length - 1) : '')
+        ).join(' ');
+
+        res.json({
+            exists: true,
+            hint: `Account found! Enter your full name to verify: ${maskedName}`
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
