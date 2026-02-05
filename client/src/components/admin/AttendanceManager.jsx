@@ -268,6 +268,16 @@ const AttendanceManager = () => {
                     >
                         <FaDownload /> Absentees
                     </button>
+                    <button
+                        onClick={saveAttendance}
+                        disabled={saving || !selectedSubject}
+                        className={`flex items-center gap-2 px-6 py-2 font-bold transition-all ${selectedSubject
+                            ? 'bg-neon-green text-black hover:bg-neon-green/80 shadow-[0_0_15px_rgba(0,255,150,0.3)]'
+                            : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                            }`}
+                    >
+                        <FaSave /> {saving ? 'Saving...' : 'Save Attendance'}
+                    </button>
                 </div>
             </div>
 
@@ -354,31 +364,6 @@ const AttendanceManager = () => {
                             )}
                         </tbody>
                     </table>
-                </div>
-            )}
-
-            {/* Save Button - Sticky at bottom with high visibility */}
-            {!isConfigMode && students.length > 0 && (
-                <div className="sticky bottom-0 z-40 bg-cyber-black/95 backdrop-blur-md border-t border-neon-green/30 p-4 mt-4 shadow-[0_-10px_40px_rgba(0,255,150,0.2)]">
-                    <div className="flex items-center justify-between">
-                        <div className="text-white flex items-center gap-3">
-                            <span className="text-gray-400">Subject:</span>
-                            <span className="text-neon-green font-bold">{selectedSubject || 'Not Selected'}</span>
-                            <span className="text-gray-500">|</span>
-                            <span className="text-gray-400">Students:</span>
-                            <span className="text-white font-bold">{students.length}</span>
-                        </div>
-                        <button
-                            onClick={saveAttendance}
-                            disabled={saving || !selectedSubject}
-                            className={`flex items-center gap-3 px-10 py-4 font-bold text-xl uppercase tracking-wider transition-all ${selectedSubject
-                                ? 'bg-neon-green text-black hover:bg-white hover:scale-105 shadow-[0_0_30px_rgba(0,255,150,0.5)]'
-                                : 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                                }`}
-                        >
-                            <FaSave className="text-2xl" /> {saving ? 'Saving...' : 'SAVE ATTENDANCE'}
-                        </button>
-                    </div>
                 </div>
             )}
         </div>
