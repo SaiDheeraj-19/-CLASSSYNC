@@ -357,19 +357,21 @@ const AttendanceManager = () => {
                 </div>
             )}
 
-            {/* Save Button */}
+            {/* Save Button - Sticky at bottom */}
             {!isConfigMode && students.length > 0 && (
-                <div className="flex justify-end">
-                    <button
-                        onClick={saveAttendance}
-                        disabled={saving || !selectedSubject}
-                        className={`flex items-center gap-2 px-6 py-3 font-bold transition-colors ${selectedSubject
-                            ? 'bg-neon-green text-black hover:bg-neon-green/80'
-                            : 'bg-gray-500/20 text-gray-500 cursor-not-allowed'
-                            }`}
-                    >
-                        <FaSave /> {saving ? 'Saving...' : 'Save Attendance'}
-                    </button>
+                <div className="sticky bottom-0 pt-4 pb-2 bg-gradient-to-t from-cyber-black via-cyber-black to-transparent">
+                    <div className="flex justify-end">
+                        <button
+                            onClick={saveAttendance}
+                            disabled={saving || !selectedSubject}
+                            className={`flex items-center gap-2 px-8 py-4 font-bold text-lg transition-all shadow-lg ${selectedSubject
+                                ? 'bg-neon-green text-black hover:bg-neon-green/80 hover:scale-105'
+                                : 'bg-gray-500/20 text-gray-500 cursor-not-allowed'
+                                }`}
+                        >
+                            <FaSave /> {saving ? 'Saving...' : 'Save Attendance'}
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
