@@ -323,9 +323,9 @@ const AttendanceManager = () => {
                     </button>
 
                     {/* Save Attendance Card with Subject & Date info */}
-                    <div className="flex flex-col items-end">
-                        <div className="text-xs text-gray-400 mb-1 text-right">
-                            <span className="text-neon-green font-bold">{selectedSubject || 'No Subject'}</span>
+                    <div className="flex flex-col items-end bg-black/40 border border-neon-green/30 p-3 ml-auto">
+                        <div className="text-xs text-gray-400 mb-2 text-right">
+                            <span className="text-neon-green font-bold text-sm">{selectedSubject || 'No Subject'}</span>
                             <span className="mx-2">•</span>
                             <span className={isFutureDate() ? 'text-red-400' : 'text-neon-yellow'}>
                                 {formatDate(attendanceDate)} ({new Date(attendanceDate).toLocaleDateString('en-US', { weekday: 'short' })})
@@ -335,13 +335,13 @@ const AttendanceManager = () => {
                         <button
                             onClick={saveAttendance}
                             disabled={saving || !selectedSubject || isFutureDate()}
-                            className={`flex items-center gap-2 px-6 py-2 font-bold transition-all ${selectedSubject && !isFutureDate()
-                                ? 'bg-neon-green text-black hover:bg-neon-green/80 shadow-[0_0_15px_rgba(0,255,150,0.3)]'
-                                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                            className={`flex items-center gap-3 px-8 py-3 font-bold text-lg uppercase tracking-wider transition-all ${selectedSubject && !isFutureDate()
+                                ? 'bg-neon-green text-black hover:bg-white hover:scale-105 shadow-[0_0_25px_rgba(0,255,150,0.5)] animate-pulse border-2 border-neon-green'
+                                : 'bg-gray-700 text-gray-400 cursor-not-allowed border border-gray-600'
                                 }`}
-                            title={isFutureDate() ? 'Cannot save attendance for future dates' : ''}
+                            title={isFutureDate() ? 'Cannot save attendance for future dates' : 'Click to save attendance'}
                         >
-                            <FaSave /> {saving ? 'Saving...' : 'Save Attendance'}
+                            <FaSave className="text-xl" /> {saving ? 'SAVING...' : 'SAVE ATTENDANCE'}
                         </button>
                     </div>
                 </div>
