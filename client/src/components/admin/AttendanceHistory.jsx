@@ -67,6 +67,30 @@ const AttendanceHistory = () => {
         }
     };
 
+    const handleDeleteAll = async () => {
+        const confirmMsg = selectedSubject
+            ? `Are you sure you want to delete ALL attendance records for "${selectedSubject}"? This will reset attendance for all students in this subject.`
+            : 'Are you sure you want to delete ALL attendance records for ALL subjects? This action CANNOT be undone!';
+
+        if (window.confirm(confirmMsg)) {
+            // Double confirmation for safety
+            if (window.confirm('⚠️ FINAL WARNING: This will permanently delete attendance data. Type "DELETE" to confirm.')) {
+                try {
+                    // Delete filtered records (by subject if selected)
+                    const idsToDelete = filteredRecords.map(r => r._id);
+                    await Promise.all(idsToDelete.map(id => api.delete(`/attendance/${id}`)));
+
+                    // Update state
+                    setRecords(records.filter(r => !idsToDelete.includes(r._id)));
+                    alert(`Successfully deleted ${idsToDelete.length} attendance record(s).`);
+                } catch (err) {
+                    console.error("Error deleting records", err);
+                    alert("Failed to delete some records. Please try again.");
+                }
+            }
+        }
+    };
+
     const getStatusColor = (percentage) => {
         if (percentage >= 75) return 'text-neon-green';
         if (percentage >= 65) return 'text-yellow-400';
@@ -84,6 +108,15 @@ const AttendanceHistory = () => {
                         </h2>
                         <p className="text-gray-400 text-sm mt-1">View cumulative attendance records by subject.</p>
                     </div>
+                    {/* Delete All Button */}
+                    {filteredRecords.length > 0 && (
+                        <button
+                            onClick={handleDeleteAll}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition-all font-bold"
+                        >
+                            <FaTrash /> Delete All {selectedSubject ? `(${selectedSubject})` : ''}
+                        </button>
+                    )}
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-4">
