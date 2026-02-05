@@ -105,6 +105,17 @@ const AttendanceManager = () => {
             return;
         }
 
+        // Check if date is in the future (using IST)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(attendanceDate);
+        selectedDate.setHours(0, 0, 0, 0);
+
+        if (selectedDate > today) {
+            alert('Cannot save attendance for future dates!');
+            return;
+        }
+
         setSaving(true);
         try {
             const updates = students.map(student => ({
@@ -122,6 +133,15 @@ const AttendanceManager = () => {
         } finally {
             setSaving(false);
         }
+    };
+
+    // Check if selected date is in the future
+    const isFutureDate = () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(attendanceDate);
+        selectedDate.setHours(0, 0, 0, 0);
+        return selectedDate > today;
     };
 
     // Get today's classes from timetable (using IST timezone)
@@ -274,15 +294,19 @@ const AttendanceManager = () => {
                         <div className="text-xs text-gray-400 mb-1 text-right">
                             <span className="text-neon-green font-bold">{selectedSubject || 'No Subject'}</span>
                             <span className="mx-2">•</span>
-                            <span className="text-neon-yellow">{new Date(attendanceDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                            <span className={isFutureDate() ? 'text-red-400' : 'text-neon-yellow'}>
+                                {new Date(attendanceDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                {isFutureDate() && ' (Future)'}
+                            </span>
                         </div>
                         <button
                             onClick={saveAttendance}
-                            disabled={saving || !selectedSubject}
-                            className={`flex items-center gap-2 px-6 py-2 font-bold transition-all ${selectedSubject
+                            disabled={saving || !selectedSubject || isFutureDate()}
+                            className={`flex items-center gap-2 px-6 py-2 font-bold transition-all ${selectedSubject && !isFutureDate()
                                 ? 'bg-neon-green text-black hover:bg-neon-green/80 shadow-[0_0_15px_rgba(0,255,150,0.3)]'
                                 : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                                 }`}
+                            title={isFutureDate() ? 'Cannot save attendance for future dates' : ''}
                         >
                             <FaSave /> {saving ? 'Saving...' : 'Save Attendance'}
                         </button>
