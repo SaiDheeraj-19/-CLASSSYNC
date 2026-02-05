@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../api';
 import { FaUserGraduate, FaSortNumericDown, FaSearch, FaUserPlus, FaTrash, FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
 
@@ -31,10 +31,19 @@ const ClassManager = () => {
         fetchStudents();
     }, []);
 
-    const filteredStudents = students.filter(s =>
-        s.rollNumber?.toLowerCase().includes(filter.toLowerCase()) ||
-        s.name?.toLowerCase().includes(filter.toLowerCase())
-    );
+    // Filter and sort by roll number in ascending order
+    const filteredStudents = useMemo(() => {
+        const filtered = students.filter(s =>
+            s.rollNumber?.toLowerCase().includes(filter.toLowerCase()) ||
+            s.name?.toLowerCase().includes(filter.toLowerCase())
+        );
+        // Sort by roll number in ascending order with numeric comparison
+        return filtered.sort((a, b) => {
+            const rollA = a.rollNumber || '';
+            const rollB = b.rollNumber || '';
+            return rollA.localeCompare(rollB, undefined, { numeric: true });
+        });
+    }, [students, filter]);
 
     const handleAddStudent = async (e) => {
         e.preventDefault();

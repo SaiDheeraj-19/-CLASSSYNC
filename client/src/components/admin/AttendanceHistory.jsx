@@ -43,11 +43,11 @@ const AttendanceHistory = () => {
         return matchSubject && matchSearch;
     });
 
-    // Sort by roll number if available
+    // Sort by roll number in ascending order with numeric comparison
     filteredRecords.sort((a, b) => {
         const rollA = a.student?.rollNumber || '';
         const rollB = b.student?.rollNumber || '';
-        return rollA.localeCompare(rollB);
+        return rollA.localeCompare(rollB, undefined, { numeric: true });
     });
 
     const getPercentage = (attended, total) => {

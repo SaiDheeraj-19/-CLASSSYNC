@@ -139,9 +139,16 @@ const AttendanceManager = () => {
             return;
         }
 
+        // Sort absentees by roll number in ascending order
+        const sortedAbsentees = [...absentees].sort((a, b) => {
+            const rollA = a.rollNumber || '';
+            const rollB = b.rollNumber || '';
+            return rollA.localeCompare(rollB, undefined, { numeric: true });
+        });
+
         const csvContent = "data:text/csv;charset=utf-8,"
             + "Roll Number,Name,Date\n"
-            + absentees.map(s => `${s.rollNumber},"${s.name}",${attendanceDate}`).join("\n");
+            + sortedAbsentees.map(s => `${s.rollNumber},"${s.name}",${attendanceDate}`).join("\n");
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");

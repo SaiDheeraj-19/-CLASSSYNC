@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../api';
 import { FaDownload, FaChartLine, FaSearch } from 'react-icons/fa';
 
@@ -54,10 +54,19 @@ const StudentStatistics = () => {
         fetchData();
     }, []);
 
-    const filteredStats = stats.filter(s =>
-        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.rollNumber.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Filter and sort by roll number in ascending order
+    const filteredStats = useMemo(() => {
+        const filtered = stats.filter(s =>
+            s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            s.rollNumber.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        // Sort by roll number in ascending order with numeric comparison
+        return filtered.sort((a, b) => {
+            const rollA = a.rollNumber || '';
+            const rollB = b.rollNumber || '';
+            return rollA.localeCompare(rollB, undefined, { numeric: true });
+        });
+    }, [stats, searchQuery]);
 
     const getStatusColor = (pct) => {
         if (pct >= 75) return 'text-neon-green';
