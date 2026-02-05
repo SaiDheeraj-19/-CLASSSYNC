@@ -112,9 +112,10 @@ const Register = () => {
                                     <input
                                         type="text"
                                         name="rollNumber"
-                                        className="w-full bg-transparent border-b border-gray-700 text-white pl-8 py-2 focus:outline-none focus:border-neon-purple transition-colors font-rajdhani text-lg"
-                                        placeholder="e.g. 24ata05001"
-                                        onChange={handleChange}
+                                        value={formData.rollNumber}
+                                        className="w-full bg-transparent border-b border-gray-700 text-white pl-8 py-2 focus:outline-none focus:border-neon-purple transition-colors font-rajdhani text-lg uppercase"
+                                        placeholder="e.g. 24ATA05001"
+                                        onChange={(e) => setFormData({ ...formData, rollNumber: e.target.value.toUpperCase() })}
                                         required
                                     />
                                 </div>

@@ -75,10 +75,10 @@ const AdminLogin = () => {
                                 <FaShieldAlt className="absolute left-0 text-gray-500 group-focus-within:text-red-500 transition-colors" />
                                 <input
                                     type="text"
-                                    className="w-full bg-transparent border-b border-gray-700 text-white pl-8 py-2 focus:outline-none focus:border-red-500 transition-colors font-rajdhani text-lg"
+                                    className="w-full bg-transparent border-b border-gray-700 text-white pl-8 py-2 focus:outline-none focus:border-red-500 transition-colors font-rajdhani text-lg uppercase"
                                     placeholder="Enter Admin ID"
                                     value={rollNumber}
-                                    onChange={(e) => setRollNumber(e.target.value)}
+                                    onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
                                     required
                                 />
                             </div>

@@ -115,10 +115,10 @@ const Login = () => {
                                 <FaFingerprint className="absolute left-0 text-gray-500 group-focus-within:text-neon-yellow transition-colors" />
                                 <input
                                     type="text"
-                                    className="w-full bg-transparent border-b border-gray-700 text-white pl-8 py-2 focus:outline-none focus:border-neon-yellow transition-colors font-rajdhani text-lg"
+                                    className="w-full bg-transparent border-b border-gray-700 text-white pl-8 py-2 focus:outline-none focus:border-neon-yellow transition-colors font-rajdhani text-lg uppercase"
                                     placeholder="Enter Roll No."
                                     value={rollNumber}
-                                    onChange={(e) => setRollNumber(e.target.value)}
+                                    onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
                                     required
                                 />
                             </div>

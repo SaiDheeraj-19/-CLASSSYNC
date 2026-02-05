@@ -34,16 +34,22 @@ router.post('/register', async (req, res) => {
             }
         }
 
-        let user = await User.findOne({ rollNumber });
+        // Normalize roll number to uppercase for consistency
+        const normalizedRollNumber = rollNumber.toUpperCase().trim();
+
+        // Case-insensitive check for existing user
+        let user = await User.findOne({
+            rollNumber: { $regex: new RegExp(`^${normalizedRollNumber}$`, 'i') }
+        });
         if (user) {
             return res.status(400).json({ message: 'User with this Roll Number already exists' });
         }
 
         user = new User({
-            name,
+            name: name.trim(),
             password,
             role: role || 'student',
-            rollNumber
+            rollNumber: normalizedRollNumber
         });
 
         const salt = await bcrypt.genSalt(10);
@@ -194,13 +200,16 @@ router.put('/students/:id', [auth, admin], async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // If updating roll number, check if it's already taken by someone else
-        if (rollNumber && rollNumber !== user.rollNumber) {
-            const existingUser = await User.findOne({ rollNumber });
+        // If updating roll number, check if it's already taken by someone else (case-insensitive)
+        if (rollNumber && rollNumber.toUpperCase() !== user.rollNumber.toUpperCase()) {
+            const normalizedNewRoll = rollNumber.toUpperCase().trim();
+            const existingUser = await User.findOne({
+                rollNumber: { $regex: new RegExp(`^${normalizedNewRoll}$`, 'i') }
+            });
             if (existingUser) {
                 return res.status(400).json({ message: 'Roll Number already exists' });
             }
-            user.rollNumber = rollNumber;
+            user.rollNumber = normalizedNewRoll;
         }
 
         if (name) user.name = name;
