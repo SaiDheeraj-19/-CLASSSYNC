@@ -268,16 +268,25 @@ const AttendanceManager = () => {
                     >
                         <FaDownload /> Absentees
                     </button>
-                    <button
-                        onClick={saveAttendance}
-                        disabled={saving || !selectedSubject}
-                        className={`flex items-center gap-2 px-6 py-2 font-bold transition-all ${selectedSubject
-                            ? 'bg-neon-green text-black hover:bg-neon-green/80 shadow-[0_0_15px_rgba(0,255,150,0.3)]'
-                            : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                            }`}
-                    >
-                        <FaSave /> {saving ? 'Saving...' : 'Save Attendance'}
-                    </button>
+
+                    {/* Save Attendance Card with Subject & Date info */}
+                    <div className="flex flex-col items-end">
+                        <div className="text-xs text-gray-400 mb-1 text-right">
+                            <span className="text-neon-green font-bold">{selectedSubject || 'No Subject'}</span>
+                            <span className="mx-2">•</span>
+                            <span className="text-neon-yellow">{new Date(attendanceDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                        </div>
+                        <button
+                            onClick={saveAttendance}
+                            disabled={saving || !selectedSubject}
+                            className={`flex items-center gap-2 px-6 py-2 font-bold transition-all ${selectedSubject
+                                ? 'bg-neon-green text-black hover:bg-neon-green/80 shadow-[0_0_15px_rgba(0,255,150,0.3)]'
+                                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                }`}
+                        >
+                            <FaSave /> {saving ? 'Saving...' : 'Save Attendance'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
