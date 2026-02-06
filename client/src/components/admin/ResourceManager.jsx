@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
 import { FaUpload, FaTrash, FaLink } from 'react-icons/fa';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 
 const ResourceManager = () => {
     const [resources, setResources] = useState([]);
@@ -74,15 +72,12 @@ const ResourceManager = () => {
                             required
                         />
 
-                        <div className="bg-white/90 text-black rounded-sm overflow-hidden">
-                            <ReactQuill
-                                theme="snow"
-                                value={formData.description}
-                                onChange={(content) => setFormData({ ...formData, description: content })}
-                                placeholder="Description / Content..."
-                                className="h-40 mb-12"
-                            />
-                        </div>
+                        <textarea
+                            className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors h-32 resize-none font-sans"
+                            placeholder="Description / Content..."
+                            value={formData.description}
+                            onChange={e => setFormData({ ...formData, description: e.target.value })}
+                        ></textarea>
 
                         <input
                             type="url"
