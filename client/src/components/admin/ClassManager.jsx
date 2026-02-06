@@ -32,6 +32,73 @@ const ClassManager = () => {
         }
     }, [activeTab]);
 
+    const handleBulkUpload = async () => {
+        if (!bulkList.trim()) return;
+
+        const lines = bulkList.split('\n');
+        const studentsToAdd = [];
+
+        lines.forEach(line => {
+            if (!line.trim()) return;
+            let rollNumber, name;
+
+            if (line.includes(',')) {
+                [rollNumber, name] = line.split(',').map(s => s.trim());
+            } else {
+                const parts = line.trim().split(/\s+/);
+                rollNumber = parts[0];
+                name = parts.slice(1).join(' ');
+            }
+
+            if (rollNumber && rollNumber.length > 5) {
+                studentsToAdd.push({ rollNumber, name: name || 'Student' });
+            }
+        });
+
+        if (studentsToAdd.length === 0) {
+            alert('No valid student data found. Use format: "RollNumber Name" per line.');
+            return;
+        }
+
+        try {
+            const res = await api.post('/auth/allowed-students', { students: studentsToAdd });
+            alert(`Upload Complete: Added ${res.data.results.added}, Skipped ${res.data.results.skipped}`);
+            setBulkList('');
+            fetchAllowedStudents();
+        } catch (err) {
+            console.error(err);
+            alert('Upload failed');
+        }
+    };
+
+    const handleDeleteAllowed = async (id) => {
+        try {
+            await api.delete(`/auth/allowed-students/${id}`);
+            fetchAllowedStudents();
+        } catch {
+            alert('Failed to remove');
+        }
+    };
+
+    // Editing State
+    const [editingId, setEditingId] = useState(null);
+    const [editForm, setEditForm] = useState({ name: '', rollNumber: '' });
+
+    const fetchStudents = async () => {
+        try {
+            const res = await api.get('/auth/all-users');
+            setStudents(res.data);
+            setLoading(false);
+        } catch (err) {
+            console.error("Error fetching users", err);
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchStudents();
+    }, []);
+
     // Filter and sort by roll number in ascending order
     const filteredStudents = useMemo(() => {
         let currentList = students;
@@ -187,7 +254,7 @@ const ClassManager = () => {
                 </button>
             </div>
 
-            {activeTab === 'all' || activeTab === 'admins' ? (
+            {activeTab === 'all' || activeTab === 'admins' || activeTab === 'unauthorized' ? (
                 <>
                     {/* Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -196,11 +263,11 @@ const ClassManager = () => {
                                 <FaUserGraduate className="text-6xl text-white" />
                             </div>
                             <h3 className="text-gray-400 font-orbitron tracking-widest text-sm uppercase mb-2">
-                                {activeTab === 'admins' ? 'Total Admins' : 'Total Class Strength'}
+                                {activeTab === 'admins' ? 'Total Admins' : activeTab === 'unauthorized' ? 'Unauthorized Students' : 'Total Class Strength'}
                             </h3>
                             <div className="text-4xl font-bold text-white font-rajdhani flex items-baseline gap-2">
                                 {filteredStudents.length}
-                                <span className="text-sm font-normal text-neon-green">Active {activeTab === 'admins' ? 'Admins' : 'Users'}</span>
+                                <span className="text-sm font-normal text-neon-green">Active {activeTab === 'admins' ? 'Admins' : activeTab === 'unauthorized' ? 'Unauthorized' : 'Users'}</span>
                             </div>
                             <div className="absolute bottom-0 left-0 h-1 bg-neon-green w-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                         </div>
