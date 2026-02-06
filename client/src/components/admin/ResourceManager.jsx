@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
 import { FaUpload, FaTrash, FaLink } from 'react-icons/fa';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const ResourceManager = () => {
     const [resources, setResources] = useState([]);
@@ -31,7 +33,7 @@ const ResourceManager = () => {
             setFormData({ title: '', subject: '', description: '', link: '' });
             fetchData();
             alert('Note added successfully');
-        } catch (err) {
+        } catch {
             alert('Failed to add note');
         }
     };
@@ -41,7 +43,7 @@ const ResourceManager = () => {
         try {
             await api.delete(`/resources/${id}`);
             setResources(resources.filter(r => r._id !== id));
-        } catch (err) {
+        } catch {
             alert('Failed');
         }
     };
@@ -51,7 +53,7 @@ const ResourceManager = () => {
             <div className="lg:col-span-1">
                 <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6">
                     <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-white font-orbitron">
-                        <FaUpload className="text-neon-green" /> Upload Note
+                        <FaUpload className="text-neon-yellow" /> Upload Note
                     </h3>
                     <form onSubmit={handleSubmit} className="space-y-3">
                         <select
@@ -71,12 +73,17 @@ const ResourceManager = () => {
                             onChange={e => setFormData({ ...formData, title: e.target.value })}
                             required
                         />
-                        <textarea
-                            className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
-                            placeholder="Description (optional)"
-                            value={formData.description}
-                            onChange={e => setFormData({ ...formData, description: e.target.value })}
-                        />
+
+                        <div className="bg-white/90 text-black rounded-sm overflow-hidden">
+                            <ReactQuill
+                                theme="snow"
+                                value={formData.description}
+                                onChange={(content) => setFormData({ ...formData, description: content })}
+                                placeholder="Description / Content..."
+                                className="h-40 mb-12"
+                            />
+                        </div>
+
                         <input
                             type="url"
                             className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
@@ -85,7 +92,7 @@ const ResourceManager = () => {
                             onChange={e => setFormData({ ...formData, link: e.target.value })}
                             required
                         />
-                        <button className="btn-primary w-full">Add Note</button>
+                        <button className="btn-primary w-full mt-2">Add Note</button>
                     </form>
                 </div>
             </div>
@@ -96,12 +103,17 @@ const ResourceManager = () => {
                     <ul className="divide-y divide-white/10">
                         {resources.map(r => (
                             <li key={r._id} className="p-4 hover:bg-white/5 flex justify-between items-start transition-colors">
-                                <div>
+                                <div className="max-w-[85%]">
                                     <h4 className="font-bold text-white flex items-center gap-2">
                                         {r.title}
                                         <span className="text-xs bg-neon-purple/20 text-neon-purple px-2 py-0.5 border border-neon-purple/30">{r.subject}</span>
                                     </h4>
-                                    <p className="text-sm text-gray-400 mt-1">{r.description}</p>
+
+                                    <div
+                                        className="text-sm text-gray-400 mt-1 prose prose-invert prose-sm max-w-none"
+                                        dangerouslySetInnerHTML={{ __html: r.description }}
+                                    />
+
                                     <a
                                         href={r.link}
                                         target="_blank"

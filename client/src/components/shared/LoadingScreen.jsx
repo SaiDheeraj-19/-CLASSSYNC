@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 const LoadingScreen = () => {
     const [text, setText] = useState('INITIALIZING');
     const [progress, setProgress] = useState(0);
+    const [longLoadMessage, setLongLoadMessage] = useState('');
 
     // Random tech text effect
     useEffect(() => {
@@ -28,20 +29,51 @@ const LoadingScreen = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Progress bar simulation - faster completion in ~2 seconds
+    // Progress bar simulation with stall logic
     useEffect(() => {
         const interval = setInterval(() => {
             setProgress(old => {
-                if (old >= 100) {
-                    clearInterval(interval);
-                    return 100;
+                // If it's already 100, keep it there
+                if (old >= 100) return 100;
+
+                // Fast progress up to 70%
+                if (old < 70) {
+                    return old + Math.random() * 10;
                 }
-                // Faster, more consistent progress - completes in about 2 seconds
-                const increment = 5 + Math.random() * 5;
-                return Math.min(old + increment, 100);
+
+                // Slower progress 70-90%
+                if (old < 90) {
+                    return old + Math.random() * 2;
+                }
+
+                // Crawl from 90-99% (waiting for real load usually)
+                if (old < 99) {
+                    return old + 0.1;
+                }
+
+                return old;
             });
-        }, 80);
-        return () => clearInterval(interval);
+        }, 100);
+
+        // Timers for long loading messages
+        const timer1 = setTimeout(() => {
+            setLongLoadMessage('ESTABLISHING SECURE CONNECTION...');
+        }, 3000); // 3s
+
+        const timer2 = setTimeout(() => {
+            setLongLoadMessage('WAKING UP SERVER INSTANCE (COLD START)...');
+        }, 8000); // 8s
+
+        const timer3 = setTimeout(() => {
+            setLongLoadMessage('STILL CONNECTING... PLEASE WAIT...');
+        }, 15000); // 15s
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timer1);
+            clearTimeout(timer2);
+            clearTimeout(timer3);
+        };
     }, []);
 
     return (
@@ -55,7 +87,7 @@ const LoadingScreen = () => {
 
             <div className="relative z-10 text-center">
                 {/* Glitch Logo */}
-                <div className="relative mb-12">
+                <div className="relative mb-8">
                     <h1 className="text-6xl md:text-8xl font-orbitron font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-400 tracking-tighter relative z-10">
                         CLASS<span className="text-neon-yellow">SYNC</span>
                     </h1>
@@ -68,19 +100,32 @@ const LoadingScreen = () => {
                 </div>
 
                 {/* Cyber Loader */}
-                <div className="w-80 md:w-96 h-2 bg-gray-800 relative overflow-hidden clip-path-slant mx-auto">
+                <div className="w-80 md:w-96 h-2 bg-gray-800 relative overflow-hidden clip-path-slant mx-auto mb-4">
                     <motion.div
                         className="h-full bg-neon-yellow shadow-[0_0_15px_rgba(204,255,0,0.8)]"
                         initial={{ width: "0%" }}
                         animate={{ width: `${progress}%` }}
-                        transition={{ ease: "linear" }}
+                        transition={{ ease: "linear", duration: 0.1 }} // Smooth out the jumps
                     />
                 </div>
 
                 {/* Tech Info */}
-                <div className="mt-4 flex justify-between w-80 md:w-96 mx-auto text-xs font-code text-neon-blue/80 uppercase tracking-widest">
-                    <span>{text}</span>
-                    <span>{Math.round(progress)}%</span>
+                <div className="flex flex-col items-center gap-1 w-80 md:w-96 mx-auto">
+                    <div className="flex justify-between w-full text-xs font-code text-neon-blue/80 uppercase tracking-widest">
+                        <span>{text}</span>
+                        <span>{Math.floor(progress)}%</span>
+                    </div>
+
+                    {longLoadMessage && (
+                        <motion.p
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            key={longLoadMessage}
+                            className="text-[10px] text-neon-pink mt-2 font-orbitron tracking-widest animate-pulse"
+                        >
+                            {longLoadMessage}
+                        </motion.p>
+                    )}
                 </div>
             </div>
 

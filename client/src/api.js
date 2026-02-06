@@ -3,6 +3,7 @@ import axios from 'axios';
 // Use environment variable for API URL, fallback to localhost for development
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api',
+    timeout: 10000, // 10 seconds timeout
     headers: {
         'Content-Type': 'application/json'
     }
