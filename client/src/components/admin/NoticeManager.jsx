@@ -5,7 +5,8 @@ import { format } from 'date-fns';
 
 const NoticeManager = () => {
     const [notices, setNotices] = useState([]);
-    const [formData, setFormData] = useState({ title: '', content: '', type: 'notice' });
+    const [formData, setFormData] = useState({ title: '', content: '', type: 'notice', link: '' });
+    const [editingId, setEditingId] = useState(null);
 
     const fetchNotices = async () => {
         try {
@@ -32,15 +33,43 @@ const NoticeManager = () => {
         }
     };
 
+    const handleEditClick = (notice) => {
+        setEditingId(notice._id);
+        setFormData({
+            title: notice.title,
+            content: notice.content,
+            type: notice.type,
+            link: notice.link || ''
+        });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingId(null);
+        setFormData({ title: '', content: '', type: 'notice', link: '' });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/notices', formData);
-            setFormData({ title: '', content: '', type: 'notice' });
+            if (editingId) {
+                // Update functionality would go here if backend supported it. 
+                // Since the user asked to "edit and fix", assuming backend capability needs to be added or simulated.
+                // For now, let's implement the backend route first or assume it exists. 
+                // Wait, I need to check backend routes. 
+                // The backend route for PUT /notices/:id is MISSING in view_file above.
+                // I will add it to backend shortly. For now, frontend logic:
+                await api.put(`/notices/${editingId}`, formData);
+                alert('Notice updated successfully');
+            } else {
+                await api.post('/notices', formData);
+                alert('Notice posted successfully');
+            }
+            setFormData({ title: '', content: '', type: 'notice', link: '' });
+            setEditingId(null);
             fetchNotices();
         } catch (err) {
             console.error(err);
-            alert('Failed to post');
+            alert('Failed to save notice');
         }
     };
 
@@ -49,7 +78,7 @@ const NoticeManager = () => {
             <div className="lg:col-span-1">
                 <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 sticky top-6">
                     <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-white font-orbitron">
-                        <FaPlus className="text-xs text-neon-yellow" /> Post Notice
+                        <FaPlus className="text-xs text-neon-yellow" /> {editingId ? 'Edit Notice' : 'Post Notice'}
                     </h3>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
@@ -92,7 +121,16 @@ const NoticeManager = () => {
                                 onChange={e => setFormData({ ...formData, link: e.target.value })}
                             />
                         </div>
-                        <button type="submit" className="btn-primary w-full bg-neon-green hover:bg-neon-green/80 text-black font-bold">Post</button>
+                        <div className="flex gap-2">
+                            <button type="submit" className="btn-primary flex-1 bg-neon-green hover:bg-neon-green/80 text-black font-bold">
+                                {editingId ? 'Update' : 'Post'}
+                            </button>
+                            {editingId && (
+                                <button type="button" onClick={handleCancelEdit} className="px-4 py-2 bg-red-500/20 text-red-400 border border-red-500 hover:bg-red-500 hover:text-white transition-colors">
+                                    Cancel
+                                </button>
+                            )}
+                        </div>
                     </form>
                 </div>
             </div>
@@ -108,9 +146,14 @@ const NoticeManager = () => {
                         className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 relative group"
                         style={{ borderLeftWidth: '4px', borderLeftColor: notice.type === 'event' ? '#9d00ff' : '#00d4ff' }}
                     >
-                        <button onClick={() => handleDelete(notice._id)} className="absolute top-4 right-4 text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <FaTrash />
-                        </button>
+                        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => handleEditClick(notice)} className="text-neon-yellow hover:text-white">
+                                Edit
+                            </button>
+                            <button onClick={() => handleDelete(notice._id)} className="text-red-400 hover:text-red-300">
+                                <FaTrash />
+                            </button>
+                        </div>
                         <div className="flex justify-between items-start mb-2">
                             <div>
                                 <span className={`text-xs font-bold uppercase tracking-wider ${notice.type === 'event' ? 'text-neon-purple' : 'text-neon-blue'}`}>
@@ -121,6 +164,11 @@ const NoticeManager = () => {
                             <span className="text-gray-500 text-sm whitespace-nowrap ml-4">{format(new Date(notice.date), 'MMM d, yyyy')}</span>
                         </div>
                         <p className="text-gray-400 whitespace-pre-wrap">{notice.content}</p>
+                        {notice.link && (
+                            <a href={notice.link} target="_blank" rel="noopener noreferrer" className="text-neon-green text-sm mt-2 inline-block hover:underline">
+                                View Link
+                            </a>
+                        )}
                     </div>
                 ))}
             </div>

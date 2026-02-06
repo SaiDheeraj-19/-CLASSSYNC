@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../../api';
 import { FaTrash, FaCalendarCheck, FaCalculator, FaSync } from 'react-icons/fa';
 import { format, getDaysInMonth, getDay, startOfMonth, addDays, isSameMonth } from 'date-fns';
@@ -151,6 +151,19 @@ const CalendarManager = () => {
         }
     };
 
+    // Generate month options (past 12 months + next 12 months)
+    const monthOptions = useMemo(() => {
+        const options = [];
+        const today = new Date();
+        for (let i = -12; i <= 12; i++) {
+            const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
+            const value = format(d, 'yyyy-MM');
+            const label = format(d, 'MMMM yyyy');
+            options.push({ value, label });
+        }
+        return options;
+    }, []);
+
     if (loading) return <div className="text-gray-400">Loading Calendar Data...</div>;
 
     return (
@@ -167,12 +180,18 @@ const CalendarManager = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1">Select Month</label>
-                        <input
-                            type="month"
-                            className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-blue transition-colors"
+                        <select
+                            className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-blue transition-colors appearance-none cursor-pointer"
                             value={selectedMonth}
                             onChange={(e) => setSelectedMonth(e.target.value)}
-                        />
+                        >
+                            <option value="" className="bg-cyber-dark text-gray-400">-- Choose Month --</option>
+                            {monthOptions.map(opt => (
+                                <option key={opt.value} value={opt.value} className="bg-cyber-dark text-white">
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                     <div className="flex items-end">
                         <button

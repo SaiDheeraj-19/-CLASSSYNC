@@ -58,4 +58,30 @@ router.delete('/:id', [auth, admin], async (req, res) => {
     }
 });
 
+// @route   PUT api/notices/:id
+// @desc    Update a notice
+// @access  Private (Admin)
+router.put('/:id', [auth, admin], async (req, res) => {
+    const { title, content, type, link } = req.body;
+
+    try {
+        let notice = await Notice.findById(req.params.id);
+        if (!notice) {
+            return res.status(404).json({ message: 'Notice not found' });
+        }
+
+        notice.title = title || notice.title;
+        notice.content = content || notice.content;
+        notice.type = type || notice.type;
+        notice.link = link || notice.link;
+        notice.date = Date.now(); // Update the timestamp
+
+        await notice.save();
+        res.json(notice);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;

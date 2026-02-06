@@ -448,4 +448,41 @@ router.post('/verify-name', async (req, res) => {
     }
 });
 
+// @route   PUT api/auth/promote-admin/:id
+// @desc    Promote a user to admin (Admin only)
+// @access  Private (Admin)
+router.put('/promote-admin/:id', [auth, admin], async (req, res) => {
+    const { secretKey } = req.body;
+
+    try {
+        // Verify Master Key
+        let config = await Config.findOne({ key: 'admin_secret' });
+        if (!config) {
+            config = new Config({ key: 'admin_secret', value: 'cyberadmin2024' });
+            await config.save();
+        }
+
+        if (secretKey !== config.value) {
+            return res.status(403).json({ message: 'Invalid Master Key. Authorization denied.' });
+        }
+
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.role === 'admin') {
+            return res.status(400).json({ message: 'User is already an admin' });
+        }
+
+        user.role = 'admin';
+        await user.save();
+
+        res.json({ message: `${user.name} has been promoted to Admin successfully`, user });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;

@@ -89,7 +89,7 @@ const AssignmentManager = () => {
                         <div>
                             <label className="block text-sm font-medium text-gray-400 uppercase tracking-wider">Deadline</label>
                             <input
-                                type="datetime-local"
+                                type="date"
                                 className="w-full mt-1 bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
                                 value={formData.deadline}
                                 onChange={e => setFormData({ ...formData, deadline: e.target.value })}
@@ -113,7 +113,7 @@ const AssignmentManager = () => {
                         </button>
                         <div className="flex items-center gap-2 mb-2">
                             <span className="bg-neon-purple/20 text-neon-purple px-2 py-0.5 text-xs font-bold uppercase border border-neon-purple/30">{assignment.subject}</span>
-                            <span className="text-sm text-gray-400">{format(new Date(assignment.deadline), 'PPP p')}</span>
+                            <span className="text-sm text-gray-400">{format(new Date(assignment.deadline), 'PPP')}</span>
                         </div>
                         <h3 className="text-lg font-bold text-white">{assignment.title}</h3>
                         <p className="text-gray-400 mt-1">{assignment.description}</p>
