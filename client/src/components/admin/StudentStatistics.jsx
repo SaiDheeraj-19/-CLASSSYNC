@@ -15,7 +15,8 @@ const StudentStatistics = () => {
                     api.get('/attendance/all')
                 ]);
 
-                const students = usersRes.data.filter(u => u.role === 'student');
+                // Include all users (students + admins/CRs) for analytics
+                const students = usersRes.data;
                 const allAttendance = attendanceRes.data;
 
                 // Process data
