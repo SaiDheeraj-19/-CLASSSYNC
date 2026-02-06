@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../api';
-import { FaUserGraduate, FaSortNumericDown, FaSearch, FaUserPlus, FaTrash, FaEdit, FaCheck, FaTimes, FaUserShield } from 'react-icons/fa';
+import { FaUserGraduate, FaSortNumericDown, FaSearch, FaUserPlus, FaTrash, FaEdit, FaCheck, FaTimes, FaUserShield, FaUserTimes } from 'react-icons/fa';
 
 const ClassManager = () => {
     const [students, setStudents] = useState([]);
@@ -90,6 +90,22 @@ const ClassManager = () => {
         } catch (err) {
             console.error(err);
             alert(err.response?.data?.message || 'Failed to promote user');
+        }
+    };
+
+    const handleDemoteAdmin = async (id, name) => {
+        if (!confirm(`Are you sure you want to demote "${name}" back to Student? They will lose all admin privileges.`)) return;
+
+        const secretKey = prompt("Enter Administration Master Key to confirm:");
+        if (!secretKey) return;
+
+        try {
+            await api.put(`/auth/demote-admin/${id}`, { secretKey });
+            fetchStudents();
+            alert(`User "${name}" demoted to Student successfully.`);
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.message || 'Failed to demote user');
         }
     };
 
@@ -318,13 +334,21 @@ const ClassManager = () => {
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    {student.role !== 'admin' && (
+                                                    {student.role !== 'admin' ? (
                                                         <button
                                                             onClick={() => handlePromoteAdmin(student._id, student.name)}
                                                             className="text-neon-purple hover:text-white transition-colors"
                                                             title="Promote to Admin"
                                                         >
                                                             <FaUserShield />
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => handleDemoteAdmin(student._id, student.name)}
+                                                            className="text-orange-500 hover:text-white transition-colors"
+                                                            title="Demote to Student"
+                                                        >
+                                                            <FaUserTimes />
                                                         </button>
                                                     )}
                                                     <button
