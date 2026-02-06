@@ -103,7 +103,14 @@ const ClassManager = () => {
 
     // Filter and sort by roll number in ascending order
     const filteredStudents = useMemo(() => {
-        const filtered = students.filter(s =>
+        let currentList = students;
+
+        // Filter by tab type if needed
+        if (activeTab === 'admins') {
+            currentList = students.filter(s => s.role === 'admin');
+        }
+
+        const filtered = currentList.filter(s =>
             s.rollNumber?.toLowerCase().includes(filter.toLowerCase()) ||
             s.name?.toLowerCase().includes(filter.toLowerCase())
         );
@@ -113,7 +120,7 @@ const ClassManager = () => {
             const rollB = b.rollNumber || '';
             return rollA.localeCompare(rollB, undefined, { numeric: true });
         });
-    }, [students, filter]);
+    }, [students, filter, activeTab]);
 
     const handleAddStudent = async (e) => {
         e.preventDefault();
@@ -229,6 +236,12 @@ const ClassManager = () => {
                     Registered Students
                 </button>
                 <button
+                    className={`px-4 py-2 font-orbitron transition-colors ${activeTab === 'admins' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}
+                    onClick={() => setActiveTab('admins')}
+                >
+                    Administrators
+                </button>
+                <button
                     className={`px-4 py-2 font-orbitron transition-colors ${activeTab === 'allowed' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}
                     onClick={() => setActiveTab('allowed')}
                 >
@@ -236,7 +249,7 @@ const ClassManager = () => {
                 </button>
             </div>
 
-            {activeTab === 'all' ? (
+            {activeTab === 'all' || activeTab === 'admins' ? (
                 <>
                     {/* Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -244,10 +257,12 @@ const ClassManager = () => {
                             <div className="absolute top-0 right-0 p-4 opacity-10">
                                 <FaUserGraduate className="text-6xl text-white" />
                             </div>
-                            <h3 className="text-gray-400 font-orbitron tracking-widest text-sm uppercase mb-2">Total Class Strength</h3>
+                            <h3 className="text-gray-400 font-orbitron tracking-widest text-sm uppercase mb-2">
+                                {activeTab === 'admins' ? 'Total Admins' : 'Total Class Strength'}
+                            </h3>
                             <div className="text-4xl font-bold text-white font-rajdhani flex items-baseline gap-2">
-                                {students.length}
-                                <span className="text-sm font-normal text-neon-green">Active Students</span>
+                                {filteredStudents.length}
+                                <span className="text-sm font-normal text-neon-green">Active {activeTab === 'admins' ? 'Admins' : 'Users'}</span>
                             </div>
                             <div className="absolute bottom-0 left-0 h-1 bg-neon-green w-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                         </div>
@@ -261,12 +276,14 @@ const ClassManager = () => {
                                 >
                                     <FaUserPlus /> {showAddForm ? 'Cancel' : 'Add New Roll Number'}
                                 </button>
-                                <button
-                                    onClick={handleDeleteAll}
-                                    className="flex items-center gap-2 bg-red-500/20 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 transition-colors font-orbitron text-sm"
-                                >
-                                    <FaTrash /> purge_all_data
-                                </button>
+                                {activeTab !== 'admins' && (
+                                    <button
+                                        onClick={handleDeleteAll}
+                                        className="flex items-center gap-2 bg-red-500/20 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 transition-colors font-orbitron text-sm"
+                                    >
+                                        <FaTrash /> purge_all_data
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
