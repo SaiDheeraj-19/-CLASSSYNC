@@ -247,6 +247,12 @@ const ClassManager = () => {
                     Administrators
                 </button>
                 <button
+                    className={`px-4 py-2 font-orbitron transition-colors ${activeTab === 'unauthorized' ? 'text-red-500 border-b-2 border-red-500' : 'text-gray-400 hover:text-white'}`}
+                    onClick={() => setActiveTab('unauthorized')}
+                >
+                    Not in Whitelist
+                </button>
+                <button
                     className={`px-4 py-2 font-orbitron transition-colors ${activeTab === 'allowed' ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white'}`}
                     onClick={() => setActiveTab('allowed')}
                 >
