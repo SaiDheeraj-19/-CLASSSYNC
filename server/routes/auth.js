@@ -518,23 +518,29 @@ router.post('/allowed-students', [auth, admin], async (req, res) => {
         const results = { added: 0, skipped: 0 };
 
         for (const s of students) {
-            const normalizedRoll = s.rollNumber.toUpperCase().trim();
-            const exists = await AllowedStudent.findOne({ rollNumber: normalizedRoll });
+            try {
+                if (!s || !s.rollNumber) continue;
 
-            if (!exists) {
-                await new AllowedStudent({
-                    rollNumber: normalizedRoll,
-                    name: s.name.trim()
-                }).save();
-                results.added++;
-            } else {
-                results.skipped++;
+                const normalizedRoll = s.rollNumber.toUpperCase().trim();
+                const exists = await AllowedStudent.findOne({ rollNumber: normalizedRoll });
+
+                if (!exists) {
+                    await new AllowedStudent({
+                        rollNumber: normalizedRoll,
+                        name: s.name ? s.name.trim() : 'Student'
+                    }).save();
+                    results.added++;
+                } else {
+                    results.skipped++;
+                }
+            } catch (innerErr) {
+                console.error(`Error processing allowed student entry:`, innerErr);
             }
         }
 
         res.json({ message: 'Process complete', results });
     } catch (err) {
-        console.error(err.message);
+        console.error("Bulk Upload Global Error:", err.message);
         res.status(500).send('Server Error');
     }
 });
