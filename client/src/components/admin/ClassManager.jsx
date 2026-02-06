@@ -507,9 +507,10 @@ const ClassManager = () => {
                         ></textarea>
                         <button
                             onClick={handleBulkUpload}
-                            className="bg-neon-green text-black font-bold py-3 w-full hover:bg-neon-green/80 transition-colors"
+                            disabled={!bulkList.trim()}
+                            className={`font-bold py-3 w-full transition-colors ${!bulkList.trim() ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-green-500 text-white hover:bg-green-600 cursor-pointer'}`}
                         >
-                            Upload Approved List
+                            Save Allowed List
                         </button>
                     </div>
 
