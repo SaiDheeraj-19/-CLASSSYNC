@@ -12,6 +12,7 @@ const { auth, admin } = require('../middleware/auth');
 // @desc    Register a user
 // @access  Public
 const Config = require('../models/Config');
+const AllowedStudent = require('../models/AllowedStudent');
 
 // @route   POST api/auth/register
 // @desc    Register a user
@@ -20,6 +21,8 @@ router.post('/register', async (req, res) => {
     const { name, password, role, rollNumber, secretKey } = req.body;
 
     try {
+        const normalizedRollNumber = rollNumber.toUpperCase().trim();
+
         // Validation for Admin Role
         if (role === 'admin') {
             // Fetch dynamic secret from DB, create if not exists
@@ -32,10 +35,13 @@ router.post('/register', async (req, res) => {
             if (secretKey !== config.value) {
                 return res.status(403).json({ message: 'Admin registration requires a valid Secret Key' });
             }
+        } else {
+            // For Students: Check if allowed
+            const allowed = await AllowedStudent.findOne({ rollNumber: normalizedRollNumber });
+            if (!allowed) {
+                return res.status(403).json({ message: 'Registration Denied: Your Roll Number is not in the allowed list. Please contact the Admin.' });
+            }
         }
-
-        // Normalize roll number to uppercase for consistency
-        const normalizedRollNumber = rollNumber.toUpperCase().trim();
 
         // Case-insensitive check for existing user
         let user = await User.findOne({
@@ -479,6 +485,67 @@ router.put('/promote-admin/:id', [auth, admin], async (req, res) => {
         await user.save();
 
         res.json({ message: `${user.name} has been promoted to Admin successfully`, user });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   GET api/auth/allowed-students
+// @desc    Get all allowed students
+// @access  Private (Admin)
+router.get('/allowed-students', [auth, admin], async (req, res) => {
+    try {
+        const students = await AllowedStudent.find().sort({ rollNumber: 1 });
+        res.json(students);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   POST api/auth/allowed-students
+// @desc    Add allowed students (Bulk or Single)
+// @access  Private (Admin)
+router.post('/allowed-students', [auth, admin], async (req, res) => {
+    const { students } = req.body; // Expecting array of { rollNumber, name }
+
+    if (!students || !Array.isArray(students)) {
+        return res.status(400).json({ message: 'Please provide an array of students' });
+    }
+
+    try {
+        const results = { added: 0, skipped: 0 };
+
+        for (const s of students) {
+            const normalizedRoll = s.rollNumber.toUpperCase().trim();
+            const exists = await AllowedStudent.findOne({ rollNumber: normalizedRoll });
+
+            if (!exists) {
+                await new AllowedStudent({
+                    rollNumber: normalizedRoll,
+                    name: s.name.trim()
+                }).save();
+                results.added++;
+            } else {
+                results.skipped++;
+            }
+        }
+
+        res.json({ message: 'Process complete', results });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   DELETE api/auth/allowed-students/:id
+// @desc    Remove an allowed student
+// @access  Private (Admin)
+router.delete('/allowed-students/:id', [auth, admin], async (req, res) => {
+    try {
+        await AllowedStudent.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Removed from allowed list' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
