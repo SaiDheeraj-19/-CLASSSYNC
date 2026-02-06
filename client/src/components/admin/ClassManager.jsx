@@ -27,79 +27,10 @@ const ClassManager = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 'allowed') {
+        if (activeTab === 'allowed' || activeTab === 'unauthorized') {
             fetchAllowedStudents();
         }
     }, [activeTab]);
-
-    const handleBulkUpload = async () => {
-        if (!bulkList.trim()) return;
-
-        // Parse lines: RollNumber Name or RollNumber, Name
-        const lines = bulkList.split('\n');
-        const studentsToAdd = [];
-
-        lines.forEach(line => {
-            if (!line.trim()) return;
-            // Simple split by comma or first space if no comma
-            let rollNumber, name;
-
-            if (line.includes(',')) {
-                [rollNumber, name] = line.split(',').map(s => s.trim());
-            } else {
-                const parts = line.trim().split(/\s+/);
-                rollNumber = parts[0];
-                name = parts.slice(1).join(' ');
-            }
-
-            if (rollNumber && rollNumber.length > 5) {
-                studentsToAdd.push({ rollNumber, name: name || 'Student' });
-            }
-        });
-
-        if (studentsToAdd.length === 0) {
-            alert('No valid student data found. Use format: "RollNumber Name" per line.');
-            return;
-        }
-
-        try {
-            const res = await api.post('/auth/allowed-students', { students: studentsToAdd });
-            alert(`Upload Complete: Added ${res.data.results.added}, Skipped ${res.data.results.skipped}`);
-            setBulkList('');
-            fetchAllowedStudents();
-        } catch (err) {
-            console.error(err);
-            alert('Upload failed');
-        }
-    };
-
-    const handleDeleteAllowed = async (id) => {
-        try {
-            await api.delete(`/auth/allowed-students/${id}`);
-            fetchAllowedStudents();
-        } catch {
-            alert('Failed to remove');
-        }
-    };
-
-    // Editing State
-    const [editingId, setEditingId] = useState(null);
-    const [editForm, setEditForm] = useState({ name: '', rollNumber: '' });
-
-    const fetchStudents = async () => {
-        try {
-            const res = await api.get('/auth/all-users');
-            setStudents(res.data);
-            setLoading(false);
-        } catch (err) {
-            console.error("Error fetching users", err);
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchStudents();
-    }, []);
 
     // Filter and sort by roll number in ascending order
     const filteredStudents = useMemo(() => {
@@ -108,6 +39,13 @@ const ClassManager = () => {
         // Filter by tab type if needed
         if (activeTab === 'admins') {
             currentList = students.filter(s => s.role === 'admin');
+        } else if (activeTab === 'unauthorized') {
+            const allowedRolls = new Set(allowedStudents.map(a => a.rollNumber.toUpperCase().trim()));
+            currentList = students.filter(s =>
+                s.role !== 'admin' &&
+                s.rollNumber &&
+                !allowedRolls.has(s.rollNumber.toUpperCase().trim())
+            );
         }
 
         const filtered = currentList.filter(s =>
@@ -120,7 +58,7 @@ const ClassManager = () => {
             const rollB = b.rollNumber || '';
             return rollA.localeCompare(rollB, undefined, { numeric: true });
         });
-    }, [students, filter, activeTab]);
+    }, [students, filter, activeTab, allowedStudents]);
 
     const handleAddStudent = async (e) => {
         e.preventDefault();
