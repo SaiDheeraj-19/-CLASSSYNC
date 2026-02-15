@@ -8,6 +8,10 @@ const { auth, admin } = require('../middleware/auth');
 // @access  Private
 router.get('/', auth, async (req, res) => {
     try {
+        // Automatically delete expired assignments
+        const now = new Date();
+        await Assignment.deleteMany({ deadline: { $lt: now } });
+
         // Sort by deadline ascending
         const assignments = await Assignment.find().sort({ deadline: 1 });
         res.json(assignments);
