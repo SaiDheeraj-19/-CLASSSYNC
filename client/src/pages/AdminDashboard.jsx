@@ -14,14 +14,17 @@ import ResourceManager from '../components/admin/ResourceManager';
 import ClassManager from '../components/admin/ClassManager';
 import StudentStatistics from '../components/admin/StudentStatistics';
 import ProfileManager from '../components/shared/ProfileManager';
+import PollManager from '../components/admin/PollManager';
 
 // Student view components for admin's personal data
 import AttendanceView from '../components/student/AttendanceView';
 import AssignmentView from '../components/student/AssignmentView';
 import TimetableView from '../components/student/TimetableView';
 import useChennaiTime from '../hooks/useChennaiTime';
+import { FaPoll } from 'react-icons/fa';
 
 const AdminDashboard = () => {
+    // ... existing hooks
     const { user, logout } = useAuth();
     const { toggleTheme, isDark } = useTheme();
     const navigate = useNavigate();
@@ -51,6 +54,7 @@ const AdminDashboard = () => {
         { label: 'Calendar & Stats', path: '/admin/calendar', icon: <FaCalendarAlt /> },
         { label: 'Manage Notes', path: '/admin/resources', icon: <FaBook /> },
         { label: 'Manage Notices', path: '/admin/notices', icon: <FaBell /> },
+        { label: 'Manage Polls', path: '/admin/polls', icon: <FaPoll /> },
         // Divider
         { label: 'divider', path: '', icon: null },
         // Student view for Admin/CR
@@ -70,6 +74,7 @@ const AdminDashboard = () => {
         if (path === '/admin/calendar') return <CalendarManager />;
         if (path === '/admin/resources') return <ResourceManager />;
         if (path === '/admin/notices') return <NoticeManager />;
+        if (path === '/admin/polls') return <PollManager />;
         if (path === '/admin/profile') return <ProfileManager />;
         // Student views for admin
         if (path === '/admin/my-attendance') return <AttendanceView />;

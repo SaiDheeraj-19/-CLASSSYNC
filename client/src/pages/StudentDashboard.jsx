@@ -18,7 +18,8 @@ import {
     FaBullhorn,
     FaMoon,
     FaSun,
-    FaTrophy
+    FaTrophy,
+    FaChartBar
 } from 'react-icons/fa';
 import api from '../api';
 import useChennaiTime from '../hooks/useChennaiTime';
@@ -30,6 +31,7 @@ import TimetableView from '../components/student/TimetableView';
 import NoticeView from '../components/student/NoticeView';
 import ResourceView from '../components/student/ResourceView';
 import ResultsView from '../components/student/ResultsView';
+import PollView from '../components/student/PollView';
 import ProfileManager from '../components/shared/ProfileManager';
 
 const StudentDashboard = () => {
@@ -94,6 +96,7 @@ const StudentDashboard = () => {
         { label: 'Results', path: '/student/results', icon: <FaTrophy /> },
         { label: 'Study Materials', path: '/student/resources', icon: <FaBook /> },
         { label: 'Notices', path: '/student/notices', icon: <FaBell /> },
+        { label: 'Polls', path: '/student/polls', icon: <FaChartBar /> },
         { label: 'My Profile', path: '/student/profile', icon: <FaUserCog /> },
     ];
 
@@ -106,6 +109,7 @@ const StudentDashboard = () => {
         if (path.endsWith('/results')) return <ResultsView />;
         if (path.endsWith('/resources')) return <ResourceView />;
         if (path.endsWith('/notices')) return <NoticeView />;
+        if (path.endsWith('/polls')) return <PollView />;
         if (path.endsWith('/profile')) return <ProfileManager />;
         return <AttendanceView />;
     };

@@ -25,6 +25,7 @@ const noticeRoutes = require('./routes/notices');
 const subjectRoutes = require('./routes/subjects');
 const calendarRoutes = require('./routes/calendar');
 const resourceRoutes = require('./routes/resources');
+const pollRoutes = require('./routes/polls');
 
 // Use Routes
 app.use('/api/auth', authRoutes);
@@ -35,6 +36,7 @@ app.use('/api/notices', noticeRoutes);
 app.use('/api/subjects', subjectRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/resources', resourceRoutes);
+app.use('/api/polls', pollRoutes);
 
 // Base Route
 app.get('/', (req, res) => {
