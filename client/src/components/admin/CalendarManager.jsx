@@ -82,17 +82,33 @@ const CalendarManager = () => {
             })
             .map(h => new Date(h.date).getDate());
 
+        const sundayDates = [];
+        const holidayDetailsList = [];
+
         for (let i = 0; i < daysInMonth; i++) {
             const currentDate = addDays(startDate, i);
             const dayOfWeek = getDay(currentDate);
             const dayName = dayNames[dayOfWeek];
             const dayOfMonth = currentDate.getDate();
 
-            // Skip Sundays (you can modify this for your needs)
-            if (dayOfWeek === 0) continue;
+            // Check if Sunday
+            if (dayOfWeek === 0) {
+                sundayDates.push(currentDate);
+                continue;
+            }
 
-            // Skip holidays
-            if (holidayDates.includes(dayOfMonth)) continue;
+            // Check if Holiday
+            if (holidayDates.includes(dayOfMonth)) {
+                // Find holiday name
+                const holiday = holidays.find(h => {
+                    const hDate = new Date(h.date);
+                    return isSameMonth(hDate, new Date(year, month)) && hDate.getDate() === dayOfMonth;
+                });
+                if (holiday) {
+                    holidayDetailsList.push({ date: currentDate, name: holiday.name });
+                }
+                continue;
+            }
 
             // Count working day
             workingDays++;
@@ -105,7 +121,9 @@ const CalendarManager = () => {
         return {
             workingDays,
             totalClasses,
-            holidaysInMonth: holidayDates.length
+            holidaysInMonth: holidayDates.length,
+            sundayDates,
+            holidayDetailsList
         };
     };
 
@@ -223,18 +241,63 @@ const CalendarManager = () => {
                 </div>
 
                 {calculatedStats && (
-                    <div className="grid grid-cols-3 gap-4 mt-4">
-                        <div className="bg-black/30 border border-white/10 p-4 text-center">
-                            <p className="text-3xl font-bold text-neon-green">{calculatedStats.workingDays}</p>
-                            <p className="text-xs text-gray-400 uppercase">Working Days</p>
+                    <div className="mt-4 space-y-4 animate-fade-in">
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="bg-black/30 border border-white/10 p-4 text-center">
+                                <p className="text-3xl font-bold text-neon-green">{calculatedStats.workingDays || 0}</p>
+                                <p className="text-xs text-gray-400 uppercase">Working Days</p>
+                            </div>
+                            <div className="bg-black/30 border border-white/10 p-4 text-center">
+                                <p className="text-3xl font-bold text-neon-blue">{calculatedStats.totalClasses || 0}</p>
+                                <p className="text-xs text-gray-400 uppercase">Total Classes</p>
+                            </div>
+                            <div className="bg-black/30 border border-white/10 p-4 text-center">
+                                <p className="text-3xl font-bold text-neon-yellow">{calculatedStats.holidaysInMonth || 0}</p>
+                                <p className="text-xs text-gray-400 uppercase">Holidays</p>
+                            </div>
                         </div>
-                        <div className="bg-black/30 border border-white/10 p-4 text-center">
-                            <p className="text-3xl font-bold text-neon-blue">{calculatedStats.totalClasses}</p>
-                            <p className="text-xs text-gray-400 uppercase">Total Classes</p>
-                        </div>
-                        <div className="bg-black/30 border border-white/10 p-4 text-center">
-                            <p className="text-3xl font-bold text-neon-yellow">{calculatedStats.holidaysInMonth}</p>
-                            <p className="text-xs text-gray-400 uppercase">Holidays</p>
+
+                        {/* Details Lists */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-black/40 border border-neon-purple/30 p-4">
+                                <h4 className="text-sm font-bold text-neon-purple mb-3 border-b border-neon-purple/20 pb-2 flex items-center gap-2">
+                                    <span>Sundays</span>
+                                    <span className="bg-neon-purple/20 text-neon-purple px-2 py-0.5 text-[10px] rounded-full">
+                                        {calculatedStats.sundayDates?.length || 0}
+                                    </span>
+                                </h4>
+                                <ul className="text-xs text-gray-300 space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
+                                    {calculatedStats.sundayDates?.map((d, i) => (
+                                        <li key={i} className="flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 bg-neon-purple rounded-full"></span>
+                                            {format(new Date(d), 'PPP')}
+                                        </li>
+                                    ))}
+                                    {(!calculatedStats.sundayDates || calculatedStats.sundayDates.length === 0) && (
+                                        <li className="text-gray-500 italic">No Sundays found (error?)</li>
+                                    )}
+                                </ul>
+                            </div>
+                            <div className="bg-black/40 border border-neon-yellow/30 p-4">
+                                <h4 className="text-sm font-bold text-neon-yellow mb-3 border-b border-neon-yellow/20 pb-2 flex items-center gap-2">
+                                    <span>Holidays</span>
+                                    <span className="bg-neon-yellow/20 text-neon-yellow px-2 py-0.5 text-[10px] rounded-full">
+                                        {calculatedStats.holidayDetailsList?.length || 0}
+                                    </span>
+                                </h4>
+                                <ul className="text-xs text-gray-300 space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
+                                    {calculatedStats.holidayDetailsList?.map((h, i) => (
+                                        <li key={i} className="flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 bg-neon-yellow rounded-full"></span>
+                                            <span className="text-white font-bold">{format(new Date(h.date), 'do MMM')}:</span>
+                                            <span>{h.name}</span>
+                                        </li>
+                                    ))}
+                                    {(!calculatedStats.holidayDetailsList || calculatedStats.holidayDetailsList.length === 0) && (
+                                        <li className="text-gray-500 italic">No holidays in this month</li>
+                                    )}
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -252,7 +315,7 @@ const CalendarManager = () => {
                             <input
                                 type="text"
                                 className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
-                                placeholder="Holiday Name (e.g. Christmas)"
+                                placeholder="Holiday Name"
                                 value={formHoliday.name}
                                 onChange={e => setFormHoliday({ ...formHoliday, name: e.target.value })}
                                 required
