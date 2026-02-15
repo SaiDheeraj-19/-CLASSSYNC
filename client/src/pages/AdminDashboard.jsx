@@ -121,6 +121,9 @@ const AdminDashboard = () => {
                         <div>
                             <p className="font-bold text-white tracking-wide">{user?.name}</p>
                             <p className="text-xs text-neon-purple/80 uppercase tracking-widest">ADMINISTRATOR</p>
+                            <Link to="/student" className="text-[10px] text-neon-blue mt-1 block hover:underline tracking-widest font-bold">
+                                [STUDENT PORTAL]
+                            </Link>
                         </div>
                     </div>
                 </div>
