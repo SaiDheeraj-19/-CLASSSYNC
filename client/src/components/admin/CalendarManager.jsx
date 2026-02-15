@@ -228,16 +228,7 @@ const CalendarManager = () => {
                             <FaSync /> Calculate
                         </button>
                     </div>
-                    {calculatedStats && (
-                        <div className="flex items-end">
-                            <button
-                                onClick={handleSaveCalculatedStats}
-                                className="w-full bg-neon-green text-black font-bold py-2 px-4 hover:bg-neon-green/80 transition-colors"
-                            >
-                                Save to Stats
-                            </button>
-                        </div>
-                    )}
+
                 </div>
 
                 {calculatedStats && (
@@ -298,6 +289,15 @@ const CalendarManager = () => {
                                     )}
                                 </ul>
                             </div>
+                        </div>
+
+                        <div className="pt-4 border-t border-white/10">
+                            <button
+                                onClick={handleSaveCalculatedStats}
+                                className="btn-primary w-full flex items-center justify-center gap-2"
+                            >
+                                <FaCalendarCheck /> SAVE THESE STATS
+                            </button>
                         </div>
                     </div>
                 )}
