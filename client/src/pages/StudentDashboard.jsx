@@ -2,7 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { FaUserGraduate, FaCalendarAlt, FaClipboardList, FaBell, FaSignOutAlt, FaChartPie, FaBook, FaBars, FaTimes, FaLink, FaExternalLinkAlt, FaUserCog, FaBullhorn, FaMoon, FaSun } from 'react-icons/fa';
+import {
+    FaUserGraduate,
+    FaCalendarAlt,
+    FaClipboardList,
+    FaBell,
+    FaSignOutAlt,
+    FaChartPie,
+    FaBook,
+    FaBars,
+    FaTimes,
+    FaLink,
+    FaExternalLinkAlt,
+    FaUserCog,
+    FaBullhorn,
+    FaMoon,
+    FaSun,
+    FaTrophy
+} from 'react-icons/fa';
 import api from '../api';
 import useChennaiTime from '../hooks/useChennaiTime';
 
@@ -12,9 +29,10 @@ import AssignmentView from '../components/student/AssignmentView';
 import TimetableView from '../components/student/TimetableView';
 import NoticeView from '../components/student/NoticeView';
 import ResourceView from '../components/student/ResourceView';
-import ProfileManager from '../components/shared/ProfileManager';
+import ResultsView from '../components/student/ResultsView';
 
 const StudentDashboard = () => {
+    // ... existing hooks ...
     const { user, logout } = useAuth();
     const { toggleTheme, isDark } = useTheme();
     const navigate = useNavigate();
@@ -23,33 +41,27 @@ const StudentDashboard = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [logoutLoading, setLogoutLoading] = useState(false);
 
-    // Notice Popup State
+    // ... existing notice state ...
     const [showNoticeModal, setShowNoticeModal] = useState(false);
     const [latestNotice, setLatestNotice] = useState(null);
 
     useEffect(() => {
+        // ... existing notice check logic ...
         const checkLatestNotices = async () => {
             try {
                 const res = await api.get('/notices');
                 const notices = res.data;
                 if (notices.length > 0) {
-                    // Sort by date desc (assuming API returns them, but just in case)
                     const sorted = notices.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                     const latest = sorted[0];
-
-                    // Check if posted within last 24 hours
                     const now = new Date();
                     const postedTime = new Date(latest.createdAt);
                     const diffTime = Math.abs(now - postedTime);
                     const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
-
-                    // Check if user has already seen this notice (using localStorage)
                     const lastSeenNoticeId = localStorage.getItem('lastSeenNoticeId');
 
-                    // Only show popup if within 24 hours AND user hasn't seen this notice yet
                     if (diffHours <= 24 && lastSeenNoticeId !== latest._id) {
                         setLatestNotice(latest);
-                        // Small delay to appear after load
                         setTimeout(() => setShowNoticeModal(true), 1000);
                     }
                 }
@@ -57,11 +69,9 @@ const StudentDashboard = () => {
                 console.error("Failed to fetch notices for popup", err);
             }
         };
-
         checkLatestNotices();
     }, []);
 
-    // Handler to dismiss notice and remember it in localStorage
     const dismissNotice = () => {
         if (latestNotice) {
             localStorage.setItem('lastSeenNoticeId', latestNotice._id);
@@ -71,7 +81,6 @@ const StudentDashboard = () => {
 
     const handleLogout = async () => {
         setLogoutLoading(true);
-        // Simulate a small delay for the cyberpunk vibe
         await new Promise(resolve => setTimeout(resolve, 800));
         logout();
         navigate('/login');
@@ -81,6 +90,7 @@ const StudentDashboard = () => {
         { label: 'Attendance', path: '/student', icon: <FaChartPie /> },
         { label: 'Assignments', path: '/student/assignments', icon: <FaClipboardList /> },
         { label: 'Timetable', path: '/student/timetable', icon: <FaCalendarAlt /> },
+        { label: 'Results', path: '/student/results', icon: <FaTrophy /> },
         { label: 'Study Materials', path: '/student/resources', icon: <FaBook /> },
         { label: 'Notices', path: '/student/notices', icon: <FaBell /> },
         { label: 'My Profile', path: '/student/profile', icon: <FaUserCog /> },
@@ -89,10 +99,10 @@ const StudentDashboard = () => {
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
     const renderContent = () => {
-        // Simple routing based on path to render component directly
         const path = location.pathname;
         if (path.endsWith('/assignments')) return <AssignmentView />;
         if (path.endsWith('/timetable')) return <TimetableView />;
+        if (path.endsWith('/results')) return <ResultsView />;
         if (path.endsWith('/resources')) return <ResourceView />;
         if (path.endsWith('/notices')) return <NoticeView />;
         if (path.endsWith('/profile')) return <ProfileManager />;
