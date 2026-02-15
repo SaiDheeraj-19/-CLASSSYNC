@@ -217,7 +217,8 @@ const ProfileManager = () => {
                                 <button
                                     type="button"
                                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-neon-yellow transition-colors"
+                                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-neon-yellow transition-colors z-10 cursor-pointer"
+                                    tabIndex="-1"
                                 >
                                     {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
                                 </button>
