@@ -12,7 +12,8 @@ const CalendarManager = () => {
     const [formHoliday, setFormHoliday] = useState({ name: '', date: '', type: 'Holiday' });
 
     // Auto-calculation state
-    const [selectedMonth, setSelectedMonth] = useState('');
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // 0-indexed
     const [calculatedStats, setCalculatedStats] = useState(null);
 
     const fetchData = useCallback(async () => {
@@ -109,16 +110,10 @@ const CalendarManager = () => {
     };
 
     const handleCalculate = () => {
-        if (!selectedMonth) {
-            alert('Please select a month');
-            return;
-        }
-
-        const [year, month] = selectedMonth.split('-').map(Number);
-        const stats = calculateMonthlyStats(year, month - 1); // month is 0-indexed
+        const stats = calculateMonthlyStats(selectedYear, selectedMonth);
         setCalculatedStats({
             ...stats,
-            monthLabel: format(new Date(year, month - 1), 'MMMM yyyy')
+            monthLabel: format(new Date(selectedYear, selectedMonth), 'MMMM yyyy')
         });
     };
 
@@ -151,18 +146,20 @@ const CalendarManager = () => {
         }
     };
 
-    // Generate month options (past 12 months + next 12 months)
-    const monthOptions = useMemo(() => {
-        const options = [];
-        const today = new Date();
-        for (let i = -12; i <= 12; i++) {
-            const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
-            const value = format(d, 'yyyy-MM');
-            const label = format(d, 'MMMM yyyy');
-            options.push({ value, label });
+    // Generate year options (current year +/- 5)
+    const yearOptions = useMemo(() => {
+        const currentYear = new Date().getFullYear();
+        const years = [];
+        for (let i = -2; i <= 5; i++) {
+            years.push(currentYear + i);
         }
-        return options;
+        return years;
     }, []);
+
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
 
     if (loading) return <div className="text-gray-400">Loading Calendar Data...</div>;
 
@@ -179,19 +176,31 @@ const CalendarManager = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1">Select Month</label>
-                        <select
-                            className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-blue transition-colors appearance-none cursor-pointer"
-                            value={selectedMonth}
-                            onChange={(e) => setSelectedMonth(e.target.value)}
-                        >
-                            <option value="" className="bg-cyber-dark text-gray-400">-- Choose Month --</option>
-                            {monthOptions.map(opt => (
-                                <option key={opt.value} value={opt.value} className="bg-cyber-dark text-white">
-                                    {opt.label}
-                                </option>
-                            ))}
-                        </select>
+                        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1">Select Period</label>
+                        <div className="grid grid-cols-2 gap-2">
+                            <select
+                                className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-blue transition-colors appearance-none cursor-pointer"
+                                value={selectedMonth}
+                                onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                            >
+                                {monthNames.map((m, index) => (
+                                    <option key={index} value={index} className="bg-cyber-dark text-white">
+                                        {m}
+                                    </option>
+                                ))}
+                            </select>
+                            <select
+                                className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-blue transition-colors appearance-none cursor-pointer"
+                                value={selectedYear}
+                                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                            >
+                                {yearOptions.map(y => (
+                                    <option key={y} value={y} className="bg-cyber-dark text-white">
+                                        {y}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                     <div className="flex items-end">
                         <button
