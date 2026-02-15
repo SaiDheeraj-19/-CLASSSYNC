@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash, FaFingerprint, FaShieldAlt } from 'react-icons/fa';
 
+import SEO from '../components/shared/SEO';
+
 const Login = () => {
     const [rollNumber, setRollNumber] = useState('');
     const [password, setPassword] = useState('');
@@ -41,6 +43,7 @@ const Login = () => {
     if (showPortalSelection) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-cyber-black relative overflow-hidden">
+                <SEO title="Admin Access - ClassSync" description="Administrator portal access for ClassSync system." />
                 <div className="absolute inset-0 z-0">
                     <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-purple/10 rounded-full blur-[100px]"></div>
                     <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-neon-yellow/10 rounded-full blur-[80px]"></div>
@@ -74,6 +77,10 @@ const Login = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-cyber-black relative overflow-hidden">
+            <SEO
+                title="Login - ClassSync"
+                description="Login to ClassSync to access your student or admin dashboard. The ultimate classroom management system."
+            />
             {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-purple/10 rounded-full blur-[100px]"></div>

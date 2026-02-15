@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /student/
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://classsync-one.vercel.app/sitemap.xml

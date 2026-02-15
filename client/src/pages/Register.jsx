@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash, FaUser, FaLock, FaFingerprint, FaIdCard, FaShieldAlt } from 'react-icons/fa';
 
+import SEO from '../components/shared/SEO';
+
 const Register = () => {
     const [formData, setFormData] = useState({
         name: '',
@@ -38,6 +40,10 @@ const Register = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-cyber-black relative overflow-hidden font-rajdhani">
+            <SEO
+                title="Register - ClassSync"
+                description="Create a new ClassSync account for students or administrators."
+            />
             {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
                 <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-neon-purple/10 rounded-full blur-[100px]"></div>

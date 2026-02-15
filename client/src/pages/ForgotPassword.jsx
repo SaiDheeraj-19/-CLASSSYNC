@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaFingerprint, FaUser, FaLock, FaEye, FaEyeSlash, FaArrowLeft, FaCheckCircle } from 'react-icons/fa';
 import api from '../api';
+import SEO from '../components/shared/SEO';
 
 const ForgotPassword = () => {
 
@@ -86,6 +87,10 @@ const ForgotPassword = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-cyber-black relative overflow-hidden font-rajdhani">
+            <SEO
+                title="Forgot Password - ClassSync"
+                description="Recover your ClassSync account password."
+            />
             {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-blue/10 rounded-full blur-[100px]"></div>
