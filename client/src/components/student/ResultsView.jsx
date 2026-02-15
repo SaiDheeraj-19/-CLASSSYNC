@@ -24,7 +24,7 @@ const ResultsView = () => {
                         <FaTrophy className="text-neon-yellow" /> Live Results Portal
                     </h2>
                     <p className="text-gray-400 text-sm mt-1">
-                        Secure Gateway to University Database
+                        Secure Gateway to College Database
                     </p>
                 </div>
             </div>
@@ -91,7 +91,7 @@ const ResultsView = () => {
             <div className="mt-4 flex items-center justify-center gap-3 text-xs text-gray-500">
                 <FaChartLine className="text-neon-blue" />
                 <span>
-                    Official University Results Server
+                    Official College Results Server
                 </span>
             </div>
         </div>
