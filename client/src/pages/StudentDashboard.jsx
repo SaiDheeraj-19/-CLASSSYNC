@@ -30,6 +30,7 @@ import TimetableView from '../components/student/TimetableView';
 import NoticeView from '../components/student/NoticeView';
 import ResourceView from '../components/student/ResourceView';
 import ResultsView from '../components/student/ResultsView';
+import ProfileManager from '../components/shared/ProfileManager';
 
 const StudentDashboard = () => {
     // ... existing hooks ...
