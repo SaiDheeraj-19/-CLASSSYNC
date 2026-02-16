@@ -325,7 +325,7 @@ const AttendanceManager = () => {
                         </select>
                         {lastSessionPreview && selectedSubject === lastSessionPreview.subject && (
                             <div className="absolute top-full mt-1 left-0 bg-cyber-dark border border-neon-purple p-2 z-20 text-[10px] whitespace-nowrap animate-fade-in shadow-2xl">
-                                <span className="text-gray-400 uppercase tracking-widest">Last Class: </span>
+                                <span className="text-gray-400 uppercase tracking-widest">Last Recorded Session: </span>
                                 <span className="text-neon-purple font-bold">{new Date(lastSessionPreview.date).toLocaleDateString()}</span>
                                 <span className="mx-1 text-gray-700">|</span>
                                 <span className="text-neon-blue font-bold">{lastSessionPreview.timeSlot}</span>
@@ -376,9 +376,9 @@ const AttendanceManager = () => {
                         className={`flex items-center gap-2 border px-4 py-2 transition-colors ${selectedSubject
                             ? 'bg-neon-purple/20 border-neon-purple text-neon-purple hover:bg-neon-purple hover:text-white shadow-[0_0_15px_rgba(157,0,255,0.3)]'
                             : 'bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed'}`}
-                        title="Load attendance from last class"
+                        title="Load attendance from last recorded session"
                     >
-                        <FaCheckDouble /> Apply Last Class
+                        <FaCheckDouble /> Apply Last Record
                     </button>
                     <button
                         onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
