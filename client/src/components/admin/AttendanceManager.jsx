@@ -98,6 +98,34 @@ const AttendanceManager = () => {
         setAttendanceMarks(marks);
     };
 
+    // Load last attendance for the selected subject
+    const loadLastAttendance = async () => {
+        if (!selectedSubject) {
+            alert('Please select a subject first!');
+            return;
+        }
+
+        try {
+            const res = await api.get(`/attendance/last/${selectedSubject}`);
+            const { absentees } = res.data;
+
+            // Initialize all as present, then mark absentees from the last session
+            const newMarks = {};
+            students.forEach(s => {
+                newMarks[s._id] = !absentees.includes(s._id);
+            });
+            setAttendanceMarks(newMarks);
+            alert(`Applied attendance from the last recorded session of ${selectedSubject}.`);
+        } catch (err) {
+            console.error(err);
+            if (err.response?.status === 404) {
+                alert(`No previous attendance record found for ${selectedSubject}.`);
+            } else {
+                alert('Error loading previous attendance');
+            }
+        }
+    };
+
     // Save attendance for selected subject
     const saveAttendance = async () => {
         if (!selectedSubject) {
@@ -124,7 +152,7 @@ const AttendanceManager = () => {
                 isPresent: !!attendanceMarks[student._id]
             }));
 
-            await api.post('/attendance/bulk', { updates });
+            await api.post('/attendance/bulk', { updates, date: attendanceDate });
 
             alert(`Attendance saved successfully for ${selectedSubject}!`);
         } catch (err) {
@@ -299,6 +327,16 @@ const AttendanceManager = () => {
                         className="flex items-center gap-2 bg-red-500/20 border border-red-500 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 transition-colors"
                     >
                         <FaTimesCircle /> Mark All Absent
+                    </button>
+                    <button
+                        onClick={loadLastAttendance}
+                        disabled={!selectedSubject}
+                        className={`flex items-center gap-2 border px-4 py-2 transition-colors ${selectedSubject
+                            ? 'bg-neon-purple/20 border-neon-purple text-neon-purple hover:bg-neon-purple hover:text-white shadow-[0_0_15px_rgba(157,0,255,0.3)]'
+                            : 'bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed'}`}
+                        title="Load attendance from last class"
+                    >
+                        <FaCheckDouble /> Apply Last Class
                     </button>
                     <button
                         onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}

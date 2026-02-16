@@ -2,7 +2,26 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Attendance = require('../models/Attendance');
+const AttendanceSession = require('../models/AttendanceSession');
 const { auth, admin } = require('../middleware/auth');
+
+// @route   GET api/attendance/last/:subject
+// @desc    Get last attendance session for a subject
+// @access  Private (Admin)
+router.get('/last/:subject', [auth, admin], async (req, res) => {
+    try {
+        const session = await AttendanceSession.findOne({ subject: req.params.subject })
+            .sort({ date: -1, createdAt: -1 });
+
+        if (!session) {
+            return res.status(404).json({ message: 'No previous session found for this subject' });
+        }
+        res.json(session);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
 
 // @route   GET api/attendance (My Attendance)
 // @desc    Get attendance for logged in student
@@ -99,7 +118,7 @@ router.delete('/:id', [auth, admin], async (req, res) => {
 // @desc    Bulk Create/Update attendance (Admin)
 // @access  Private (Admin)
 router.post('/bulk', [auth, admin], async (req, res) => {
-    const { updates } = req.body; // Array of { studentId, subject, isPresent }
+    const { updates, date } = req.body;
 
     if (!updates || updates.length === 0) {
         return res.status(400).json({ message: 'No updates provided' });
@@ -108,17 +127,25 @@ router.post('/bulk', [auth, admin], async (req, res) => {
     try {
         const subject = updates[0].subject;
         const studentIds = updates.map(u => u.studentId);
+        const sessionDate = date ? new Date(date) : new Date();
 
-        // Fetch existing records for this subject and these students
+        // 1. Save Attendance Session
+        const absentees = updates.filter(u => !u.isPresent).map(u => u.studentId);
+        const newSession = new AttendanceSession({
+            subject,
+            date: sessionDate,
+            absentees
+        });
+        await newSession.save();
+
+        // 2. Update Cumulative
         const existingRecords = await Attendance.find({
             subject: subject,
             student: { $in: studentIds }
         });
 
-        // Map for quick lookup: studentId -> record
         const recordMap = {};
         existingRecords.forEach(record => {
-            // Use toString() because record.student is ObjectId
             recordMap[record.student.toString()] = record;
         });
 
@@ -126,7 +153,6 @@ router.post('/bulk', [auth, admin], async (req, res) => {
             const existing = recordMap[update.studentId];
 
             if (existing) {
-                // Update existing record
                 return {
                     updateOne: {
                         filter: { _id: existing._id },
@@ -139,7 +165,6 @@ router.post('/bulk', [auth, admin], async (req, res) => {
                     }
                 };
             } else {
-                // Insert new record
                 return {
                     insertOne: {
                         document: {
@@ -157,7 +182,7 @@ router.post('/bulk', [auth, admin], async (req, res) => {
             await Attendance.bulkWrite(operations);
         }
 
-        res.json({ message: 'Bulk attendance updated successfully' });
+        res.json({ message: 'Bulk attendance updated and session saved' });
     } catch (err) {
         console.error('Bulk update error:', err);
         res.status(500).send('Server Error');
