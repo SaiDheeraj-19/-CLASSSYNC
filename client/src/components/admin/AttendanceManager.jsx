@@ -235,8 +235,8 @@ const AttendanceManager = () => {
         });
 
         const csvContent = "data:text/csv;charset=utf-8,"
-            + "Roll Number,Name,Date\n"
-            + sortedAbsentees.map(s => `${s.rollNumber},"${s.name}",${attendanceDate}`).join("\n");
+            + "Roll Number,Name,Date,Time Slot\n"
+            + sortedAbsentees.map(s => `${s.rollNumber},"${s.name}",${attendanceDate},${selectedTime}`).join("\n");
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");

@@ -23,6 +23,21 @@ router.get('/last/:subject', [auth, admin], async (req, res) => {
     }
 });
 
+// @route   GET api/attendance/sessions
+// @desc    Get all attendance sessions
+// @access  Private (Admin)
+router.get('/sessions', [auth, admin], async (req, res) => {
+    try {
+        const sessions = await AttendanceSession.find()
+            .sort({ date: -1, createdAt: -1 })
+            .limit(50);
+        res.json(sessions);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
 // @route   GET api/attendance (My Attendance)
 // @desc    Get attendance for logged in student
 // @access  Private
