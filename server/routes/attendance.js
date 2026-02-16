@@ -129,6 +129,51 @@ router.get('/my-sessions', auth, async (req, res) => {
     }
 });
 
+// @route   GET api/attendance/history
+// @desc    Get detailed attendance history for student
+// @access  Private
+router.get('/history', auth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // 1. Get subjects the student is enrolled in
+        const enrollments = await Attendance.find({ student: userId }).select('subject');
+
+        // If student has no attendance records, return empty
+        if (!enrollments.length) return res.json([]);
+
+        const subjects = enrollments.map(e => e.subject);
+
+        // 2. Find sessions for these subjects (limit to last 6 months)
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+        const sessions = await AttendanceSession.find({
+            subject: { $in: subjects },
+            date: { $gte: sixMonthsAgo }
+        })
+            .sort({ date: -1, timeSlot: 1 }); // Sort by date desc
+
+        // 3. Map status
+        const history = sessions.map(session => {
+            // Check if user ID is in absentees list (which contains ObjectIds)
+            const isAbsent = session.absentees.some(id => id.toString() === userId);
+            return {
+                _id: session._id,
+                subject: session.subject,
+                date: session.date,
+                timeSlot: session.timeSlot || 'N/A',
+                status: isAbsent ? 'Absent' : 'Present'
+            };
+        });
+
+        res.json(history);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
 // @route   POST api/attendance
 // @desc    Create/Update attendance (Admin)
 // @access  Private (Admin)
