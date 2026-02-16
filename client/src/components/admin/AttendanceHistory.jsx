@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
-import { FaSearch, FaFilter, FaDownload, FaChartPie, FaTrash, FaHistory, FaCalendarAlt, FaClock } from 'react-icons/fa';
+import { FaSearch, FaFilter, FaDownload, FaChartPie, FaTrash, FaHistory, FaCalendarAlt, FaClock, FaUsersSlash } from 'react-icons/fa';
 
 const AttendanceHistory = () => {
     const [records, setRecords] = useState([]);
@@ -8,6 +8,7 @@ const AttendanceHistory = () => {
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState('cumulative'); // cumulative, sessions
+    const [expandedSession, setExpandedSession] = useState(null);
 
     // Filters
     const [selectedSubject, setSelectedSubject] = useState('');
@@ -75,6 +76,24 @@ const AttendanceHistory = () => {
         }
     };
 
+    const handleDeleteSession = async (id) => {
+        if (window.confirm('Delete this session? Cumulative attendance will be adjusted automatically.')) {
+            try {
+                await api.delete(`/attendance/session/${id}`);
+                setSessions(sessions.filter(s => s._id !== id));
+
+                // Refresh records as they have been rolled back
+                const attRes = await api.get('/attendance/all');
+                setRecords(attRes.data);
+
+                alert('Session deleted and counts rolled back.');
+            } catch (err) {
+                console.error(err);
+                alert('Error deleting session');
+            }
+        }
+    };
+
     const handleDeleteAll = async () => {
         const confirmMsg = selectedSubject
             ? `Are you sure you want to delete ALL attendance records for "${selectedSubject}"? This will reset attendance for all students in this subject.`
@@ -121,7 +140,7 @@ const AttendanceHistory = () => {
                         </p>
                     </div>
 
-                    <div className="flex gap-2 bg-black/40 p-1 border border-white/10 ml-auto">
+                    <div className="flex gap-2 bg-black/40 p-1 border border-white/10">
                         <button
                             onClick={() => setViewMode('cumulative')}
                             className={`px-4 py-2 text-xs font-bold tracking-widest transition-all ${viewMode === 'cumulative' ? 'bg-neon-purple text-white shadow-[0_0_15px_rgba(157,0,255,0.4)]' : 'text-gray-500 hover:text-white'}`}
@@ -243,58 +262,106 @@ const AttendanceHistory = () => {
                             </tbody>
                         </table>
                     ) : (
-                        <table className="w-full text-left border-collapse">
-                            <thead className="bg-black/20 sticky top-0 backdrop-blur-md z-10">
-                                <tr>
-                                    <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10">Subject</th>
-                                    <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10">Date</th>
-                                    <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10">Time Slot</th>
-                                    <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-center">Absentees</th>
-                                    <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-right">Created</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {loading ? (
-                                    <tr><td colSpan="5" className="p-8 text-center text-gray-500 animate-pulse">Loading Sessions...</td></tr>
-                                ) : filteredSessions.length > 0 ? (
-                                    filteredSessions.map(sess => (
-                                        <tr key={sess._id} className="hover:bg-white/5 transition-colors group">
-                                            <td className="p-4 text-neon-purple font-orbitron font-bold">{sess.subject}</td>
-                                            <td className="p-4 text-white flex items-center gap-2">
-                                                <FaCalendarAlt className="text-gray-500" />
-                                                {new Date(sess.date).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-')}
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="inline-flex items-center gap-2 px-3 py-1 bg-neon-blue/10 border border-neon-blue/20 text-neon-blue text-xs font-bold">
-                                                    <FaClock /> {sess.timeSlot || 'N/A'}
-                                                </span>
-                                            </td>
-                                            <td className="p-4 text-center">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${sess.absentees?.length > 0 ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
-                                                    {sess.absentees?.length || 0} Absent
-                                                </span>
-                                            </td>
-                                            <td className="p-4 text-right text-gray-500 text-sm font-code">
-                                                {new Date(sess.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        <div className="flex flex-col">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-black/20 sticky top-0 backdrop-blur-md z-10">
+                                    <tr>
+                                        <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 w-10"></th>
+                                        <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10">Subject</th>
+                                        <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10">Date</th>
+                                        <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10">Time Slot</th>
+                                        <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-center">Absentees</th>
+                                        <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-right">Created</th>
+                                        <th className="p-4 font-orbitron text-xs text-gray-400 uppercase tracking-wider border-b border-white/10 text-center">Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {loading ? (
+                                        <tr><td colSpan="7" className="p-8 text-center text-gray-500 animate-pulse">Loading Sessions...</td></tr>
+                                    ) : filteredSessions.length > 0 ? (
+                                        filteredSessions.map(sess => (
+                                            <React.Fragment key={sess._id}>
+                                                <tr
+                                                    className={`hover:bg-white/5 transition-colors cursor-pointer ${expandedSession === sess._id ? 'bg-neon-purple/5' : ''}`}
+                                                    onClick={() => setExpandedSession(expandedSession === sess._id ? null : sess._id)}
+                                                >
+                                                    <td className="p-4 text-center">
+                                                        <span className={`text-xs transition-transform inline-block ${expandedSession === sess._id ? 'rotate-90' : ''}`}>▶</span>
+                                                    </td>
+                                                    <td className="p-4 text-neon-purple font-orbitron font-bold">{sess.subject}</td>
+                                                    <td className="p-4 text-white">
+                                                        <div className="flex items-center gap-2">
+                                                            <FaCalendarAlt className="text-gray-500" />
+                                                            {new Date(sess.date).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-')}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <span className="inline-flex items-center gap-2 px-3 py-1 bg-neon-blue/10 border border-neon-blue/20 text-neon-blue text-xs font-bold whitespace-nowrap">
+                                                            <FaClock /> {sess.timeSlot || 'N/A'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-4 text-center">
+                                                        <span className={`px-2 py-1 rounded-none text-xs font-bold border ${sess.absentees?.length > 0 ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-green-500/10 text-green-500 border-green-500/20'}`}>
+                                                            {sess.absentees?.length || 0} ABSENT
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-4 text-right text-gray-500 text-sm font-code">
+                                                        {new Date(sess.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </td>
+                                                    <td className="p-4 text-center">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteSession(sess._id);
+                                                            }}
+                                                            className="text-red-500/50 hover:text-red-500 transition-colors"
+                                                        >
+                                                            <FaTrash />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                {expandedSession === sess._id && (
+                                                    <tr className="bg-black/40 border-l-2 border-neon-purple">
+                                                        <td colSpan="7" className="p-4">
+                                                            <div className="animate-fade-in">
+                                                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                                    <FaUsersSlash className="text-red-400" /> List of Absentees
+                                                                </h4>
+                                                                {sess.absentees && sess.absentees.length > 0 ? (
+                                                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                                                        {sess.absentees.map(student => (
+                                                                            <div key={student._id} className="bg-white/5 border border-white/10 p-2 flex flex-col">
+                                                                                <span className="text-neon-blue text-[10px] font-code">{student.rollNumber}</span>
+                                                                                <span className="text-white text-sm font-semibold truncate">{student.name}</span>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                ) : (
+                                                                    <p className="text-green-400 text-sm italic">Full attendance! No one was absent.</p>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </React.Fragment>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="7" className="p-8 text-center text-gray-500">
+                                                No marking sessions found.
                                             </td>
                                         </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="5" className="p-8 text-center text-gray-500">
-                                            No marking sessions found.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </div>
 
                 {/* Footer Stats */}
                 <div className="p-4 border-t border-white/10 bg-black/20 text-xs text-gray-500 flex justify-between">
                     <span>Showing {viewMode === 'cumulative' ? filteredRecords.length : filteredSessions.length} items</span>
-                    <span>ClassSync Attendance Analytics // V 2.1</span>
+                    <span>ClassSync Attendance Analytics // V 2.2</span>
                 </div>
             </div>
         </div>

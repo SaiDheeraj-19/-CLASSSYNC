@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
-import { FaCheckCircle, FaExclamationTriangle, FaChartPie } from 'react-icons/fa';
+import { FaCheckCircle, FaExclamationTriangle, FaChartPie, FaCalendarAlt, FaClock, FaHistory } from 'react-icons/fa';
 
 const AttendanceView = () => {
     const [attendance, setAttendance] = useState([]);
+    const [missedSessions, setMissedSessions] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchAttendance = async () => {
             try {
-                const res = await api.get('/attendance');
-                setAttendance(res.data);
+                const [attRes, sessRes] = await Promise.all([
+                    api.get('/attendance'),
+                    api.get('/attendance/my-sessions')
+                ]);
+                setAttendance(attRes.data);
+                setMissedSessions(sessRes.data);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -36,9 +41,11 @@ const AttendanceView = () => {
 
             {/* SECTION 1: OVERALL ATTENDANCE */}
             <section>
-                <h2 className="text-2xl font-bold text-white font-orbitron mb-6 border-l-4 border-neon-purple pl-4 flex items-center gap-3">
-                    <FaChartPie /> Overall Performance
-                </h2>
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-white font-orbitron border-l-4 border-neon-purple pl-4 flex items-center gap-3">
+                        <FaChartPie /> Overall Performance
+                    </h2>
+                </div>
 
                 {attendance.length > 0 ? (
                     <div className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
@@ -99,16 +106,14 @@ const AttendanceView = () => {
                 )}
             </section>
 
-            {/* SECTION 2: PER SUBJECT ATTENDANCE */}
-            {attendance.length > 0 && (
-                <section>
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-white font-orbitron border-l-4 border-neon-blue pl-4 flex items-center gap-3">
-                            <FaCheckCircle /> Subject-wise Details
-                        </h2>
-                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                {/* SECTION 2: PER SUBJECT ATTENDANCE */}
+                <div className="lg:col-span-2 space-y-6">
+                    <h2 className="text-2xl font-bold text-white font-orbitron border-l-4 border-neon-blue pl-4 flex items-center gap-3">
+                        <FaCheckCircle /> Subject-wise Details
+                    </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {attendance.map((subject) => {
                             const isSafe = subject.status === 'Safe';
                             const percentage = subject.percentage || 0;
@@ -121,69 +126,76 @@ const AttendanceView = () => {
                                         : 'border-red-500/20 hover:border-red-500/50'
                                         }`}
                                 >
-                                    {/* Top Status Bar */}
-                                    <div className={`h-1.5 w-full ${isSafe ? 'bg-neon-green' : 'bg-red-500'}`}></div>
-
-                                    <div className="p-6">
-                                        <div className="flex justify-between items-start gap-4 mb-4">
-                                            <h3 className="text-lg font-bold text-white font-orbitron leading-tight">{subject.subject}</h3>
-                                            <span className={`flex-shrink-0 px-2 py-1 text-[10px] font-bold uppercase rounded tracking-wider ${isSafe
-                                                ? 'bg-neon-green/10 text-neon-green border border-neon-green/30'
-                                                : 'bg-red-500/10 text-red-500 border border-red-500/30'
-                                                }`}>
+                                    <div className={`h-1 w-full ${isSafe ? 'bg-neon-green' : 'bg-red-500'}`}></div>
+                                    <div className="p-5">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <h3 className="text-sm font-bold text-white font-orbitron">{subject.subject}</h3>
+                                            <span className={`px-2 py-0.5 text-[10px] font-bold uppercase ${isSafe ? 'text-neon-green' : 'text-red-500'}`}>
                                                 {subject.status}
                                             </span>
                                         </div>
-
-                                        <div className="flex items-end justify-between mb-6">
-                                            <div>
-                                                <span className={`text-4xl font-bold font-orbitron ${isSafe ? 'text-white' : 'text-red-400'}`}>
-                                                    {Number(percentage).toFixed(0)}
-                                                    <span className="text-lg text-gray-500">%</span>
-                                                </span>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-xs text-gray-500 uppercase">Attended</div>
-                                                <div className="text-white font-bold text-lg">
-                                                    {subject.attendedClasses} <span className="text-gray-600">/ {subject.totalClasses}</span>
-                                                </div>
-                                            </div>
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <span className="text-2xl font-bold font-orbitron text-white">{Math.round(percentage)}%</span>
+                                            <div className="text-xs text-gray-500 uppercase tracking-widest">{subject.attendedClasses} / {subject.totalClasses}</div>
                                         </div>
-
-                                        {/* Progress Bar */}
-                                        <div className="w-full bg-gray-800 rounded-full h-2.5 mb-4 overflow-hidden">
+                                        <div className="w-full bg-gray-800 h-1 rounded-full overflow-hidden mb-4">
                                             <div
-                                                className={`h-full rounded-full transition-all duration-1000 ${isSafe ? 'bg-neon-green' : 'bg-red-500'}`}
+                                                className={`h-full ${isSafe ? 'bg-neon-green' : 'bg-red-500'}`}
                                                 style={{ width: `${percentage}%` }}
                                             ></div>
                                         </div>
-
-                                        {/* Actionable Insight */}
-                                        <div className={`p-3 rounded-lg text-xs border ${isSafe
-                                            ? 'bg-neon-green/5 border-neon-green/10 text-neon-green'
-                                            : 'bg-red-500/5 border-red-500/10 text-red-400'
-                                            }`}>
-                                            {!isSafe ? (
-                                                <div className="flex items-start gap-2">
-                                                    <FaExclamationTriangle className="mt-0.5 flex-shrink-0" />
-                                                    <span>
-                                                        Risk! Attend <strong className="text-white underline">{subject.classesNeededToReach75}</strong> more classes to reach 75%.
-                                                    </span>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-2">
-                                                    <FaCheckCircle className="flex-shrink-0" />
-                                                    <span>You are in safe zone. Keep it up!</span>
-                                                </div>
-                                            )}
-                                        </div>
+                                        {!isSafe && (
+                                            <div className="text-[10px] text-red-400 bg-red-400/5 p-2 border border-red-400/10 italic">
+                                                * Need {subject.classesNeededToReach75} more classes for 75%
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             );
                         })}
                     </div>
-                </section>
-            )}
+                </div>
+
+                {/* SECTION 3: RECENT ABSENCES */}
+                <div className="space-y-6">
+                    <h2 className="text-2xl font-bold text-white font-orbitron border-l-4 border-red-500 pl-4 flex items-center gap-3">
+                        <FaHistory /> Recent Absences
+                    </h2>
+
+                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden">
+                        {missedSessions.length > 0 ? (
+                            <div className="divide-y divide-white/5">
+                                {missedSessions.map(session => (
+                                    <div key={session._id} className="p-4 hover:bg-white/5 transition-colors group">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h4 className="text-white font-bold group-hover:text-neon-purple transition-colors">{session.subject}</h4>
+                                            <span className="text-[10px] bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-0.5 uppercase font-bold">Absent</span>
+                                        </div>
+                                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                                            <div className="flex items-center gap-1">
+                                                <FaCalendarAlt className="text-neon-purple" />
+                                                {new Date(session.date).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit' }).replace(/\//g, '-')}
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <FaClock className="text-neon-blue" />
+                                                {session.timeSlot || 'N/A'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="p-10 text-center">
+                                <FaCheckCircle className="text-neon-green text-3xl mx-auto mb-3" />
+                                <p className="text-gray-400 text-sm italic">Great job! You haven't missed any classes recently.</p>
+                            </div>
+                        )}
+                        <div className="p-3 bg-black/40 text-[10px] text-gray-600 text-center uppercase tracking-widest font-bold">
+                            Showing Last 20 Absences
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

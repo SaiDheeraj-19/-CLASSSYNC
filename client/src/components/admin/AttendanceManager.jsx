@@ -22,6 +22,7 @@ const AttendanceManager = () => {
     const [attendanceMarks, setAttendanceMarks] = useState({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [lastSessionPreview, setLastSessionPreview] = useState(null);
 
     // Config Mode for subjects
     const [isConfigMode, setIsConfigMode] = useState(false);
@@ -118,7 +119,8 @@ const AttendanceManager = () => {
                 newMarks[s._id] = !absentees.includes(s._id);
             });
             setAttendanceMarks(newMarks);
-            alert(`Applied attendance from the last recorded session of ${selectedSubject}.`);
+            setLastSessionPreview(res.data);
+            alert(`Applied attendance from ${new Date(res.data.date).toLocaleDateString()} at ${res.data.timeSlot || 'N/A'}.`);
         } catch (err) {
             console.error(err);
             if (err.response?.status === 404) {
@@ -178,6 +180,17 @@ const AttendanceManager = () => {
         selectedDate.setHours(0, 0, 0, 0);
         return selectedDate > today;
     };
+
+    // Auto-fetch last session preview when subject changes
+    useEffect(() => {
+        if (selectedSubject) {
+            api.get(`/attendance/last/${selectedSubject}`)
+                .then(res => setLastSessionPreview(res.data))
+                .catch(() => setLastSessionPreview(null));
+        } else {
+            setLastSessionPreview(null);
+        }
+    }, [selectedSubject]);
 
     // Handle date change with popup notification
     const handleDateChange = (e) => {
@@ -310,6 +323,16 @@ const AttendanceManager = () => {
                                 <option key={s._id} value={s.name} className="bg-cyber-dark">{s.name}</option>
                             ))}
                         </select>
+                        {lastSessionPreview && selectedSubject === lastSessionPreview.subject && (
+                            <div className="absolute top-full mt-1 left-0 bg-cyber-dark border border-neon-purple p-2 z-20 text-[10px] whitespace-nowrap animate-fade-in shadow-2xl">
+                                <span className="text-gray-400 uppercase tracking-widest">Last Class: </span>
+                                <span className="text-neon-purple font-bold">{new Date(lastSessionPreview.date).toLocaleDateString()}</span>
+                                <span className="mx-1 text-gray-700">|</span>
+                                <span className="text-neon-blue font-bold">{lastSessionPreview.timeSlot}</span>
+                                <span className="mx-1 text-gray-700">|</span>
+                                <span className="text-red-400 font-bold">{lastSessionPreview.absentees?.length} ABS</span>
+                            </div>
+                        )}
                     </div>
                     <div>
                         <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1">Date</label>

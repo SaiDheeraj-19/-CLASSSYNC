@@ -26,12 +26,51 @@ router.get('/last/:subject', [auth, admin], async (req, res) => {
 // @route   GET api/attendance/sessions
 // @desc    Get all attendance sessions
 // @access  Private (Admin)
+// @route   DELETE api/attendance/session/:id
+// @desc    Delete an attendance session and rollback cumulative counts
+// @access  Private (Admin)
 router.get('/sessions', [auth, admin], async (req, res) => {
     try {
         const sessions = await AttendanceSession.find()
+            .populate('absentees', 'name rollNumber')
             .sort({ date: -1, createdAt: -1 })
             .limit(50);
         res.json(sessions);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
+router.delete('/session/:id', [auth, admin], async (req, res) => {
+    try {
+        const session = await AttendanceSession.findById(req.params.id);
+        if (!session) return res.status(404).json({ message: 'Session not found' });
+
+        const { subject, absentees } = session;
+
+        // Rollback cumulative counts
+        // 1. For absentees: Decrease totalClasses
+        await Attendance.updateMany(
+            { subject, student: { $in: absentees } },
+            { $inc: { totalClasses: -1 } }
+        );
+
+        // 2. For those who were present: Decrease totalClasses AND attendedClasses
+        // We need to find the students who were NOT absentees in this specific session
+        // However, we don't have the full list of students in the session record.
+        // We assume all students who have a record for this subject were part of the pool.
+        // A safer way is to find all Attendance records for this subject excluding absentees.
+        await Attendance.updateMany(
+            { subject, student: { $nin: absentees } },
+            { $inc: { totalClasses: -1, attendedClasses: -1 } }
+        );
+
+        // 3. Remove records where totalClasses becomes 0 (optional cleanup)
+        // await Attendance.deleteMany({ subject, totalClasses: { $lte: 0 } });
+
+        await AttendanceSession.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Session deleted and attendance rolled back' });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
@@ -68,6 +107,24 @@ router.get('/', auth, async (req, res) => {
         res.json(withAnalysis);
     } catch (err) {
         console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   GET api/attendance/my-sessions
+// @desc    Get individual session history for student (especially absences)
+// @access  Private
+router.get('/my-sessions', auth, async (req, res) => {
+    try {
+        const missedSessions = await AttendanceSession.find({
+            absentees: req.user.id
+        })
+            .sort({ date: -1, createdAt: -1 })
+            .limit(20);
+
+        res.json(missedSessions);
+    } catch (err) {
+        console.error(err);
         res.status(500).send('Server Error');
     }
 });
