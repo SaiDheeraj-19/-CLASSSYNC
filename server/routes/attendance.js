@@ -118,7 +118,7 @@ router.delete('/:id', [auth, admin], async (req, res) => {
 // @desc    Bulk Create/Update attendance (Admin)
 // @access  Private (Admin)
 router.post('/bulk', [auth, admin], async (req, res) => {
-    const { updates, date } = req.body;
+    const { updates, date, timeSlot } = req.body;
 
     if (!updates || updates.length === 0) {
         return res.status(400).json({ message: 'No updates provided' });
@@ -134,6 +134,7 @@ router.post('/bulk', [auth, admin], async (req, res) => {
         const newSession = new AttendanceSession({
             subject,
             date: sessionDate,
+            timeSlot: timeSlot || '9:00 AM',
             absentees
         });
         await newSession.save();

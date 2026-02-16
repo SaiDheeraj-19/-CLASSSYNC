@@ -14,6 +14,9 @@ const AttendanceManager = () => {
     const [timetable, setTimetable] = useState([]);
     const [selectedSubject, setSelectedSubject] = useState('');
     const [attendanceDate, setAttendanceDate] = useState(getISTDate());
+    const [selectedTime, setSelectedTime] = useState('9:00 AM');
+
+    const timeSlots = ['9:00 AM', '10:00 AM', '11:15 AM', '1:00 PM', '2:00 PM', '3:00 PM'];
 
     // Attendance state: { studentId: true/false (present/absent) }
     const [attendanceMarks, setAttendanceMarks] = useState({});
@@ -152,9 +155,13 @@ const AttendanceManager = () => {
                 isPresent: !!attendanceMarks[student._id]
             }));
 
-            await api.post('/attendance/bulk', { updates, date: attendanceDate });
+            await api.post('/attendance/bulk', {
+                updates,
+                date: attendanceDate,
+                timeSlot: selectedTime
+            });
 
-            alert(`Attendance saved successfully for ${selectedSubject}!`);
+            alert(`Attendance saved successfully for ${selectedSubject} at ${selectedTime}!`);
         } catch (err) {
             console.error(err);
             alert('Error saving attendance');
@@ -313,6 +320,18 @@ const AttendanceManager = () => {
                             onChange={handleDateChange}
                         />
                     </div>
+                    <div>
+                        <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1">Time Slot</label>
+                        <select
+                            className="bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
+                            value={selectedTime}
+                            onChange={(e) => setSelectedTime(e.target.value)}
+                        >
+                            {timeSlots.map(time => (
+                                <option key={time} value={time} className="bg-cyber-dark">{time}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 <div className="flex gap-2 flex-wrap">
@@ -366,7 +385,7 @@ const AttendanceManager = () => {
                             <span className="text-neon-green font-bold text-sm">{selectedSubject || 'No Subject'}</span>
                             <span className="mx-2">•</span>
                             <span className={isFutureDate() ? 'text-red-400' : 'text-neon-yellow'}>
-                                {formatDate(attendanceDate)} ({new Date(attendanceDate).toLocaleDateString('en-US', { weekday: 'short' })})
+                                {formatDate(attendanceDate)} • {selectedTime}
                                 {isFutureDate() && ' - Future'}
                             </span>
                         </div>

@@ -10,6 +10,11 @@ const AttendanceSessionSchema = new mongoose.Schema({
         required: true,
         default: Date.now
     },
+    timeSlot: {
+        type: String,
+        required: true,
+        default: '9:00 AM'
+    },
     absentees: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
