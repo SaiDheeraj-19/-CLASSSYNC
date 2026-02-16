@@ -117,8 +117,8 @@ const AttendanceView = () => {
                                 <div
                                     key={subject._id}
                                     className={`relative bg-black/40 backdrop-blur-md rounded-xl overflow-hidden shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl group border ${isSafe
-                                            ? 'border-neon-green/20 hover:border-neon-green/50'
-                                            : 'border-red-500/20 hover:border-red-500/50'
+                                        ? 'border-neon-green/20 hover:border-neon-green/50'
+                                        : 'border-red-500/20 hover:border-red-500/50'
                                         }`}
                                 >
                                     {/* Top Status Bar */}
@@ -128,8 +128,8 @@ const AttendanceView = () => {
                                         <div className="flex justify-between items-start gap-4 mb-4">
                                             <h3 className="text-lg font-bold text-white font-orbitron leading-tight">{subject.subject}</h3>
                                             <span className={`flex-shrink-0 px-2 py-1 text-[10px] font-bold uppercase rounded tracking-wider ${isSafe
-                                                    ? 'bg-neon-green/10 text-neon-green border border-neon-green/30'
-                                                    : 'bg-red-500/10 text-red-500 border border-red-500/30'
+                                                ? 'bg-neon-green/10 text-neon-green border border-neon-green/30'
+                                                : 'bg-red-500/10 text-red-500 border border-red-500/30'
                                                 }`}>
                                                 {subject.status}
                                             </span>
@@ -138,7 +138,7 @@ const AttendanceView = () => {
                                         <div className="flex items-end justify-between mb-6">
                                             <div>
                                                 <span className={`text-4xl font-bold font-orbitron ${isSafe ? 'text-white' : 'text-red-400'}`}>
-                                                    {percentage.toFixed(0)}
+                                                    {Number(percentage).toFixed(0)}
                                                     <span className="text-lg text-gray-500">%</span>
                                                 </span>
                                             </div>
@@ -160,8 +160,8 @@ const AttendanceView = () => {
 
                                         {/* Actionable Insight */}
                                         <div className={`p-3 rounded-lg text-xs border ${isSafe
-                                                ? 'bg-neon-green/5 border-neon-green/10 text-neon-green'
-                                                : 'bg-red-500/5 border-red-500/10 text-red-400'
+                                            ? 'bg-neon-green/5 border-neon-green/10 text-neon-green'
+                                            : 'bg-red-500/5 border-red-500/10 text-red-400'
                                             }`}>
                                             {!isSafe ? (
                                                 <div className="flex items-start gap-2">

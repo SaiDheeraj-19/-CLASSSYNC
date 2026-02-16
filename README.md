@@ -26,6 +26,13 @@
 
 Designed for efficiency, speed, and visual impact, ClassSync seamlessly connects Students and Administrators.
 
+## 🌐 Live Demo & Deployment
+
+ClassSync is live! You can access the deployed application here:
+- **Production URL**: [https://classsync-one.vercel.app](https://classsync-one.vercel.app)
+
+The application is fully SEO optimized and registered with **Google Search Console**.
+
 ### Key Features
 
 | 🎓 For Students | 🛡️ For Admins |

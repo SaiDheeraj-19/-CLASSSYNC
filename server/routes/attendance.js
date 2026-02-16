@@ -25,7 +25,7 @@ router.get('/', auth, async (req, res) => {
 
             return {
                 ...record._doc,
-                percentage: percentage.toFixed(2),
+                percentage: Number(percentage.toFixed(2)),
                 status,
                 classesNeededToReach75: classesNeeded
             };
