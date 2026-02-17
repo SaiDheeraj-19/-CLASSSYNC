@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaTrash, FaChartBar, FaCheckCircle, FaTimesCircle, FaPoll } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaChartBar, FaCheckCircle, FaTimesCircle, FaPoll, FaUsers } from 'react-icons/fa';
 import api from '../../api';
 
 const PollManager = () => {
@@ -7,6 +7,7 @@ const PollManager = () => {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [newPoll, setNewPoll] = useState({ question: '', options: ['', ''] });
+    const [expandedPolls, setExpandedPolls] = useState({});
 
     const fetchPolls = async () => {
         try {
@@ -70,6 +71,13 @@ const PollManager = () => {
     const removeOption = (index) => {
         const newOptions = newPoll.options.filter((_, i) => i !== index);
         setNewPoll({ ...newPoll, options: newOptions });
+    };
+
+    const toggleVoters = (pollId) => {
+        setExpandedPolls(prev => ({
+            ...prev,
+            [pollId]: !prev[pollId]
+        }));
     };
 
     if (loading) return <div className="text-white text-center mt-20">Loading Polls...</div>;
@@ -172,9 +180,13 @@ const PollManager = () => {
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => {
-                                            const csvContent = "data:text/csv;charset=utf-8,"
-                                                + "Option,Votes\n"
-                                                + poll.options.map(o => `"${o.text}",${o.votes}`).join("\n");
+                                            // Enhanced CSV with voter names
+                                            let csvContent = "data:text/csv;charset=utf-8,Option,Votes,Voters\n";
+                                            poll.options.forEach(opt => {
+                                                const voterNames = opt.votedBy ? opt.votedBy.map(v => `${v.name} (${v.rollNumber})`).join('; ') : '';
+                                                csvContent += `"${opt.text}",${opt.votes},"${voterNames}"\n`;
+                                            });
+
                                             const encodedUri = encodeURI(csvContent);
                                             const link = document.createElement("a");
                                             link.setAttribute("href", encodedUri);
@@ -184,9 +196,19 @@ const PollManager = () => {
                                             document.body.removeChild(link);
                                         }}
                                         className="text-gray-400 hover:text-neon-cyan transition-colors"
-                                        title="Download Results"
+                                        title="Download Detailed Results"
                                     >
                                         <FaChartBar />
+                                    </button>
+                                    <button
+                                        onClick={() => toggleVoters(poll._id)}
+                                        className={`flex items-center gap-1 text-[10px] uppercase font-bold px-2 py-1 rounded border transition-all ${expandedPolls[poll._id]
+                                                ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/50'
+                                                : 'border-white/10 text-gray-400 hover:text-white hover:border-white/30'
+                                            }`}
+                                        title="View Voter Details"
+                                    >
+                                        <FaUsers /> Voters
                                     </button>
                                     <button
                                         onClick={() => handleToggleActive(poll._id)}
@@ -224,6 +246,26 @@ const PollManager = () => {
                                                     style={{ width: `${percentage}%` }}
                                                 ></div>
                                             </div>
+
+                                            {/* Voter Names List */}
+                                            {expandedPolls[poll._id] && (
+                                                <div className="pl-2 border-l-2 border-white/10 mb-3 animate-fade-in mt-2">
+                                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Voters:</p>
+                                                    {opt.votedBy && opt.votedBy.length > 0 ? (
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {opt.votedBy.map((voter, vIdx) => (
+                                                                <span key={vIdx} className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-gray-300 border border-white/10">
+                                                                    {voter.name || 'Unknown'} ({voter.rollNumber || 'N/A'})
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-[10px] text-gray-600 italic">
+                                                            {opt.votes > 0 ? 'Votes recorded before tracking was enabled.' : 'No votes yet for this option.'}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}

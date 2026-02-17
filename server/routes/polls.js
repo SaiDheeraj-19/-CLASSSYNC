@@ -8,6 +8,7 @@ router.get('/', auth, async (req, res) => {
     try {
         const polls = await Poll.find()
             .populate('createdBy', 'name')
+            .populate('options.votedBy', 'name rollNumber')
             .sort({ createdAt: -1 });
         res.json(polls);
     } catch (err) {
@@ -56,6 +57,7 @@ router.post('/:id/vote', auth, async (req, res) => {
         }
 
         poll.options[optionIndex].votes += 1;
+        poll.options[optionIndex].votedBy.push(req.user.id);
         poll.votedBy.push(req.user.id);
 
         await poll.save();
