@@ -30,7 +30,7 @@ const Login = () => {
                 navigate('/student');
             }
         } catch (err) {
-            setError('Invalid Roll Number or Password');
+            setError(err.response?.data?.message || 'Invalid Roll Number or Password');
         } finally {
             setLoading(false);
         }
