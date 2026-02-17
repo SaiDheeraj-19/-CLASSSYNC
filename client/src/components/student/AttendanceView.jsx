@@ -254,25 +254,39 @@ const AttendanceView = () => {
                                             </div>
 
                                             <div className="space-y-3 pl-4 border-l-2 border-white/10 ml-3">
-                                                {groupedHistory[dateKey].map((session, idx) => (
-                                                    <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between bg-black/40 p-3 rounded hover:bg-white/5 transition-colors gap-2">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-sm font-bold text-white">{session.subject}</span>
-                                                            <div className="flex items-center gap-2 text-xs text-gray-500">
-                                                                <FaClock className="text-neon-blue" /> {session.timeSlot}
+                                                {groupedHistory[dateKey]
+                                                    .sort((a, b) => {
+                                                        const parseTime = (t) => {
+                                                            if (!t) return 0;
+                                                            const match = t.match(/(\d+):(\d+)\s?(AM|PM)/i);
+                                                            if (!match) return 0;
+                                                            let [_, h, m, p] = match;
+                                                            h = parseInt(h);
+                                                            if (p.toUpperCase() === 'PM' && h !== 12) h += 12;
+                                                            if (p.toUpperCase() === 'AM' && h === 12) h = 0;
+                                                            return h * 60 + parseInt(m);
+                                                        };
+                                                        return parseTime(a.timeSlot) - parseTime(b.timeSlot);
+                                                    })
+                                                    .map((session, idx) => (
+                                                        <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between bg-black/40 p-3 rounded hover:bg-white/5 transition-colors gap-2">
+                                                            <div className="flex flex-col">
+                                                                <span className="text-sm font-bold text-white">{session.subject}</span>
+                                                                <div className="flex items-center gap-2 text-xs text-gray-500">
+                                                                    <FaClock className="text-neon-blue" /> {session.timeSlot}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                        <div>
-                                                            <span className={`inline-flex items-center px-3 py-1 text-xs font-bold uppercase rounded-full ${session.status === 'Present'
+                                                            <div>
+                                                                <span className={`inline-flex items-center px-3 py-1 text-xs font-bold uppercase rounded-full ${session.status === 'Present'
                                                                     ? 'bg-green-500/10 text-green-400 border border-green-500/20'
                                                                     : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                                                                }`}>
-                                                                {session.status === 'Present' ? <FaCheckCircle className="mr-2" /> : <FaExclamationTriangle className="mr-2" />}
-                                                                {session.status}
-                                                            </span>
+                                                                    }`}>
+                                                                    {session.status === 'Present' ? <FaCheckCircle className="mr-2" /> : <FaExclamationTriangle className="mr-2" />}
+                                                                    {session.status}
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ))}
+                                                    ))}
                                             </div>
                                         </div>
                                     ))}

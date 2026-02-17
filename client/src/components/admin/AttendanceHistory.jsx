@@ -279,7 +279,25 @@ const AttendanceHistory = () => {
                                     {loading ? (
                                         <tr><td colSpan="7" className="p-8 text-center text-gray-500 animate-pulse">Loading Sessions...</td></tr>
                                     ) : filteredSessions.length > 0 ? (
-                                        filteredSessions.map(sess => (
+                                        filteredSessions.sort((a, b) => {
+                                            const dateA = new Date(a.date);
+                                            const dateB = new Date(b.date);
+                                            if (dateA.getTime() !== dateB.getTime()) {
+                                                return dateB - dateA;
+                                            }
+                                            // Same date, sort by time
+                                            const parseTime = (t) => {
+                                                if (!t) return 0;
+                                                const match = t.match(/(\d+):(\d+)\s?(AM|PM)/i);
+                                                if (!match) return 0;
+                                                let [_, h, m, p] = match;
+                                                h = parseInt(h);
+                                                if (p.toUpperCase() === 'PM' && h !== 12) h += 12;
+                                                if (p.toUpperCase() === 'AM' && h === 12) h = 0;
+                                                return h * 60 + parseInt(m);
+                                            };
+                                            return parseTime(a.timeSlot) - parseTime(b.timeSlot);
+                                        }).map(sess => (
                                             <React.Fragment key={sess._id}>
                                                 <tr
                                                     className={`hover:bg-white/5 transition-colors cursor-pointer ${expandedSession === sess._id ? 'bg-neon-purple/5' : ''}`}
