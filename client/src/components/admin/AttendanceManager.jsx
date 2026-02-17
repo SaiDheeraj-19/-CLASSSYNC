@@ -22,6 +22,7 @@ const AttendanceManager = () => {
     const [attendanceMarks, setAttendanceMarks] = useState({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [updateStats, setUpdateStats] = useState(true);
     const [lastSessionPreview, setLastSessionPreview] = useState(null);
 
     // Config Mode for subjects
@@ -131,6 +132,30 @@ const AttendanceManager = () => {
         }
     };
 
+    // Copy attendance from ANOTHER subject (e.g., previous period)
+    const copyAttendanceFromOtherSubject = async (sourceSubjectName) => {
+        if (!sourceSubjectName) return;
+
+        if (!confirm(`Are you sure you want to copy attendance from the last recorded session of "${sourceSubjectName}"? This will overwrite current marks.`)) {
+            return;
+        }
+
+        try {
+            const res = await api.get(`/attendance/last/${sourceSubjectName}`);
+            const { absentees } = res.data;
+
+            const newMarks = {};
+            students.forEach(s => {
+                newMarks[s._id] = !absentees.includes(s._id);
+            });
+            setAttendanceMarks(newMarks);
+            alert(`Attendance copied from ${sourceSubjectName} (${new Date(res.data.date).toLocaleDateString()} - ${res.data.timeSlot || 'N/A'})`);
+        } catch (err) {
+            console.error(err);
+            alert(`Could not find any previous attendance records for ${sourceSubjectName}.`);
+        }
+    };
+
     // Save attendance for selected subject
     const saveAttendance = async () => {
         if (!selectedSubject) {
@@ -160,10 +185,14 @@ const AttendanceManager = () => {
             await api.post('/attendance/bulk', {
                 updates,
                 date: attendanceDate,
-                timeSlot: selectedTime
+                timeSlot: selectedTime,
+                updateStats // Send flag to backend
             });
 
-            alert(`Attendance saved successfully for ${selectedSubject} at ${selectedTime}!`);
+            const msg = updateStats
+                ? `Attendance saved successfully for ${selectedSubject} at ${selectedTime}!`
+                : `Session Log created for ${selectedSubject} at ${selectedTime} (Stats NOT updated).`;
+            alert(msg);
         } catch (err) {
             console.error(err);
             alert('Error saving attendance');
@@ -380,6 +409,26 @@ const AttendanceManager = () => {
                     >
                         <FaCheckDouble /> Apply Last Record
                     </button>
+
+                    {/* Copy from other subject */}
+                    <div className="relative group">
+                        <select
+                            className="bg-gray-800 border border-gray-700 text-gray-500 hover:text-white px-4 py-2 transition-colors cursor-pointer appearance-none pr-8 focus:outline-none focus:border-neon-blue"
+                            onChange={(e) => {
+                                copyAttendanceFromOtherSubject(e.target.value);
+                                e.target.value = ""; // Reset after selection
+                            }}
+                            defaultValue=""
+                        >
+                            <option value="" disabled>Copy From...</option>
+                            {subjects.filter(s => s.name !== selectedSubject).map(s => (
+                                <option key={s._id} value={s.name} className="bg-cyber-dark text-white">
+                                    {s.name} (Last Session)
+                                </option>
+                            ))}
+                        </select>
+                        <FaSortAmountUp className="absolute right-3 top-3 text-gray-500 pointer-events-none" />
+                    </div>
                     <button
                         onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                         className="flex items-center gap-2 bg-yellow-500/20 border border-yellow-500 text-yellow-400 hover:bg-yellow-500 hover:text-black px-4 py-2 transition-colors"
@@ -412,6 +461,20 @@ const AttendanceManager = () => {
                                 {isFutureDate() && ' - Future'}
                             </span>
                         </div>
+
+                        <div className="flex items-center gap-2 mb-2 bg-black/50 px-2 py-1 rounded border border-white/10">
+                            <input
+                                type="checkbox"
+                                id="updateStats"
+                                checked={updateStats}
+                                onChange={(e) => setUpdateStats(e.target.checked)}
+                                className="accent-neon-green cursor-pointer"
+                            />
+                            <label htmlFor="updateStats" className="text-xs text-gray-400 cursor-pointer select-none">
+                                Update Student Counters
+                            </label>
+                        </div>
+
                         <button
                             onClick={saveAttendance}
                             disabled={saving || !selectedSubject || isFutureDate()}

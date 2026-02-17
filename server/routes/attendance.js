@@ -234,8 +234,11 @@ router.delete('/:id', [auth, admin], async (req, res) => {
 // @route   POST api/attendance/bulk
 // @desc    Bulk Create/Update attendance (Admin)
 // @access  Private (Admin)
+// @route   POST api/attendance/bulk
+// @desc    Bulk Create/Update attendance (Admin)
+// @access  Private (Admin)
 router.post('/bulk', [auth, admin], async (req, res) => {
-    const { updates, date, timeSlot } = req.body;
+    const { updates, date, timeSlot, updateStats = true } = req.body;
 
     if (!updates || updates.length === 0) {
         return res.status(400).json({ message: 'No updates provided' });
@@ -246,65 +249,56 @@ router.post('/bulk', [auth, admin], async (req, res) => {
         const studentIds = updates.map(u => u.studentId);
         const sessionDate = date ? new Date(date) : new Date();
 
-        // 1. Save Attendance Session
+        // 1. Save Attendance Session (Always)
         const absentees = updates.filter(u => !u.isPresent).map(u => u.studentId);
         const newSession = new AttendanceSession({
             subject,
             date: sessionDate,
-            timeSlot: timeSlot || '9:00 AM',
+            timeSlot: timeSlot || '9:00 AM', // Use provided timeSlot or default
             absentees
         });
         await newSession.save();
 
-        // 2. Update Cumulative
-        const existingRecords = await Attendance.find({
-            subject: subject,
-            student: { $in: studentIds }
-        });
+        // 2. Update Cumulative (Only if updateStats is true)
+        if (updateStats) {
+            const existingRecords = await Attendance.find({
+                student: { $in: studentIds },
+                subject
+            });
 
-        const recordMap = {};
-        existingRecords.forEach(record => {
-            recordMap[record.student.toString()] = record;
-        });
+            const attendanceMap = {};
+            existingRecords.forEach(record => {
+                attendanceMap[record.student.toString()] = record;
+            });
 
-        const operations = updates.map(update => {
-            const existing = recordMap[update.studentId];
+            await Promise.all(updates.map(async update => {
+                let attendance = attendanceMap[update.studentId];
 
-            if (existing) {
-                return {
-                    updateOne: {
-                        filter: { _id: existing._id },
-                        update: {
-                            $inc: {
-                                totalClasses: 1,
-                                attendedClasses: update.isPresent ? 1 : 0
-                            }
-                        }
+                if (attendance) {
+                    attendance.totalClasses += 1;
+                    if (update.isPresent) {
+                        attendance.attendedClasses += 1;
                     }
-                };
-            } else {
-                return {
-                    insertOne: {
-                        document: {
-                            student: new mongoose.Types.ObjectId(update.studentId),
-                            subject: update.subject,
-                            totalClasses: 1,
-                            attendedClasses: update.isPresent ? 1 : 0
-                        }
-                    }
-                };
-            }
-        });
-
-        if (operations.length > 0) {
-            await Attendance.bulkWrite(operations);
+                    await attendance.save();
+                } else {
+                    // Create new record
+                    attendance = new Attendance({
+                        student: update.studentId,
+                        subject: update.subject,
+                        totalClasses: 1,
+                        attendedClasses: update.isPresent ? 1 : 0
+                    });
+                    await attendance.save();
+                }
+            }));
         }
 
-        res.json({ message: 'Bulk attendance updated and session saved' });
+        res.json({ message: 'Attendance updated successfully', session: newSession });
     } catch (err) {
         console.error('Bulk update error:', err);
         res.status(500).send('Server Error');
     }
 });
+
 
 module.exports = router;
