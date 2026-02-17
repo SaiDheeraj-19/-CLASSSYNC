@@ -158,13 +158,36 @@ const PollManager = () => {
 
                         <div className="p-6">
                             <div className="flex justify-between items-start mb-4">
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-widest ${poll.active
-                                    ? 'bg-neon-green/10 text-neon-green border-neon-green/30'
-                                    : 'bg-red-500/10 text-red-500 border-red-500/30'
-                                    }`}>
-                                    {poll.active ? 'Active' : 'Closed'}
-                                </span>
+                                <div className="flex flex-col gap-2">
+                                    <span className={`text-[10px] w-fit font-bold px-2 py-0.5 rounded border uppercase tracking-widest ${poll.active
+                                        ? 'bg-neon-green/10 text-neon-green border-neon-green/30'
+                                        : 'bg-red-500/10 text-red-500 border-red-500/30'
+                                        }`}>
+                                        {poll.active ? 'Active' : 'Closed'}
+                                    </span>
+                                    <span className="text-[10px] w-fit font-bold px-2 py-0.5 rounded border border-neon-blue/30 bg-neon-blue/10 text-neon-blue uppercase tracking-widest">
+                                        Posted by {poll.createdBy?.name || 'Admin'}
+                                    </span>
+                                </div>
                                 <div className="flex gap-2">
+                                    <button
+                                        onClick={() => {
+                                            const csvContent = "data:text/csv;charset=utf-8,"
+                                                + "Option,Votes\n"
+                                                + poll.options.map(o => `"${o.text}",${o.votes}`).join("\n");
+                                            const encodedUri = encodeURI(csvContent);
+                                            const link = document.createElement("a");
+                                            link.setAttribute("href", encodedUri);
+                                            link.setAttribute("download", `poll_results_${poll._id}.csv`);
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                        }}
+                                        className="text-gray-400 hover:text-neon-cyan transition-colors"
+                                        title="Download Results"
+                                    >
+                                        <FaChartBar />
+                                    </button>
                                     <button
                                         onClick={() => handleToggleActive(poll._id)}
                                         className="text-gray-400 hover:text-white transition-colors"

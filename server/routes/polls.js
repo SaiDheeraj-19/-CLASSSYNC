@@ -6,7 +6,9 @@ const { auth, admin } = require('../middleware/auth');
 // Get all polls
 router.get('/', auth, async (req, res) => {
     try {
-        const polls = await Poll.find().sort({ createdAt: -1 });
+        const polls = await Poll.find()
+            .populate('createdBy', 'name')
+            .sort({ createdAt: -1 });
         res.json(polls);
     } catch (err) {
         console.error(err.message);

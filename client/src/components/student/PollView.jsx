@@ -77,7 +77,10 @@ const PollView = () => {
                         <div key={poll._id} className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden relative shadow-lg">
                             <div className="h-1 w-full bg-gradient-to-r from-neon-purple to-neon-blue"></div>
                             <div className="p-6">
-                                <h3 className="text-xl font-bold mb-6 font-orbitron">{poll.question}</h3>
+                                <span className="inline-block text-[10px] bg-neon-purple/20 text-neon-purple border border-neon-purple/30 px-2 py-0.5 rounded uppercase tracking-widest font-bold mb-3">
+                                    Posted by {poll.createdBy?.name || 'Admin'}
+                                </span>
+                                <h3 className="text-xl font-bold mb-6 font-orbitron text-white">{poll.question}</h3>
 
                                 <div className="space-y-4">
                                     {poll.options.map((option, idx) => {
