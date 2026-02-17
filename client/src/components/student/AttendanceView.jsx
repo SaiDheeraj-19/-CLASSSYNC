@@ -10,6 +10,7 @@ const AttendanceView = () => {
 
     // Filter state for history
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedSubject, setSelectedSubject] = useState(null);
 
     useEffect(() => {
         const fetchAttendance = async () => {
@@ -90,7 +91,7 @@ const AttendanceView = () => {
 
                 <div className="flex bg-black/40 p-1 border border-white/10 rounded-lg overflow-x-auto">
                     <button
-                        onClick={() => setViewMode('overview')}
+                        onClick={() => { setViewMode('overview'); setSelectedSubject(null); }}
                         className={`px-4 py-2 text-sm font-bold flex items-center gap-2 rounded-md transition-all whitespace-nowrap ${viewMode === 'overview'
                             ? 'bg-neon-purple text-white shadow-lg'
                             : 'text-gray-400 hover:text-white'}`}
@@ -98,7 +99,7 @@ const AttendanceView = () => {
                         <FaChartPie /> Overview
                     </button>
                     <button
-                        onClick={() => setViewMode('subjects')}
+                        onClick={() => { setViewMode('subjects'); setSelectedSubject(null); }}
                         className={`px-4 py-2 text-sm font-bold flex items-center gap-2 rounded-md transition-all whitespace-nowrap ${viewMode === 'subjects'
                             ? 'bg-neon-green text-black shadow-lg'
                             : 'text-gray-400 hover:text-white'}`}
@@ -106,7 +107,7 @@ const AttendanceView = () => {
                         <FaThList /> Subject Details
                     </button>
                     <button
-                        onClick={() => setViewMode('history')}
+                        onClick={() => { setViewMode('history'); setSelectedSubject(null); }}
                         className={`px-4 py-2 text-sm font-bold flex items-center gap-2 rounded-md transition-all whitespace-nowrap ${viewMode === 'history'
                             ? 'bg-neon-blue text-black shadow-lg'
                             : 'text-gray-400 hover:text-white'}`}
@@ -120,91 +121,255 @@ const AttendanceView = () => {
                 /* OVERVIEW SECTION */
                 <section className="animate-fade-in">
                     {attendance.length > 0 ? (
-                        <div className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl relative overflow-hidden mb-8">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-neon-purple/10 rounded-full blur-[80px] pointer-events-none"></div>
+                        <div className="relative bg-black/60 backdrop-blur-xl border border-white/10 rounded-xl p-8 md:p-12 overflow-hidden shadow-2xl group">
+                            {/* HUD Decorative Background */}
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon-purple to-transparent opacity-50"></div>
+                            <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon-blue to-transparent opacity-50"></div>
+                            <div className="absolute top-0 left-0 w-32 h-32 border-l-2 border-t-2 border-white/10 rounded-tl-3xl pointer-events-none"></div>
+                            <div className="absolute bottom-0 right-0 w-32 h-32 border-r-2 border-b-2 border-white/10 rounded-br-3xl pointer-events-none"></div>
 
-                            <div className="flex flex-col md:flex-row items-center justify-around gap-8 relative z-10">
-                                {/* Circular Chart */}
-                                <div className="relative w-48 h-48 sm:w-56 sm:h-56 flex-shrink-0">
-                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                        <path className="text-gray-800" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="2" />
-                                        <path
-                                            className={`${overallPercentage >= 75 ? 'text-neon-green' : overallPercentage >= 65 ? 'text-yellow-400' : 'text-red-500'} transition-all duration-1000 ease-out`}
-                                            strokeDasharray={`${overallPercentage}, 100`}
-                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                            fill="none"
-                                            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
-                                            style={{ filter: `drop-shadow(0 0 10px ${overallPercentage >= 75 ? 'rgba(0,255,150,0.5)' : 'rgba(239,68,68,0.5)'})` }}
-                                        />
-                                    </svg>
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span className="text-gray-400 text-xs uppercase tracking-widest mb-1">Total</span>
-                                        <span className={`text-5xl sm:text-6xl font-bold font-orbitron ${overallPercentage >= 75 ? 'text-neon-green' : overallPercentage >= 65 ? 'text-yellow-400' : 'text-red-500'}`}>
-                                            {overallPercentage}%
-                                        </span>
+                            {/* Scanning Line Effect */}
+                            <div className="absolute inset-0 bg-scan-lines opacity-10 pointer-events-none"></div>
+
+                            <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                                {/* Left: HUD Circular Chart */}
+                                <div className="relative flex justify-center items-center">
+                                    <div className="relative w-64 h-64">
+                                        {/* Outer Rotating Ring */}
+                                        <div className="absolute inset-0 border-2 border-dashed border-white/10 rounded-full animate-spin-slow"></div>
+
+                                        {/* Inner Static Ring */}
+                                        <div className="absolute inset-4 border border-white/5 rounded-full"></div>
+
+                                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                            {/* Track */}
+                                            <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.05)" strokeWidth="6" fill="none" />
+
+                                            {/* Progress */}
+                                            <circle
+                                                cx="50" cy="50" r="40"
+                                                fill="none"
+                                                stroke={overallPercentage >= 75 ? '#39ff14' : '#ef4444'}
+                                                strokeWidth="6"
+                                                strokeDasharray="251.2"
+                                                strokeDashoffset={251.2 - (251.2 * overallPercentage) / 100}
+                                                strokeLinecap="round"
+                                                className="transition-all duration-1000 ease-out"
+                                                style={{ filter: `drop-shadow(0 0 8px ${overallPercentage >= 75 ? '#39ff14' : '#ef4444'})` }}
+                                            />
+                                        </svg>
+
+                                        {/* Central Data */}
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                            <div className="text-gray-500 font-code text-[10px] uppercase tracking-widest mb-1">Overall</div>
+                                            <div className="text-6xl font-bold font-orbitron text-white tracking-tighter flex items-start">
+                                                {overallPercentage}<span className="text-2xl mt-1 text-gray-500">%</span>
+                                            </div>
+                                            <div className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded mt-2 border ${overallPercentage >= 75 ? 'text-neon-green border-neon-green/30 bg-neon-green/10' : 'text-red-500 border-red-500/30 bg-red-500/10'}`}>
+                                                {overallPercentage >= 75 ? 'Safe Zone' : 'Critical'}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Stats Text */}
-                                <div className="text-center md:text-left space-y-4">
-                                    <div>
-                                        <p className="text-gray-400 text-sm uppercase tracking-wider mb-1">Total Classes Attended</p>
-                                        <p className="text-4xl font-bold text-white font-orbitron">{totalAttended} <span className="text-2xl text-gray-500">/ {totalClasses}</span></p>
+                                {/* Right: Data Modules */}
+                                <div className="space-y-6">
+                                    {/* Module 1: Attendance Stats */}
+                                    <div className="bg-white/5 border-l-2 border-neon-purple p-6 relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 text-[10px] font-bold text-gray-600 p-2 font-code">DATA_MOD_01</div>
+                                        <div className="flex justify-between items-end">
+                                            <div>
+                                                <p className="text-gray-400 text-xs uppercase tracking-widest mb-2 font-bold">Classes Attended</p>
+                                                <div className="flex items-baseline gap-2">
+                                                    <span className="text-4xl font-bold text-white font-orbitron">{totalAttended}</span>
+                                                    <span className="text-gray-500 font-bold">/ {totalClasses}</span>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-xs text-neon-purple mb-1 font-bold">MISSED</div>
+                                                <div className="text-2xl font-bold text-white font-orbitron">{totalClasses - totalAttended}</div>
+                                            </div>
+                                        </div>
+                                        {/* Mini bar */}
+                                        <div className="w-full h-1 bg-gray-800 mt-4 rounded-full overflow-hidden">
+                                            <div className="h-full bg-neon-purple" style={{ width: `${(totalAttended / Math.max(totalClasses, 1)) * 100}%` }}></div>
+                                        </div>
                                     </div>
-                                    <div className="h-px bg-white/10 w-full"></div>
-                                    <div>
-                                        <p className="text-gray-400 text-sm uppercase tracking-wider mb-1">Status</p>
-                                        <p className={`text-xl font-bold ${overallPercentage >= 75 ? 'text-neon-green' : 'text-red-400'} flex items-center gap-2 justify-center md:justify-start`}>
-                                            {overallPercentage >= 75 ? <FaCheckCircle /> : <FaExclamationTriangle />}
-                                            {overallPercentage >= 75 ? 'Good Standing' : 'Risk Warning'}
-                                        </p>
+
+                                    {/* Module 2: Status Check */}
+                                    <div className={`bg-white/5 border-l-2 ${overallPercentage >= 75 ? 'border-neon-green' : 'border-red-500'} p-6 relative overflow-hidden`}>
+                                        <div className="absolute top-0 right-0 text-[10px] font-bold text-gray-600 p-2 font-code">SYS_STATUS</div>
+                                        <div className="flex items-center gap-4">
+                                            <div className={`p-3 rounded-none border ${overallPercentage >= 75 ? 'border-neon-green/30 text-neon-green bg-neon-green/10' : 'border-red-500/30 text-red-500 bg-red-500/10'}`}>
+                                                {overallPercentage >= 75 ? <FaCheckCircle className="text-2xl" /> : <FaExclamationTriangle className="text-2xl animate-pulse" />}
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-400 text-xs uppercase tracking-widest mb-1 font-bold">Current Standing</p>
+                                                <h4 className={`text-xl font-bold font-orbitron ${overallPercentage >= 75 ? 'text-white' : 'text-red-400'}`}>
+                                                    {overallPercentage >= 75 ? 'Academic Safe Zone' : 'Attendance Warning'}
+                                                </h4>
+                                                <p className="text-xs text-gray-500 mt-1 font-code">
+                                                    {overallPercentage >= 75 ? 'Keep up the momentum to maintain eligibility.' : 'Immediate action required to avoid detainment.'}
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-10 text-center rounded-xl mb-8">
-                            <FaChartPie className="text-5xl text-gray-500 mx-auto mb-4" />
-                            <p className="text-gray-400 font-rajdhani text-lg">No attendance records found yet.</p>
+                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-10 text-center rounded-xl mb-8 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-scan-lines opacity-10"></div>
+                            <FaChartPie className="text-5xl text-gray-500 mx-auto mb-4 relative z-10" />
+                            <p className="text-gray-400 font-rajdhani text-lg relative z-10">No system data available. Waiting for attendance records...</p>
                         </div>
                     )}
                 </section>
             )}
 
             {viewMode === 'subjects' && (
-                /* SUBJECT CARDS GRID */
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-                    {attendance.map((subject) => {
-                        const isSafe = subject.status === 'Safe';
-                        const percentage = subject.percentage || 0;
+                /* SUBJECT CARDS GRID & DETAIL VIEW */
+                <div className="animate-fade-in">
+                    {!selectedSubject ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {attendance.map((subject) => {
+                                const isSafe = subject.status === 'Safe';
+                                const percentage = subject.percentage || 0;
 
-                        return (
-                            <div key={subject._id} className={`relative bg-black/40 backdrop-blur-md rounded-xl overflow-hidden shadow-lg border ${isSafe ? 'border-neon-green/20' : 'border-red-500/20'}`}>
-                                <div className={`h-1 w-full ${isSafe ? 'bg-neon-green' : 'bg-red-500'}`}></div>
-                                <div className="p-5">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <h3 className="text-sm font-bold text-white font-orbitron">{subject.subject.toUpperCase()}</h3>
-                                        <span className={`px-2 py-0.5 text-[10px] font-bold uppercase ${isSafe ? 'text-neon-green' : 'text-red-500'}`}>{subject.status}</span>
+                                return (
+                                    <div
+                                        key={subject._id}
+                                        onClick={() => setSelectedSubject(subject)}
+                                        className={`
+                                            group bg-white/5 border border-white/10 rounded-xl p-5
+                                            hover:bg-white/10 hover:border-white/20 transition-all duration-200 cursor-pointer
+                                            flex flex-col gap-4 relative overflow-hidden
+                                        `}
+                                    >
+                                        {/* Simple Status Accent Line at Bottom */}
+                                        <div className={`absolute bottom-0 left-0 h-1 w-full ${isSafe ? 'bg-neon-green' : 'bg-red-500'} opacity-50 group-hover:opacity-100 transition-opacity`}></div>
+
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <h3 className="text-lg font-bold text-white tracking-wide group-hover:text-neon-purple transition-colors">
+                                                    {subject.subject}
+                                                </h3>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className={`w-2 h-2 rounded-full ${isSafe ? 'bg-neon-green' : 'bg-red-500'}`}></span>
+                                                    <span className="text-xs text-gray-400 font-medium">
+                                                        {isSafe ? 'On Track' : 'Low Attendance'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col items-end">
+                                                <span className={`text-2xl font-bold font-orbitron ${isSafe ? 'text-white' : 'text-red-400'}`}>
+                                                    {Math.round(percentage)}%
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Simple Standard Progress Bar */}
+                                        <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full ${isSafe ? 'bg-neon-green' : 'bg-red-500'}`}
+                                                style={{ width: `${percentage}%` }}
+                                            ></div>
+                                        </div>
+
+                                        <div className="flex justify-between items-center text-xs text-gray-500">
+                                            <span>
+                                                <strong className="text-white">{subject.attendedClasses}</strong> / {subject.totalClasses} Classes
+                                            </span>
+                                            {!isSafe && (
+                                                <span className="text-red-400 font-bold">
+                                                    +{subject.classesNeededToReach75} to safe
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <span className="text-2xl font-bold font-orbitron text-white">{Math.round(percentage)}%</span>
-                                        <div className="text-xs text-gray-500 uppercase tracking-widest">{subject.attendedClasses} / {subject.totalClasses}</div>
+                                );
+                            })}
+                            {attendance.length === 0 && (
+                                <div className="col-span-full text-center text-gray-500 py-10">
+                                    No subjects to display.
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        /* DETAILED SUBJECT VIEW */
+                        <div className="animate-slide-in">
+                            <button
+                                onClick={() => setSelectedSubject(null)}
+                                className="mb-6 flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm uppercase tracking-widest font-bold"
+                            >
+                                <FaChevronLeft /> Back to Subjects
+                            </button>
+
+                            <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-8 mb-8">
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                    <div>
+                                        <h2 className="text-3xl font-bold text-white font-orbitron mb-2">{selectedSubject.subject}</h2>
+                                        <div className="flex items-center gap-4">
+                                            <span className={`px-3 py-1 text-xs font-bold uppercase rounded border ${selectedSubject.status === 'Safe' ? 'bg-neon-green/10 text-neon-green border-neon-green/30' : 'bg-red-500/10 text-red-500 border-red-500/30'}`}>
+                                                {selectedSubject.status === 'Safe' ? 'Safe Zone' : 'Danger Zone'}
+                                            </span>
+                                            <span className="text-gray-400 text-sm font-code">
+                                                Total Classes: <span className="text-white">{selectedSubject.totalClasses}</span>
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="w-full bg-gray-800 h-1 rounded-full overflow-hidden mb-4">
-                                        <div className={`h-full ${isSafe ? 'bg-neon-green' : 'bg-red-500'}`} style={{ width: `${percentage}%` }}></div>
+
+                                    <div className="text-right">
+                                        <div className="text-5xl font-bold font-orbitron text-white mb-1">
+                                            {Math.round(selectedSubject.percentage || 0)}%
+                                        </div>
+                                        <p className="text-gray-500 text-xs uppercase tracking-widest">Attendance Score</p>
                                     </div>
-                                    {!isSafe && (
-                                        <div className="text-[10px] text-red-400 bg-red-400/5 p-2 border border-red-400/10 italic">
-                                            * Need {subject.classesNeededToReach75} more classes for 75%
+                                </div>
+                            </div>
+
+                            <h3 className="text-xl font-bold text-white font-orbitron mb-4 flex items-center gap-2">
+                                <FaHistory className="text-neon-blue" /> Class History
+                            </h3>
+
+                            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden">
+                                <div className="divide-y divide-white/5">
+                                    {history.filter(h => h.subject === selectedSubject.subject).length > 0 ? (
+                                        history
+                                            .filter(h => h.subject === selectedSubject.subject)
+                                            .sort((a, b) => new Date(b.date) - new Date(a.date))
+                                            .map((session, idx) => (
+                                                <div key={idx} className="p-4 hover:bg-white/5 transition-colors flex items-center justify-between">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="bg-black/40 p-3 rounded text-center min-w-[60px] border border-white/10">
+                                                            <div className="text-xs text-gray-500 uppercase">{new Date(session.date).toLocaleString('default', { month: 'short' })}</div>
+                                                            <div className="text-lg font-bold text-white font-orbitron">{new Date(session.date).getDate()}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-white font-bold">{new Date(session.date).toLocaleDateString('en-US', { weekday: 'long' })}</div>
+                                                            <div className="text-xs text-neon-blue font-code flex items-center gap-1">
+                                                                <FaClock /> {session.timeSlot || 'N/A'}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <span className={`inline-flex items-center px-3 py-1 text-xs font-bold uppercase rounded-full ${session.status === 'Present'
+                                                            ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                                                            : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                                                            }`}>
+                                                            {session.status === 'Present' ? <FaCheckCircle className="mr-2" /> : <FaExclamationTriangle className="mr-2" />}
+                                                            {session.status}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                    ) : (
+                                        <div className="p-8 text-center text-gray-500">
+                                            No history records found for this subject.
                                         </div>
                                     )}
                                 </div>
                             </div>
-                        );
-                    })}
-                    {attendance.length === 0 && (
-                        <div className="col-span-full text-center text-gray-500 py-10">
-                            No subjects to display.
                         </div>
                     )}
                 </div>

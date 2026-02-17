@@ -16,7 +16,25 @@ const AttendanceManager = () => {
     const [attendanceDate, setAttendanceDate] = useState(getISTDate());
     const [selectedTime, setSelectedTime] = useState('9:00 AM');
 
-    const timeSlots = ['9:00 AM', '10:00 AM', '11:15 AM', '1:00 PM', '2:00 PM', '3:00 PM'];
+    const formatTimeForInput = (timeStr) => {
+        if (!timeStr) return '';
+        const [time, modifier] = timeStr.split(' ');
+        let [hours, minutes] = time.split(':');
+        if (modifier === 'PM' && hours !== '12') hours = parseInt(hours, 10) + 12;
+        if (modifier === 'AM' && hours === '12') hours = '00';
+        return `${hours.toString().padStart(2, '0')}:${minutes}`;
+    };
+
+    const handleTimeChange = (e) => {
+        const val = e.target.value;
+        if (!val) return;
+        const [hours, minutes] = val.split(':');
+        let h = parseInt(hours, 10);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12;
+        h = h ? h : 12;
+        setSelectedTime(`${h}:${minutes} ${ampm}`);
+    };
 
     // Attendance state: { studentId: true/false (present/absent) }
     const [attendanceMarks, setAttendanceMarks] = useState({});
@@ -377,15 +395,12 @@ const AttendanceManager = () => {
                         </div>
                         <div>
                             <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1">Time Slot</label>
-                            <select
+                            <input
+                                type="time"
                                 className="bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
-                                value={selectedTime}
-                                onChange={(e) => setSelectedTime(e.target.value)}
-                            >
-                                {timeSlots.map(time => (
-                                    <option key={time} value={time} className="bg-cyber-dark">{time}</option>
-                                ))}
-                            </select>
+                                value={formatTimeForInput(selectedTime)}
+                                onChange={handleTimeChange}
+                            />
                         </div>
                     </div>
 

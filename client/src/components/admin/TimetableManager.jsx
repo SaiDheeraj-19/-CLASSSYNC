@@ -13,6 +13,30 @@ const TimetableManager = () => {
     // Days constant
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+    const formatTimeForInput = (timeStr) => {
+        if (!timeStr) return '';
+        // Check if already in 24h format (e.g. from a previous edit that didn't convert?) - unlikely but safe
+        if (/^\d{2}:\d{2}$/.test(timeStr)) return timeStr;
+
+        const match = timeStr.match(/(\d+):(\d+)\s?(AM|PM)/i);
+        if (!match) return '';
+        let [_, h, m, p] = match;
+        h = parseInt(h, 10);
+        if (p.toUpperCase() === 'PM' && h !== 12) h += 12;
+        if (p.toUpperCase() === 'AM' && h === 12) h = 0;
+        return `${h.toString().padStart(2, '0')}:${m}`;
+    };
+
+    const convertInputToDisplay = (val) => {
+        if (!val) return '';
+        const [hours, minutes] = val.split(':');
+        let h = parseInt(hours, 10);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12;
+        h = h ? h : 12;
+        return `${h}:${minutes} ${ampm}`;
+    };
+
     const fetchTimetable = async () => {
         try {
             const res = await api.get('/timetable');
@@ -211,21 +235,19 @@ const TimetableManager = () => {
                             <div className="md:col-span-2">
                                 <label className="text-xs font-bold text-gray-400 uppercase">Start Time</label>
                                 <input
-                                    type="text"
-                                    placeholder="10:00 AM"
+                                    type="time"
                                     className="w-full mt-1 bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
-                                    value={slot.time}
-                                    onChange={(e) => handleSlotChange(index, 'time', e.target.value)}
+                                    value={formatTimeForInput(slot.time)}
+                                    onChange={(e) => handleSlotChange(index, 'time', convertInputToDisplay(e.target.value))}
                                 />
                             </div>
                             <div className="md:col-span-2">
                                 <label className="text-xs font-bold text-gray-400 uppercase">End Time</label>
                                 <input
-                                    type="text"
-                                    placeholder="11:00 AM"
+                                    type="time"
                                     className="w-full mt-1 bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
-                                    value={slot.endTime || ''}
-                                    onChange={(e) => handleSlotChange(index, 'endTime', e.target.value)}
+                                    value={formatTimeForInput(slot.endTime)}
+                                    onChange={(e) => handleSlotChange(index, 'endTime', convertInputToDisplay(e.target.value))}
                                 />
                             </div>
                             <div className="md:col-span-4">
