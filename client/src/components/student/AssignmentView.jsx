@@ -47,10 +47,10 @@ const AssignmentView = () => {
                             <div
                                 key={assignment._id}
                                 className={`bg-white/5 backdrop-blur-xl border p-6 transition-all hover:scale-[1.01] hover:shadow-lg ${overdue
-                                        ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]'
-                                        : dueToday
-                                            ? 'border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]'
-                                            : 'border-neon-green/30 shadow-[0_0_15px_rgba(0,255,150,0.1)]'
+                                    ? 'border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]'
+                                    : dueToday
+                                        ? 'border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]'
+                                        : 'border-neon-green/30 shadow-[0_0_15px_rgba(0,255,150,0.1)]'
                                     }`}
                             >
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -59,6 +59,9 @@ const AssignmentView = () => {
                                         <div className="flex items-center gap-3 mb-3">
                                             <span className="bg-neon-purple/20 text-neon-purple px-3 py-1 text-xs font-bold uppercase tracking-wider border border-neon-purple/30">
                                                 {assignment.subject}
+                                            </span>
+                                            <span className="text-[10px] bg-neon-blue/10 text-neon-blue px-2 py-0.5 rounded border border-neon-blue/30 uppercase tracking-widest font-bold">
+                                                Posted by {assignment.createdBy?.name || 'Admin'}
                                             </span>
                                             <h3 className="text-xl font-bold text-white font-orbitron">{assignment.title}</h3>
                                         </div>
@@ -82,8 +85,8 @@ const AssignmentView = () => {
 
                                     {/* Status Badge */}
                                     <div className={`px-5 py-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${overdue
-                                            ? 'bg-red-500/20 text-red-400 border border-red-500/50'
-                                            : 'bg-neon-green/20 text-neon-green border border-neon-green/50'
+                                        ? 'bg-red-500/20 text-red-400 border border-red-500/50'
+                                        : 'bg-neon-green/20 text-neon-green border border-neon-green/50'
                                         }`}>
                                         {overdue ? (
                                             <>

@@ -114,6 +114,9 @@ const AssignmentManager = () => {
                         <div className="flex items-center gap-2 mb-2">
                             <span className="bg-neon-purple/20 text-neon-purple px-2 py-0.5 text-xs font-bold uppercase border border-neon-purple/30">{assignment.subject}</span>
                             <span className="text-sm text-gray-400">{format(new Date(assignment.deadline), 'PPP')}</span>
+                            <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded border border-neon-blue/30 bg-neon-blue/10 text-neon-blue uppercase tracking-widest">
+                                Posted by {assignment.createdBy?.name || 'Admin'}
+                            </span>
                         </div>
                         <h3 className="text-lg font-bold text-white">{assignment.title}</h3>
                         <p className="text-gray-400 mt-1">{assignment.description}</p>

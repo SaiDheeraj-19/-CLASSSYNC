@@ -13,7 +13,9 @@ router.get('/', auth, async (req, res) => {
         await Assignment.deleteMany({ deadline: { $lt: now } });
 
         // Sort by deadline ascending
-        const assignments = await Assignment.find().sort({ deadline: 1 });
+        const assignments = await Assignment.find()
+            .populate('createdBy', 'name')
+            .sort({ deadline: 1 });
         res.json(assignments);
     } catch (err) {
         console.error(err.message);
