@@ -18,10 +18,14 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Create a new poll (Admin only)
+const { notifyAllStudents } = require('../services/notificationService');
+
+// Create a new poll (Admin only)
 router.post('/', [auth, admin], async (req, res) => {
     const { question, options } = req.body;
 
     try {
+        console.log(`[POLL] Creating new poll: ${question}`);
         const newPoll = new Poll({
             question,
             options: options.map(opt => ({ text: opt, votes: 0 })),
@@ -29,14 +33,16 @@ router.post('/', [auth, admin], async (req, res) => {
         });
 
         const poll = await newPoll.save();
+        console.log(`[POLL] Saved to DB: ${poll._id}`);
 
         // Send Notification
-        const { notifyAllStudents } = require('../services/notificationService');
+        console.log('[POLL] Triggering notification...');
         await notifyAllStudents(
             `New Poll: ${question}`,
             `A new poll has been created: "${question}". Please vote!`,
             `<p>A new poll has been created: "<strong>${question}</strong>".</p><p>Please log in to vote.</p>`
         );
+        console.log('[POLL] Notification process complete.');
 
         res.json(poll);
     } catch (err) {
