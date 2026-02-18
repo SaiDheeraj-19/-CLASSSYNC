@@ -75,6 +75,50 @@ const StudentDashboard = () => {
         checkLatestNotices();
     }, []);
 
+    // Email Popup Logic
+    const [showEmailPopup, setShowEmailPopup] = useState(false);
+    const [email, setEmail] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
+
+    useEffect(() => {
+        if (user && !user.email) {
+            // Check if user has dismissed the popup recently (optional, currently showing every time if no email)
+            // const dismissed = localStorage.getItem('emailPopupDismissed');
+            // if (!dismissed) {
+            setTimeout(() => setShowEmailPopup(true), 2000); // Show after 2 seconds
+            // }
+        }
+    }, [user]);
+
+    const handleEmailSubmit = async (e) => {
+        e.preventDefault();
+        setEmailError('');
+
+        // Basic validation
+        if (!email.includes('@gpcet.ac.in')) {
+            setEmailError('Please enter a valid college email ending with @gpcet.ac.in');
+            return;
+        }
+
+        setIsSubmittingEmail(true);
+        try {
+            // We use the profile update endpoint
+            await api.put('/auth/profile', { email }); // Ensure backend supports email update here
+            // Update local user context if needed, or rely on reload/re-fetch
+            setShowEmailPopup(false);
+            alert("Email updated successfully!");
+            // Refresh user data (if logout/login is not desired, we might need a fetchUser method in context)
+            window.location.reload();
+        } catch (err) {
+            console.error(err);
+            setEmailError(err.response?.data?.message || 'Failed to update email');
+        } finally {
+            setIsSubmittingEmail(false);
+        }
+    };
+
+
     const dismissNotice = () => {
         if (latestNotice) {
             localStorage.setItem('lastSeenNoticeId', latestNotice._id);
@@ -281,6 +325,51 @@ const StudentDashboard = () => {
                         >
                             Dismiss
                         </button>
+                    </div>
+                </div>
+            )}
+            {/* EMAIL POPUP MODAL */}
+            {showEmailPopup && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
+                    <div className="relative bg-cyber-dark border-2 border-neon-yellow p-8 max-w-md w-full shadow-[0_0_30px_rgba(255,255,0,0.3)] animate-slide-up">
+                        <div className="flex flex-col items-center mb-6">
+                            <div className="w-16 h-16 rounded-full bg-neon-yellow/10 flex items-center justify-center mb-4 border border-neon-yellow/30">
+                                <FaBullhorn className="text-3xl text-neon-yellow animate-pulse" />
+                            </div>
+                            <h2 className="text-xl font-bold text-white font-orbitron text-center uppercase tracking-widest">Action Required</h2>
+                            <p className="text-gray-400 text-sm mt-2 text-center">Please update your college email address to receive important notifications.</p>
+                        </div>
+
+                        <form onSubmit={handleEmailSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-neon-blue text-xs font-bold mb-2 uppercase tracking-wider">College Email ID</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="yourname@gpcet.ac.in"
+                                    className="w-full bg-black/40 border border-neon-blue/30 rounded p-3 text-white focus:outline-none focus:border-neon-blue transition-colors font-code"
+                                    required
+                                />
+                                {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isSubmittingEmail}
+                                className={`w-full bg-neon-yellow text-black font-bold py-3 hover:bg-neon-yellow/80 transition-all font-orbitron tracking-wider flex justify-center items-center gap-2 ${isSubmittingEmail ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                {isSubmittingEmail ? 'Updating...' : 'Save Email'}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowEmailPopup(false)}
+                                className="w-full text-gray-500 text-xs hover:text-white transition-colors text-center mt-2"
+                            >
+                                Remind Me Later
+                            </button>
+                        </form>
                     </div>
                 </div>
             )}

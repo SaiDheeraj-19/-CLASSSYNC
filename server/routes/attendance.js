@@ -293,6 +293,15 @@ router.post('/bulk', [auth, admin], async (req, res) => {
             }));
         }
 
+        // Send Notification
+        const { notifyAllStudents } = require('../services/notificationService');
+        const formattedDate = sessionDate.toDateString();
+        await notifyAllStudents(
+            `Attendance Update: ${subject}`,
+            `Attendance for ${subject} on ${formattedDate} has been posted. Login to check your status.`,
+            `<p>Attendance for <strong>${subject}</strong> on <strong>${formattedDate}</strong> has been posted.</p><p>Please log in to check your status.</p>`
+        );
+
         res.json({ message: 'Attendance updated successfully', session: newSession });
     } catch (err) {
         console.error('Bulk update error:', err);

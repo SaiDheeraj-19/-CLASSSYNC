@@ -29,6 +29,15 @@ router.post('/', [auth, admin], async (req, res) => {
         });
 
         const poll = await newPoll.save();
+
+        // Send Notification
+        const { notifyAllStudents } = require('../services/notificationService');
+        await notifyAllStudents(
+            `New Poll: ${question}`,
+            `A new poll has been created: "${question}". Please vote!`,
+            `<p>A new poll has been created: "<strong>${question}</strong>".</p><p>Please log in to vote.</p>`
+        );
+
         res.json(poll);
     } catch (err) {
         console.error(err.message);

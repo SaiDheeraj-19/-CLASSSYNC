@@ -55,7 +55,8 @@ router.post('/register', async (req, res) => {
             name: name.trim(),
             password,
             role: role || 'student',
-            rollNumber: normalizedRollNumber
+            rollNumber: normalizedRollNumber,
+            phoneNumber: req.body.phoneNumber || null
         });
 
         const salt = await bcrypt.genSalt(10);
@@ -274,9 +275,10 @@ router.put('/profile', auth, async (req, res) => {
         if (name) user.name = name;
         if (department) user.department = department;
         if (semester) user.semester = semester;
+        if (req.body.phoneNumber) user.phoneNumber = req.body.phoneNumber;
 
         await user.save();
-        res.json({ message: 'Profile updated successfully', user: { name: user.name, department: user.department, semester: user.semester } });
+        res.json({ message: 'Profile updated successfully', user: { name: user.name, department: user.department, semester: user.semester, phoneNumber: user.phoneNumber } });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

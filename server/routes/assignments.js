@@ -39,6 +39,15 @@ router.post('/', [auth, admin], async (req, res) => {
         });
 
         const assignment = await newAssignment.save();
+
+        // Send Notification
+        const { notifyAllStudents } = require('../services/notificationService');
+        await notifyAllStudents(
+            `New Assignment: ${title}`,
+            `A new assignment "${title}" for ${subject} has been posted. Deadline: ${new Date(deadline).toDateString()}.`,
+            `<p>A new assignment "<strong>${title}</strong>" for <strong>${subject}</strong> has been posted.</p><p>Deadline: ${new Date(deadline).toDateString()}</p>`
+        );
+
         res.json(assignment);
     } catch (err) {
         console.error(err.message);
