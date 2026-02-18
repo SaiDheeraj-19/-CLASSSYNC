@@ -8,6 +8,7 @@ const ProfileManager = () => {
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || '',
+        phoneNumber: user?.phoneNumber || '',
         department: user?.department || 'CSE',
         semester: user?.semester || 1
     });
@@ -150,6 +151,16 @@ const ProfileManager = () => {
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 placeholder="yourname@gpcet.ac.in"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1">WhatsApp Number <span className="text-neon-purple text-xs normal-case">(e.g., 9876543210)</span></label>
+                            <input
+                                type="tel"
+                                className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
+                                value={formData.phoneNumber}
+                                onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                placeholder="9876543210"
                             />
                         </div>
                         <div>
