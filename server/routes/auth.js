@@ -276,9 +276,15 @@ router.put('/profile', auth, async (req, res) => {
         if (department) user.department = department;
         if (semester) user.semester = semester;
         if (req.body.phoneNumber) user.phoneNumber = req.body.phoneNumber;
-        if (req.body.email) user.email = req.body.email; // Allow email update
+
+        if (req.body.email) {
+            console.log(`[PROFILE UPDATE] Attempting to update email for ${user.rollNumber} to: ${req.body.email}`);
+            user.email = req.body.email;
+        }
 
         await user.save();
+        console.log(`[PROFILE UPDATE] Success. User email is now: ${user.email}`);
+
         res.json({ message: 'Profile updated successfully', user: { name: user.name, email: user.email, department: user.department, semester: user.semester, phoneNumber: user.phoneNumber } });
     } catch (err) {
         console.error(err.message);
