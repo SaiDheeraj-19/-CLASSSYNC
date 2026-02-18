@@ -7,6 +7,7 @@ const ProfileManager = () => {
     const { user } = useAuth();
     const [formData, setFormData] = useState({
         name: user?.name || '',
+        email: user?.email || '',
         department: user?.department || 'CSE',
         semester: user?.semester || 1
     });
@@ -39,6 +40,8 @@ const ProfileManager = () => {
         try {
             await api.put('/auth/profile', formData);
             setMessage('Profile updated successfully!');
+            // Reload to update context
+            window.location.reload();
         } catch (err) {
             setMessage(err.response?.data?.message || 'Failed to update profile');
         } finally {
@@ -137,6 +140,16 @@ const ProfileManager = () => {
                                 className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs text-gray-400 uppercase tracking-wider mb-1">Email <span className="text-neon-purple text-xs normal-case">(for notifications)</span></label>
+                            <input
+                                type="email"
+                                className="w-full bg-black/30 border border-white/20 text-white px-3 py-2 focus:outline-none focus:border-neon-purple transition-colors"
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                placeholder="yourname@gpcet.ac.in"
                             />
                         </div>
                         <div>
