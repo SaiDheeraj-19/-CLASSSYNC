@@ -27,19 +27,25 @@ const sendEmail = async (to, subject, text, html) => {
 
 const notifyAllStudents = async (subject, message, htmlMessage) => {
     try {
+        const { getEmailTemplate } = require('./emailTemplates'); // Import template generator
         const User = require('../models/User');
         // Fetch BOTH students and admins
         const recipients = await User.find({ role: { $in: ['student', 'admin'] } });
 
         console.log(`📢 Sending EMAIL notifications to ${recipients.length} users (Students & Admins)...`);
 
+        // Generate Full HTML Template
+        // Note: htmlMessage passed here is usually just a <p> snippet. We wrap it in our premium template.
+        // We use 'message' (plain text) as fallback for email clients that don't support HTML.
+        const fullHtml = getEmailTemplate(subject, htmlMessage || message);
+
         // Send Emails
         const emailPromises = recipients
             .filter(user => user.email)
-            .map(user => sendEmail(user.email, subject, message, htmlMessage));
+            .map(user => sendEmail(user.email, subject, message, fullHtml));
 
         await Promise.allSettled(emailPromises);
-        console.log('✅ All email notifications processed.');
+        console.log('✅ All premium email notifications processed.');
 
     } catch (error) {
         console.error('Error in notifyAllStudents:', error);
