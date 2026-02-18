@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaTrash, FaChartBar, FaCheckCircle, FaTimesCircle, FaPoll, FaUsers } from 'react-icons/fa';
 import api from '../../api';
+import { useAuth } from '../../context/AuthContext';
 
 const PollManager = () => {
+    const { user } = useAuth();
     const [polls, setPolls] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -30,10 +32,19 @@ const PollManager = () => {
             const options = newPoll.options.filter(opt => opt.trim() !== '');
             if (options.length < 2) return alert('At least 2 options required');
 
-            await api.post('/polls', { ...newPoll, options });
+            const res = await api.post('/polls', { ...newPoll, options });
+
+            // Immediate UI Update (Optimistic/Local)
+            const createdPoll = {
+                ...res.data,
+                createdBy: { name: user?.name || 'Admin' }, // Manually populate for display
+                options: res.data.options || options.map(opt => ({ text: opt, votes: 0, votedBy: [] }))
+            };
+
+            setPolls(prev => [createdPoll, ...prev]);
+
             setNewPoll({ question: '', options: ['', ''] });
             setShowForm(false);
-            fetchPolls();
         } catch (err) {
             console.error('Failed to create poll', err);
         }
@@ -203,8 +214,8 @@ const PollManager = () => {
                                     <button
                                         onClick={() => toggleVoters(poll._id)}
                                         className={`flex items-center gap-1 text-[10px] uppercase font-bold px-2 py-1 rounded border transition-all ${expandedPolls[poll._id]
-                                                ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/50'
-                                                : 'border-white/10 text-gray-400 hover:text-white hover:border-white/30'
+                                            ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/50'
+                                            : 'border-white/10 text-gray-400 hover:text-white hover:border-white/30'
                                             }`}
                                         title="View Voter Details"
                                     >
