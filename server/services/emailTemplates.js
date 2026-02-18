@@ -12,11 +12,12 @@ const getEmailTemplate = (title, message, link = 'https://classsync-one.vercel.a
         .header { background: linear-gradient(90deg, #000000 0%, #1a1a1a 100%); padding: 30px 20px; text-align: center; border-bottom: 3px solid #00f3ff; }
         .header h1 { margin: 0; color: #ffffff; font-size: 28px; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
         .header span { color: #facc15; } /* Neon Yellow */
-        .content { padding: 40px 30px; line-height: 1.8; background-color: #1a1a1a; }
-        .message-box { background-color: #2a2a2a; padding: 25px; border-left: 5px solid #a855f7; border-radius: 6px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .content { padding: 40px 30px; line-height: 1.8; background-color: #1a1a1a; color: #ffffff; }
+        .message-box { background-color: #2a2a2a; padding: 25px; border-left: 5px solid #a855f7; border-radius: 6px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); color: #ffffff !important; }
+        .message-box p, .message-box li, .message-box strong, .message-box span { color: #ffffff !important; } /* Force White Text */
         .btn-container { text-align: center; margin: 40px 0; }
         .btn { display: inline-block; padding: 14px 35px; background: linear-gradient(45deg, #00f3ff, #00c2cc); color: #000000; text-decoration: none; font-weight: bold; border-radius: 50px; text-transform: uppercase; letter-spacing: 2px; transition: transform 0.2s; box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
-        .footer { background-color: #111; padding: 25px; text-align: center; font-size: 12px; color: #555; border-top: 1px solid #333; }
+        .footer { background-color: #111; padding: 25px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #333; }
         .tagline { color: #a855f7; font-size: 10px; letter-spacing: 1px; margin-bottom: 10px; display: block; text-transform: uppercase; }
     </style>
 </head>
