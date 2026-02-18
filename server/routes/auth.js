@@ -156,7 +156,19 @@ router.post('/login', async (req, res) => {
             (err, token) => {
                 if (err) throw err;
                 console.log(`Login successful for: ${user.rollNumber} (${user.name})`);
-                res.json({ token, user: { id: user.id, name: user.name, rollNumber: user.rollNumber, role: user.role } });
+                res.json({
+                    token,
+                    user: {
+                        id: user.id,
+                        name: user.name,
+                        rollNumber: user.rollNumber,
+                        role: user.role,
+                        email: user.email,
+                        phoneNumber: user.phoneNumber,
+                        department: user.department,
+                        semester: user.semester
+                    }
+                });
             }
         );
     } catch (err) {

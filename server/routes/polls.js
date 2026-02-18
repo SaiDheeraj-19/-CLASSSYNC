@@ -35,14 +35,17 @@ router.post('/', [auth, admin], async (req, res) => {
         const poll = await newPoll.save();
         console.log(`[POLL] Saved to DB: ${poll._id}`);
 
-        // Send Notification
-        console.log('[POLL] Triggering notification...');
-        await notifyAllStudents(
+        // Send Notification (Background Process)
+        console.log('[POLL] Triggering notification in background...');
+
+        // Do NOT await this, to prevent request timeout on Vercel/Render
+        notifyAllStudents(
             `New Poll: ${question}`,
             `A new poll has been created: "${question}". Please vote!`,
             `<p>A new poll has been created: "<strong>${question}</strong>".</p><p>Please log in to vote.</p>`
-        );
-        console.log('[POLL] Notification process complete.');
+        ).catch(err => console.error('[POLL] Background notification failed:', err));
+
+        console.log('[POLL] Notification process started. Sending immediate response.');
 
         res.json(poll);
     } catch (err) {
