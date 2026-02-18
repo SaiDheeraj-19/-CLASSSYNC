@@ -31,6 +31,15 @@ router.post('/', [auth, admin], async (req, res) => {
         });
 
         const notice = await newNotice.save();
+
+        // 🔔 Send Notification
+        const { notifyAllStudents } = require('../services/notificationService');
+        notifyAllStudents(
+            `New Notice: ${title}`,
+            `A new notice has been posted.\nTitle: ${title}\nContent: ${content}`,
+            `<h3>New Notice Posted</h3><p><strong>Title:</strong> ${title}</p><p>${content}</p><p>Check the portal for details.</p>`
+        );
+
         res.json(notice);
     } catch (err) {
         console.error(err.message);

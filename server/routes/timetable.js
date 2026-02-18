@@ -34,6 +34,15 @@ router.post('/', [auth, admin], async (req, res) => {
         if (timetable) {
             timetable.slots = slots;
             await timetable.save();
+
+            // 🔔 Send Notification (Update)
+            const { notifyAllStudents } = require('../services/notificationService');
+            notifyAllStudents(
+                `Timetable Update: ${day}`,
+                `The timetable for ${day} has been updated. Please check the portal.`,
+                `<h3>Timetable Updated</h3><p>The timetable for <strong>${day}</strong> has been updated.</p><p>Please login to view the changes.</p>`
+            );
+
             return res.json(timetable);
         }
 
@@ -43,6 +52,15 @@ router.post('/', [auth, admin], async (req, res) => {
         });
 
         await timetable.save();
+
+        // 🔔 Send Notification (New)
+        const { notifyAllStudents } = require('../services/notificationService');
+        notifyAllStudents(
+            `Timetable Added: ${day}`,
+            `A new timetable for ${day} has been added.`,
+            `<h3>Timetable Added</h3><p>A new timetable for <strong>${day}</strong> has been added.</p>`
+        );
+
         res.json(timetable);
     } catch (err) {
         console.error(err.message);
