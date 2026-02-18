@@ -5,6 +5,9 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+// Initialize Notification Service (WhatsApp Client)
+require('./services/notificationService');
+
 const app = express();
 
 // Middleware
