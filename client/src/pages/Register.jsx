@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaEye, FaEyeSlash, FaUser, FaLock, FaFingerprint, FaIdCard, FaShieldAlt } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaUser, FaLock, FaFingerprint, FaIdCard, FaEnvelope } from 'react-icons/fa';
 
 import SEO from '../components/shared/SEO';
 
 const Register = () => {
     const [formData, setFormData] = useState({
         name: '',
+        email: '',
         password: '',
         role: 'student',
         rollNumber: ''
@@ -27,7 +28,7 @@ const Register = () => {
         setLoading(true);
         setError('');
         try {
-            await register(formData.name, null, formData.password, formData.role, formData.rollNumber);
+            await register(formData.name, formData.email, formData.password, formData.role, formData.rollNumber);
             navigate('/login');
         } catch (err) {
             console.error('Registration Error:', err);
@@ -84,6 +85,15 @@ const Register = () => {
                                 <div className="relative flex items-center">
                                     <FaUser className="absolute left-0 text-gray-500 group-focus-within:text-neon-purple transition-colors" />
                                     <input type="text" name="name" className="w-full bg-transparent border-b border-gray-700 text-white pl-8 py-2 focus:outline-none focus:border-neon-purple transition-colors font-rajdhani text-lg" onChange={handleChange} required placeholder="Ex. John Doe" />
+                                </div>
+                            </div>
+
+                            {/* Email */}
+                            <div className="group">
+                                <label className="block text-xs text-gray-400 uppercase tracking-wider mb-2 font-orbitron">Email Address</label>
+                                <div className="relative flex items-center">
+                                    <FaEnvelope className="absolute left-0 text-gray-500 group-focus-within:text-neon-purple transition-colors" />
+                                    <input type="email" name="email" className="w-full bg-transparent border-b border-gray-700 text-white pl-8 py-2 focus:outline-none focus:border-neon-purple transition-colors font-rajdhani text-lg" onChange={handleChange} required placeholder="student@example.com" />
                                 </div>
                             </div>
 

@@ -44,7 +44,7 @@ app.use('/api/polls', pollRoutes);
 
 // VERSION ENDPOINT
 app.get('/api/version', (req, res) => {
-  res.json({ version: '3.1.0-FIX-POLLS-EMAIL', timestamp: new Date().toISOString() });
+  res.json({ version: '3.2.0-AUTH-EMAIL', timestamp: new Date().toISOString() });
 });
 
 // DEBUG EMAIL ROUTE

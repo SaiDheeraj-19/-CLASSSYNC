@@ -43,7 +43,7 @@ router.post('/register', async (req, res) => {
             }
         }
 
-        // Case-insensitive check for existing user
+        // Case-insensitive check for existing user (Roll Number)
         let user = await User.findOne({
             rollNumber: { $regex: new RegExp(`^${normalizedRollNumber}$`, 'i') }
         });
@@ -51,8 +51,17 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'User with this Roll Number already exists' });
         }
 
+        // Check for existing email if provided
+        if (req.body.email) {
+            const existingEmail = await User.findOne({ email: req.body.email });
+            if (existingEmail) {
+                return res.status(400).json({ message: 'Email is already registered by another user' });
+            }
+        }
+
         user = new User({
             name: name.trim(),
+            email: req.body.email ? req.body.email.trim() : undefined,
             password,
             role: role || 'student',
             rollNumber: normalizedRollNumber,
