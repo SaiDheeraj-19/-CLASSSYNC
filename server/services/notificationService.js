@@ -28,14 +28,15 @@ const sendEmail = async (to, subject, text, html) => {
 const notifyAllStudents = async (subject, message, htmlMessage) => {
     try {
         const User = require('../models/User');
-        const students = await User.find({ role: 'student' });
+        // Fetch BOTH students and admins
+        const recipients = await User.find({ role: { $in: ['student', 'admin'] } });
 
-        console.log(`📢 Sending EMAIL notifications to ${students.length} students...`);
+        console.log(`📢 Sending EMAIL notifications to ${recipients.length} users (Students & Admins)...`);
 
         // Send Emails
-        const emailPromises = students
-            .filter(student => student.email)
-            .map(student => sendEmail(student.email, subject, message, htmlMessage));
+        const emailPromises = recipients
+            .filter(user => user.email)
+            .map(user => sendEmail(user.email, subject, message, htmlMessage));
 
         await Promise.allSettled(emailPromises);
         console.log('✅ All email notifications processed.');
