@@ -42,6 +42,11 @@ app.use('/api/calendar', calendarRoutes);
 app.use('/api/resources', resourceRoutes);
 app.use('/api/polls', pollRoutes);
 
+// VERSION ENDPOINT
+app.get('/api/version', (req, res) => {
+  res.json({ version: '3.1.0-FIX-POLLS-EMAIL', timestamp: new Date().toISOString() });
+});
+
 // DEBUG EMAIL ROUTE
 app.get('/api/test-email', async (req, res) => {
   try {

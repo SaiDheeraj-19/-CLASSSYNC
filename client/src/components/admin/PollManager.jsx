@@ -24,7 +24,7 @@ const PollManager = () => {
 
     useEffect(() => {
         fetchPolls();
-    }, []);
+    }, []); // Initial load only
 
     const handleCreatePoll = async (e) => {
         e.preventDefault();
@@ -45,8 +45,10 @@ const PollManager = () => {
 
             setNewPoll({ question: '', options: ['', ''] });
             setShowForm(false);
+            alert('Poll Published Successfully! Check your email for confirmation.');
         } catch (err) {
             console.error('Failed to create poll', err);
+            alert('Failed to publish poll. Check console for details.');
         }
     };
 
