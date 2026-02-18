@@ -82,12 +82,17 @@ const StudentDashboard = () => {
     const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
 
     useEffect(() => {
+        // Only show popup if user is logged in AND does not have an email
         if (user && !user.email) {
             // Check if user has dismissed the popup recently (optional, currently showing every time if no email)
             // const dismissed = localStorage.getItem('emailPopupDismissed');
             // if (!dismissed) {
-            setTimeout(() => setShowEmailPopup(true), 2000); // Show after 2 seconds
+            const timer = setTimeout(() => setShowEmailPopup(true), 2000); // Show after 2 seconds
+            return () => clearTimeout(timer);
             // }
+        } else {
+            // If user has email, ensure popup is closed
+            setShowEmailPopup(false);
         }
     }, [user]);
 
