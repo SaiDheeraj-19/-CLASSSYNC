@@ -9,21 +9,21 @@ const getEmailTemplate = (title, message, link = 'https://classsync-one.vercel.a
     <style>
         body { margin: 0; padding: 0; background-color: #0d0d0d; font-family: 'Arial', sans-serif; color: #e0e0e0; }
         .container { max-width: 600px; margin: 0 auto; background-color: #1a1a1a; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid #333; }
-        .header { background-color: #000000; padding: 20px; text-align: center; border-bottom: 2px solid #00f3ff; }
-        .header h1 { margin: 0; color: #ffffff; font-size: 24px; letter-spacing: 2px; text-transform: uppercase; }
+        .header { background: linear-gradient(90deg, #000000 0%, #1a1a1a 100%); padding: 30px 20px; text-align: center; border-bottom: 3px solid #00f3ff; }
+        .header h1 { margin: 0; color: #ffffff; font-size: 28px; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
         .header span { color: #facc15; } /* Neon Yellow */
-        .content { padding: 30px; line-height: 1.6; }
-        .message-box { background-color: #252525; padding: 20px; border-left: 4px solid #a855f7; border-radius: 4px; margin-bottom: 25px; }
-        .btn-container { text-align: center; margin: 30px 0; }
-        .btn { display: inline-block; padding: 12px 25px; background-color: #00f3ff; color: #000000; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; transition: background 0.3s; }
-        .footer { background-color: #000000; padding: 20px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #333; }
-        .icon { font-size: 24px; margin-bottom: 10px; display: block; }
+        .content { padding: 40px 30px; line-height: 1.8; background-color: #1a1a1a; }
+        .message-box { background-color: #2a2a2a; padding: 25px; border-left: 5px solid #a855f7; border-radius: 6px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .btn-container { text-align: center; margin: 40px 0; }
+        .btn { display: inline-block; padding: 14px 35px; background: linear-gradient(45deg, #00f3ff, #00c2cc); color: #000000; text-decoration: none; font-weight: bold; border-radius: 50px; text-transform: uppercase; letter-spacing: 2px; transition: transform 0.2s; box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
+        .footer { background-color: #111; padding: 25px; text-align: center; font-size: 12px; color: #555; border-top: 1px solid #333; }
+        .tagline { color: #a855f7; font-size: 10px; letter-spacing: 1px; margin-bottom: 10px; display: block; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
         <tr>
-            <td align="center" style="padding: 20px 0;">
+            <td align="center" style="padding: 40px 0; background-color: #0d0d0d;">
                 <div class="container">
                     <!-- Header -->
                     <div class="header">
@@ -32,7 +32,7 @@ const getEmailTemplate = (title, message, link = 'https://classsync-one.vercel.a
 
                     <!-- Content -->
                     <div class="content">
-                        <h2 style="color: #ffffff; margin-top: 0;">${title}</h2>
+                        <h2 style="color: #ffffff; margin-top: 0; font-size: 22px;">${title}</h2>
                         
                         <div class="message-box">
                             ${message}
@@ -42,15 +42,16 @@ const getEmailTemplate = (title, message, link = 'https://classsync-one.vercel.a
 
                         <!-- Action Button -->
                         <div class="btn-container">
-                            <a href="${link}" class="btn">Open ClassSync</a>
+                            <a href="${link}" class="btn">Open Portal</a>
                         </div>
                     </div>
 
                     <!-- Footer -->
                     <div class="footer">
-                        <p>&copy; ${new Date().getFullYear()} ClassSync System. All rights reserved.</p>
-                        <p>Department of CSE-DS | GPCET</p>
-                        <p style="margin-top: 10px; font-size: 10px; color: #444;">You received this email because you are a registered student.</p>
+                        <span class="tagline">Empowered by Technology</span>
+                        <p>&copy; ${new Date().getFullYear()} ClassSync System.</p>
+                        <p style="color: #777; font-weight: bold;">Department of CSE | GPCET</p>
+                        <p style="margin-top: 15px; font-size: 10px; color: #333;">Automated Notification System</p>
                     </div>
                 </div>
             </td>
