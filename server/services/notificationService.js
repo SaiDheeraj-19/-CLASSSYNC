@@ -19,7 +19,7 @@ let isWhatsAppReady = false;
 try {
     console.log('Initializing WhatsApp Client...');
     whatsappClient = new Client({
-        authStrategy: new LocalAuth(), // Saves session so you don't scan QR every time
+        authStrategy: new LocalAuth(),
         puppeteer: {
             headless: true,
             args: ['--no-sandbox']
@@ -36,6 +36,18 @@ try {
     whatsappClient.on('ready', () => {
         console.log('\n✅ WhatsApp Client is Ready!\n');
         isWhatsAppReady = true;
+    });
+
+    // Helper to find Group IDs
+    whatsappClient.on('message', async msg => {
+        if (msg.body === '!groupinfo') {
+            const chat = await msg.getChat();
+            if (chat.isGroup) {
+                console.log(`\nUNKNOWN GROUP ID FOUND: ${chat.id._serialized}`);
+                console.log(`Group Name: ${chat.name}\n`);
+                msg.reply(`Group ID: ${chat.id._serialized}`);
+            }
+        }
     });
 
     whatsappClient.on('auth_failure', (msg) => {
@@ -81,12 +93,27 @@ const sendWhatsApp = async (to, message) => {
         return;
     }
 
-    const chatId = formatToWhatsAppId(to);
+    // Check if sending to a group (from .env) or individual
+    let chatId;
+    if (to === 'GROUP') {
+        chatId = process.env.WHATSAPP_GROUP_ID;
+        if (!chatId) {
+            console.warn('WHATSAPP_GROUP_ID not set in .env. Skipping group notification.');
+            return;
+        }
+        // Ensure format is correct for groups (usually ends in @g.us)
+        if (!chatId.endsWith('@g.us')) {
+            chatId += '@g.us';
+        }
+    } else {
+        chatId = formatToWhatsAppId(to);
+    }
+
     if (!chatId) return;
 
     try {
         await whatsappClient.sendMessage(chatId, message);
-        console.log(`📱 WhatsApp sent to ${to}`);
+        console.log(`📱 WhatsApp sent to ${to === 'GROUP' ? 'Group' : to}`);
     } catch (error) {
         console.error('Error sending WhatsApp:', error.message);
     }
@@ -97,23 +124,17 @@ const notifyAllStudents = async (subject, message, htmlMessage) => {
         const User = require('../models/User');
         const students = await User.find({ role: 'student' });
 
-        console.log(`📢 Sending notifications to ${students.length} students...`);
+        console.log(`📢 Processing notifications...`);
 
-        // Send Emails
+        // 1. Send Emails (Still individual)
         const emailPromises = students
             .filter(student => student.email)
             .map(student => sendEmail(student.email, subject, message, htmlMessage));
 
-        // Send WhatsApp Messages
-        // Add a slight delay between messages to avoid spam detection
-        const whatsappPromises = students
-            .filter(student => student.phoneNumber)
-            .map(async (student, index) => {
-                await new Promise(resolve => setTimeout(resolve, index * 500)); // 500ms delay per msg
-                return sendWhatsApp(student.phoneNumber, `*${subject}*\n\n${message}`);
-            });
+        // 2. Send WhatsApp to GROUP (Single message)
+        const whatsappPromise = sendWhatsApp('GROUP', `*${subject}*\n\n${message}`);
 
-        await Promise.allSettled([...emailPromises, ...whatsappPromises]);
+        await Promise.allSettled([...emailPromises, whatsappPromise]);
         console.log('✅ All notifications processed.');
 
     } catch (error) {
