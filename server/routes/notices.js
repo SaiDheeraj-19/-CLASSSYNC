@@ -16,6 +16,8 @@ router.get('/', auth, async (req, res) => {
     }
 });
 
+const { notifyAllStudents } = require('../services/notificationService');
+
 // @route   POST api/notices
 // @desc    Create a notice
 // @access  Private (Admin)
@@ -23,6 +25,7 @@ router.post('/', [auth, admin], async (req, res) => {
     const { title, content, type } = req.body;
 
     try {
+        console.log(`[NOTICE] Creating: ${title}`);
         const newNotice = new Notice({
             title,
             content,
@@ -31,14 +34,16 @@ router.post('/', [auth, admin], async (req, res) => {
         });
 
         const notice = await newNotice.save();
+        console.log(`[NOTICE] Saved to DB: ${notice._id}`);
 
         // 🔔 Send Notification
-        const { notifyAllStudents } = require('../services/notificationService');
-        notifyAllStudents(
+        console.log('[NOTICE] Triggering notification...');
+        await notifyAllStudents(
             `New Notice: ${title}`,
             `A new notice has been posted.\nTitle: ${title}\nContent: ${content}`,
-            `<h3>New Notice Posted</h3><p><strong>Title:</strong> ${title}</p><p>${content}</p><p>Check the portal for details.</p>`
+            `<h3>New Notice Posted</h3><div style="background:#222; padding:15px; border-radius:5px;"><p><strong>Title:</strong> ${title}</p><p>${content}</p></div><p>Check the portal for details.</p>`
         );
+        console.log('[NOTICE] Notification complete.');
 
         res.json(notice);
     } catch (err) {

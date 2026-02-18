@@ -22,6 +22,8 @@ router.get('/', auth, async (req, res) => {
     }
 });
 
+const { notifyAllStudents } = require('../services/notificationService');
+
 // @route   POST api/timetable
 // @desc    Create or Update a day's timetable
 // @access  Private (Admin)
@@ -30,18 +32,21 @@ router.post('/', [auth, admin], async (req, res) => {
 
     try {
         let timetable = await Timetable.findOne({ day });
+        console.log(`[TIMETABLE] Processing update for ${day}`);
 
         if (timetable) {
             timetable.slots = slots;
             await timetable.save();
+            console.log(`[TIMETABLE] Updated existing entry for ${day}`);
 
             // 🔔 Send Notification (Update)
-            const { notifyAllStudents } = require('../services/notificationService');
-            notifyAllStudents(
+            console.log('[TIMETABLE] Triggering notification (Update)...');
+            await notifyAllStudents(
                 `Timetable Update: ${day}`,
                 `The timetable for ${day} has been updated. Please check the portal.`,
                 `<h3>Timetable Updated</h3><p>The timetable for <strong>${day}</strong> has been updated.</p><p>Please login to view the changes.</p>`
             );
+            console.log('[TIMETABLE] Notification complete.');
 
             return res.json(timetable);
         }
@@ -52,14 +57,16 @@ router.post('/', [auth, admin], async (req, res) => {
         });
 
         await timetable.save();
+        console.log(`[TIMETABLE] Created new entry for ${day}`);
 
         // 🔔 Send Notification (New)
-        const { notifyAllStudents } = require('../services/notificationService');
-        notifyAllStudents(
+        console.log('[TIMETABLE] Triggering notification (New)...');
+        await notifyAllStudents(
             `Timetable Added: ${day}`,
             `A new timetable for ${day} has been added.`,
             `<h3>Timetable Added</h3><p>A new timetable for <strong>${day}</strong> has been added.</p>`
         );
+        console.log('[TIMETABLE] Notification complete.');
 
         res.json(timetable);
     } catch (err) {

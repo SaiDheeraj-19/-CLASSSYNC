@@ -16,6 +16,8 @@ router.get('/', auth, async (req, res) => {
     }
 });
 
+const { notifyAllStudents } = require('../services/notificationService');
+
 // @route   POST api/resources
 // @desc    Add a resource (Note)
 // @access  Private (Admin)
@@ -23,6 +25,7 @@ router.post('/', [auth, admin], async (req, res) => {
     const { title, subject, description, link } = req.body;
 
     try {
+        console.log(`[RESOURCE] Uploading: ${title} for ${subject}`);
         const newResource = new Resource({
             title,
             subject,
@@ -32,14 +35,16 @@ router.post('/', [auth, admin], async (req, res) => {
         });
 
         await newResource.save();
+        console.log(`[RESOURCE] Saved to DB.`);
 
         // Send Notification
-        const { notifyAllStudents } = require('../services/notificationService');
+        console.log('[RESOURCE] Triggering notification...');
         await notifyAllStudents(
             `New Resource: ${title}`,
             `A new resource "${title}" for ${subject} has been uploaded.`,
-            `<p>A new resource "<strong>${title}</strong>" for <strong>${subject}</strong> has been uploaded.</p><p>Check it out in the resources section.</p>`
+            `<p>A new resource "<strong>${title}</strong>" for <strong>${subject}</strong> has been uploaded.</p><p>${description}</p><p>Check it out in the resources section.</p>`
         );
+        console.log('[RESOURCE] Notification complete.');
 
         res.json(newResource);
     } catch (err) {

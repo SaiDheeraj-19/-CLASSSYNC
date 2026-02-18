@@ -237,6 +237,11 @@ router.delete('/:id', [auth, admin], async (req, res) => {
 // @route   POST api/attendance/bulk
 // @desc    Bulk Create/Update attendance (Admin)
 // @access  Private (Admin)
+const { notifyAllStudents } = require('../services/notificationService');
+
+// @route   POST api/attendance/bulk
+// @desc    Bulk Create/Update attendance (Admin)
+// @access  Private (Admin)
 router.post('/bulk', [auth, admin], async (req, res) => {
     const { updates, date, timeSlot, updateStats = true } = req.body;
 
@@ -246,6 +251,8 @@ router.post('/bulk', [auth, admin], async (req, res) => {
 
     try {
         const subject = updates[0].subject;
+        console.log(`[ATTENDANCE] Processing bulk update for ${subject} (${updates.length} students)`);
+
         const studentIds = updates.map(u => u.studentId);
         const sessionDate = date ? new Date(date) : new Date();
 
@@ -254,10 +261,11 @@ router.post('/bulk', [auth, admin], async (req, res) => {
         const newSession = new AttendanceSession({
             subject,
             date: sessionDate,
-            timeSlot: timeSlot || '9:00 AM', // Use provided timeSlot or default
+            timeSlot: timeSlot || '9:00 AM',
             absentees
         });
         await newSession.save();
+        console.log(`[ATTENDANCE] Session saved: ${newSession._id}`);
 
         // 2. Update Cumulative (Only if updateStats is true)
         if (updateStats) {
@@ -291,16 +299,18 @@ router.post('/bulk', [auth, admin], async (req, res) => {
                     await attendance.save();
                 }
             }));
+            console.log('[ATTENDANCE] Stats updated.');
         }
 
         // Send Notification
-        const { notifyAllStudents } = require('../services/notificationService');
+        console.log('[ATTENDANCE] Triggering notification...');
         const formattedDate = sessionDate.toDateString();
         await notifyAllStudents(
             `Attendance Update: ${subject}`,
             `Attendance for ${subject} on ${formattedDate} has been posted. Login to check your status.`,
             `<p>Attendance for <strong>${subject}</strong> on <strong>${formattedDate}</strong> has been posted.</p><p>Please log in to check your status.</p>`
         );
+        console.log('[ATTENDANCE] Notification complete.');
 
         res.json({ message: 'Attendance updated successfully', session: newSession });
     } catch (err) {

@@ -26,27 +26,37 @@ router.get('/', auth, async (req, res) => {
 // @route   POST api/assignments
 // @desc    Create an assignment
 // @access  Private (Admin)
+const { notifyAllStudents } = require('../services/notificationService');
+
+// Create a new assignment (Admin only)
 router.post('/', [auth, admin], async (req, res) => {
-    const { title, description, subject, deadline } = req.body;
+    const { title, subject, dueDate, description, link } = req.body;
 
     try {
+        console.log(`[ASSIGNMENT] Creating: ${title} for ${subject}`);
         const newAssignment = new Assignment({
             title,
-            description,
             subject,
-            deadline,
+            dueDate,
+            description,
+            link,
             createdBy: req.user.id
         });
 
         const assignment = await newAssignment.save();
+        console.log(`[ASSIGNMENT] Saved to DB: ${assignment._id}`);
 
         // Send Notification
-        const { notifyAllStudents } = require('../services/notificationService');
+        console.log('[ASSIGNMENT] Triggering notification...');
         await notifyAllStudents(
-            `New Assignment: ${title}`,
-            `A new assignment "${title}" for ${subject} has been posted. Deadline: ${new Date(deadline).toDateString()}.`,
-            `<p>A new assignment "<strong>${title}</strong>" for <strong>${subject}</strong> has been posted.</p><p>Deadline: ${new Date(deadline).toDateString()}</p>`
+            `New Assignment: ${subject}`,
+            `A new assignment has been posted for ${subject}: "${title}". Due: ${new Date(dueDate).toDateString()}`,
+            `<p>A new assignment for <strong>${subject}</strong> has been posted.</p>
+             <p><strong>Title:</strong> ${title}</p>
+             <p><strong>Due Date:</strong> ${new Date(dueDate).toDateString()}</p>
+             <p>Please check the portal for details.</p>`
         );
+        console.log('[ASSIGNMENT] Notification complete.');
 
         res.json(assignment);
     } catch (err) {
