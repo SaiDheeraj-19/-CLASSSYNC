@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 
 dotenv.config();
+console.log('[CONFIG] EMAIL_USER:', process.env.EMAIL_USER ? 'Set (Hidden)' : 'MISSING');
 
 // Initialize Notification Service (WhatsApp Client)
 require('./services/notificationService');
@@ -40,6 +41,23 @@ app.use('/api/subjects', subjectRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/resources', resourceRoutes);
 app.use('/api/polls', pollRoutes);
+
+// DEBUG EMAIL ROUTE
+app.get('/api/test-email', async (req, res) => {
+  try {
+    const { sendEmail } = require('./services/notificationService');
+    const target = process.env.EMAIL_USER;
+    console.log(`[DEBUG] Attempting to send email to ${target}`);
+
+    if (!target) return res.status(500).json({ error: 'EMAIL_USER is not defined in environment variables' });
+
+    await sendEmail(target, 'ClassSync Deployment Test', 'If you see this, email configuration is CORRECT on Render.', '<p>Configuration Valid.</p>');
+    res.json({ message: `Email sent to ${target}`, status: 'Success' });
+  } catch (err) {
+    console.error('[DEBUG] Email Failed:', err);
+    res.status(500).json({ error: err.message, stack: err.stack });
+  }
+});
 
 // Base Route
 app.get('/', (req, res) => {
