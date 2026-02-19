@@ -269,48 +269,32 @@ router.post('/bulk', [auth, admin], async (req, res) => {
 
         // 2. Update Cumulative (Only if updateStats is true)
         if (updateStats) {
-            const existingRecords = await Attendance.find({
-                student: { $in: studentIds },
-                subject
-            });
-
-            const attendanceMap = {};
-            existingRecords.forEach(record => {
-                attendanceMap[record.student.toString()] = record;
-            });
-
-            await Promise.all(updates.map(async update => {
-                let attendance = attendanceMap[update.studentId];
-
-                if (attendance) {
-                    attendance.totalClasses += 1;
-                    if (update.isPresent) {
-                        attendance.attendedClasses += 1;
-                    }
-                    await attendance.save();
-                } else {
-                    // Create new record
-                    attendance = new Attendance({
-                        student: update.studentId,
-                        subject: update.subject,
-                        totalClasses: 1,
-                        attendedClasses: update.isPresent ? 1 : 0
-                    });
-                    await attendance.save();
+            console.log('[ATTENDANCE] Performing bulkWrite for stats update...');
+            const bulkOps = updates.map(update => ({
+                updateOne: {
+                    filter: { student: update.studentId, subject },
+                    update: {
+                        $inc: {
+                            totalClasses: 1,
+                            attendedClasses: update.isPresent ? 1 : 0
+                        }
+                    },
+                    upsert: true
                 }
             }));
-            console.log('[ATTENDANCE] Stats updated.');
+
+            await Attendance.bulkWrite(bulkOps);
+            console.log('[ATTENDANCE] Stats updated via bulkWrite.');
         }
 
-        // Send Notification
-        console.log('[ATTENDANCE] Triggering notification...');
+        // Send Notification (NON-BLOCKING to prevent timeout)
+        console.log('[ATTENDANCE] Triggering notification (background)...');
         const formattedDate = sessionDate.toDateString();
-        await notifyAllStudents(
+        notifyAllStudents(
             `Attendance Update: ${subject}`,
             `Attendance for ${subject} on ${formattedDate} has been posted. Login to check your status.`,
             `<p>Attendance for <strong>${subject}</strong> on <strong>${formattedDate}</strong> has been posted.</p><p>Please log in to check your status.</p>`
-        );
-        console.log('[ATTENDANCE] Notification complete.');
+        ).catch(err => console.error('[NOTIFICATION ERROR]', err));
 
         res.json({ message: 'Attendance updated successfully', session: newSession });
     } catch (err) {
